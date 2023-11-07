@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- This tag doesn't exist yet so self-contained publish is required until https://github.com/dotnet/dotnet-docker/pull/4941 is merged -->
+    <!--<ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:8.0.0-rtm</ContainerBaseImage>-->
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+</Project>

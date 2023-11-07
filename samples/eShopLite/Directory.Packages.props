@@ -1,0 +1,47 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <AspNetCoreVersion>8.0.0</AspNetCoreVersion>
+    <GrpcVersion>2.58.0</GrpcVersion>
+    <RuntimeVersion>8.0.0</RuntimeVersion>
+    <ExtensionsVersion>8.0.0</ExtensionsVersion>
+    <OtlpAlphaVersion>1.7.0-alpha.1</OtlpAlphaVersion>
+    <OtlpBetaVersion>1.6.0-beta.2</OtlpBetaVersion>
+    <OtlpStableVersion>1.5.1</OtlpStableVersion>
+    <!-- https://dev.azure.com/dnceng/internal/_artifacts/feed/dotnet-tools-internal -->
+    <AspireVersion>8.0.0-preview.1.23556.2</AspireVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- ASP.NET Core dependencies -->
+    <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(RuntimeVersion)" />
+    <!-- Aspire dependencies -->
+    <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.StackExchange.Redis" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(AspireVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(AspireVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(AspireVersion)" />
+    <!-- external dependencies -->
+    <PackageVersion Include="Grpc.AspNetCore" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.AspNetCore.HealthChecks" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.Net.Client" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.Net.ClientFactory" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.Net.Server" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.HealthCheck" Version="$(GrpcVersion)" />
+    <PackageVersion Include="Grpc.Tools" Version="2.59.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OtlpAlphaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OtlpAlphaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OtlpBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="$(OtlpBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.EventCounters" Version="$(OtlpBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OtlpBetaVersion)" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="$(OtlpStableVersion)" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <!-- TODO: Update to 2.1.0 once it's availalbe on nuget.org -->
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0-preview.1.23556.5" />
+  </ItemGroup>
+</Project>
