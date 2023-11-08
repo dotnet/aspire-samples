@@ -39,4 +39,4 @@ If using the .NET CLI, run `dotnet run` from the `eShopLite.AppHost` directory.
 
 ## Deploying the app to Azure Container Apps using Azure Command-Line Interface (CLI)
 
-Read the [deployment guide](./deploy-az-cli.cmd) for details on how to deploy the app to Azure Container Apps using the Azure CLI.
+Read the [deployment guide](./deploy-az-cli.md) for details on how to deploy the app to Azure Container Apps using the Azure CLI.
