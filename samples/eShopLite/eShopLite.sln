@@ -16,12 +16,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5DBF07AB-BF34-4784-93E5-9E45C1F70548}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
+		deploy-az-cli.md = deploy-az-cli.md
 		global.json = global.json
 		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShopLite.CatalogDb", "eShopLite.CatalogDb\eShopLite.CatalogDb.csproj", "{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eShopLite.CatalogDb", "eShopLite.CatalogDb\eShopLite.CatalogDb.csproj", "{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

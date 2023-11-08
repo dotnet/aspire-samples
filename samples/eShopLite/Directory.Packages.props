@@ -9,7 +9,7 @@
     <OtlpBetaVersion>1.6.0-beta.2</OtlpBetaVersion>
     <OtlpStableVersion>1.5.1</OtlpStableVersion>
     <!-- https://dev.azure.com/dnceng/internal/_artifacts/feed/dotnet-tools-internal -->
-    <AspireVersion>8.0.0-preview.1.23556.2</AspireVersion>
+    <AspireVersion>8.0.0-preview.1.23557.2</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- ASP.NET Core dependencies -->
