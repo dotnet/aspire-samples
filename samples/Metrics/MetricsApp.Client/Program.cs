@@ -1,4 +1,4 @@
-using MetricsApp.Client;
+﻿using MetricsApp.Client;
 using MetricsApp.Client.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;

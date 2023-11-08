@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MetricsApp;
 
@@ -26,7 +26,7 @@ app.MapFallbackToFile("index.html");
 
 var api = app.MapGroup("/api");
 api.MapIdentityApi<MyUser>();
-api.MapClientApi();
+api.MapClientApi(app.Configuration);
 
 if (!app.Environment.IsDevelopment())
 {
