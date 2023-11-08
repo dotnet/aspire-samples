@@ -1,0 +1,125 @@
+﻿@page "/weather"
+@using System.Net
+@inject HttpClient Http
+@implements IDisposable
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+<div class="row">
+    <div class="col-auto">
+        <button class="btn btn-primary" @onclick="LoadWeatherAsync">Refresh</button>
+    </div>
+    <div class="col-auto form-check form-switch my-auto">
+        <input class="form-check-input" type="checkbox" role="switch" id="toggle-auto-refresh" @bind-value="@autoRefreshEnabled" @bind-value:after="AutoRefreshChanged">
+        <label class="form-check-label" for="toggle-auto-refresh">Auto refresh</label>
+    </div>
+</div>
+
+<hr />
+
+@if (errorMessage == null)
+{
+    @if (forecasts == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    <StatusMessage Message="@errorMessage" />
+}
+
+@code {
+    private static readonly TimeSpan s_refreshInterval = TimeSpan.FromSeconds(2);
+
+    private WeatherForecast[]? forecasts;
+    private string? errorMessage;
+    private bool autoRefreshEnabled;
+    private Timer? autoRefreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWeatherAsync();
+    }
+
+    private async Task LoadWeatherAsync()
+    {
+        errorMessage = null;
+        forecasts = null;
+        StateHasChanged();
+
+        try
+        {
+            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("api/weather");
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            errorMessage = "Error: Unauthorized. Please login.";
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private void AutoRefreshChanged()
+    {
+        if (autoRefreshEnabled)
+        {
+            autoRefreshTimer = new Timer(s =>
+            {
+                _ = InvokeAsync(async () =>
+                {
+                    await LoadWeatherAsync();
+                    StateHasChanged();
+                });
+            });
+            autoRefreshTimer.Change(s_refreshInterval, s_refreshInterval);
+        }
+        else
+        {
+            autoRefreshTimer?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        autoRefreshTimer?.Dispose();
+    }
+
+    private sealed class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
