@@ -3,7 +3,7 @@
 builder.AddDapr();
 
 builder.AddProject<Projects.AspireWithDapr_ApiService>("apiservice")
-                        .WithDaprSidecar("api");
+       .WithDaprSidecar("api");
 
 builder.AddProject<Projects.AspireWithDapr_Web>("webfrontend")
        .WithDaprSidecar("web");
