@@ -1,3 +1,15 @@
+---
+languages:
+- csharp
+products:
+- dotnet
+- dotnet-aspire
+page_type: sample
+name: ".NET Aspire eShop Lite sample"
+urlFragment: "aspire-eshop-lite"
+description: "An example eShop Lite app written with .NET Aspire."
+---
+
 # eShop *Lite*
 
 This sample is a simplified version of the [eShop sample application](https://github.com/dotnet/eshop), including a small subset of the original features and a simplified architecture.
