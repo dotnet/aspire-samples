@@ -1,4 +1,4 @@
-namespace MetricsApp;
+﻿namespace MetricsApp;
 
 public static class ClientApi
 {
@@ -7,10 +7,8 @@ public static class ClientApi
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     ];
 
-    public static void MapClientApi(this IEndpointRouteBuilder endpoints)
+    public static void MapClientApi(this IEndpointRouteBuilder endpoints, IConfiguration configuration)
     {
-        var configuration = endpoints.ServiceProvider.GetRequiredService<IConfiguration>();
-
         endpoints.MapGet("weather", async () =>
         {
             await Task.Delay(Random.Shared.Next(1000));

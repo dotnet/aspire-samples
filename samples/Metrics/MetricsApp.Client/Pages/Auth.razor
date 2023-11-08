@@ -54,7 +54,7 @@
     private string? errorMessage;
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new InputModel
+    private InputModel Input { get; set; } = new()
         {
             Email = TestEmail,
             Password = TestPassword
