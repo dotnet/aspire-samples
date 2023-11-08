@@ -10,6 +10,7 @@
   <ItemGroup>
     <!-- Version together with Aspire -->
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Dapr" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Abstractions" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(AspireVersion)" />
     <!-- Version together with ASP.NET -->
@@ -43,5 +44,6 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <!-- Miscellaneous -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageVersion Include="Dapr.AspNetCore" Version="1.12.0" />
   </ItemGroup>
 </Project>
