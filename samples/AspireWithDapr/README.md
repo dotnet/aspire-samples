@@ -12,7 +12,7 @@ description: "A sample .NET Aspire app that shows how to use dapr"
 
 # .NET Aspire dapr sample app
 
-This is a simple .NET app that shows how to use Dapr with aspire orchestration.
+This is a simple .NET app that shows how to use Dapr with .NET Aspire orchestration.
 
 ## Demonstrates
 
