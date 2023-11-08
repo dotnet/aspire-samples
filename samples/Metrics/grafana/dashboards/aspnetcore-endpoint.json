@@ -21,6 +21,7 @@
       }
     ]
   },
+  "description": "ASP.NET Core endpoint metrics from OpenTelemetry",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,

@@ -21,7 +21,7 @@
       }
     ]
   },
-  "description": "ASP.NET Core metrics from OpenTelemetry NuGet",
+  "description": "ASP.NET Core metrics from OpenTelemetry",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 17706,
