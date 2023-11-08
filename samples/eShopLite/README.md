@@ -14,6 +14,8 @@ description: "An example eShop Lite app written with .NET Aspire."
 
 This sample is a simplified version of the [eShop sample application](https://github.com/dotnet/eshop), including a small subset of the original features and a simplified architecture.
 
+![Screenshot of the web front end the eShop Lite .NET Aspire sample](./images/eshoplite-frontend-complete.png)
+
 The app consists of four services:
 
 - **eShopLite.Frontend**: This is a Blazor app that displays a paginated catlog of products and allows users to add products to a shopping cart.
