@@ -26,7 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 17706,
   "graphTooltip": 0,
-  "id": 7,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -869,7 +869,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (method_route) (\r\n    label_join(max_over_time(http_server_request_duration_seconds_count{job=\"$job\", instance=\"$instance\"}[$__rate_interval]), \"method_route\", \"/\", \"network_protocol_name\", \"network_protocol_version\")\r\n  )",
+          "expr": "sum by (method_route) (\r\n    label_replace(max_over_time(http_server_request_duration_seconds_count{job=\"$job\", instance=\"$instance\"}[$__rate_interval]), \"method_route\", \"http/$1\", \"network_protocol_version\", \"(.*)\")\r\n  )",
           "legendFormat": "{{protocol}}",
           "range": true,
           "refId": "A"

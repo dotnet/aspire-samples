@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -765,7 +765,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (method_route) (\r\n    label_join(max_over_time(http_server_request_duration_seconds_count{job=\"$job\", instance=\"$instance\", http_route=\"$route\", http_request_method=\"$method\"}[$__rate_interval]), \"method_route\", \"/\", \"network_protocol_name\", \"network_protocol_version\")\r\n  )",
+          "expr": "sum by (method_route) (\r\n    label_replace(max_over_time(http_server_request_duration_seconds_count{job=\"$job\", instance=\"$instance\", http_route=\"$route\", http_request_method=\"$method\"}[$__rate_interval]), \"method_route\", \"http/$1\", \"network_protocol_version\", \"(.*)\")\r\n  )",
           "legendFormat": "{{protocol}}",
           "range": true,
           "refId": "A"
@@ -842,8 +842,8 @@
       {
         "current": {
           "selected": false,
-          "text": "/api/weather",
-          "value": "/api/weather"
+          "text": "/metrics",
+          "value": "/metrics"
         },
         "datasource": {
           "type": "prometheus",
