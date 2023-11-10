@@ -1,20 +1,40 @@
-const process = require('node:process');
-const http = require('node:http');
-const express = require('express');
-const { createTerminus, HealthCheckError } = require('@godaddy/terminus')
+import { env } from 'node:process';
+import { createServer } from 'node:http';
+import fetch from 'node-fetch';
+import express from 'express';
+import { createTerminus, HealthCheckError } from '@godaddy/terminus';
+import { createClient } from 'redis';
 
 const app = express();
-const port = process.env.PORT ?? 8080;
+const port = env.PORT ?? 8080;
 
-const cacheAddress = process.env['ConnectionStrings__cache'];
-const apiServer = process.env['services__weatherapi__1'];
-const otlpServer = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+const cacheAddress = env['ConnectionStrings__cache'];
+const apiServer = env['services__weatherapi__1'];
 
-app.get('/', (req, res) => {
-    res.send('ok');
+console.log(`cacheAddress: ${cacheAddress}`);
+console.log(`apiServer: ${apiServer}`);
+
+const cache = createClient({ url: `redis://${cacheAddress}` });
+cache.on('error', err => console.log('Redis Client Error', err));
+await cache.connect();
+
+app.get('/', async (req, res) => {
+    let cachedForecasts = await cache.get('forecasts');
+    if (cachedForecasts) {
+        res.render('index', { forecasts: JSON.parse(cachedForecasts) });
+        return;
+    }
+
+    let response = await fetch(`${apiServer}/weatherforecast`);
+    let forecasts = await response.json();
+    await cache.set('forecasts', JSON.stringify(forecasts), { 'EX': 5 });
+    res.render('index', { forecasts: forecasts });
 });
 
-const server = http.createServer(app)
+app.set('views', './views');
+app.set('view engine', 'pug');
+
+const server = createServer(app)
 
 async function healthCheck () {
     const errors = [];
@@ -44,7 +64,11 @@ createTerminus(server, {
         '/health': healthCheck,
         '/alive': () => { }
     },
-    onSignal: () => console.log('server is starting cleanup'),
+    onSignal: async () => {
+        console.log('server is starting cleanup');
+        console.log('closing Redis connection');
+        await cache.disconnect();
+    },
     onShutdown: () => console.log('cleanup finished, server is shutting down')
 });
 
