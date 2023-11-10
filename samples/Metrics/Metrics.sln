@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.Client", "Metric
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp", "MetricsApp\MetricsApp.csproj", "{BE79E905-6DFC-4E2E-8542-AD16B5D4F109}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsAppHost", "MetricsAppHost\MetricsAppHost.csproj", "{55DA87C3-AAF9-4D6E-9C0E-CD96591A3575}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.AppHost", "MetricsApp.AppHost\MetricsApp.AppHost.csproj", "{55DA87C3-AAF9-4D6E-9C0E-CD96591A3575}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
