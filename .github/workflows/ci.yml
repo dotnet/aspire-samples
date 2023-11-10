@@ -7,6 +7,12 @@ on:
       - "**/*.md"
       - "**/*.gitignore"
       - "**/*.gitattributes"
+  
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.gitignore"
+      - "**/*.gitattributes"
 
   workflow_dispatch:
 
@@ -15,24 +21,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-
     runs-on: ${{ matrix.os }}
     name: Build Samples
-
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
     - uses: actions/checkout@v3
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        global-json-file: "global.json"
+        global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
 
-    - name: Auth NuGet
-      run: |
-        dotnet nuget update source dotnet-final --username az --password ${{ secrets.AZURE_DEVOPS_TOKEN }} --configfile NuGet.config
-        dotnet nuget update source dotnet-tools-internal --username az --password ${{ secrets.AZURE_DEVOPS_TOKEN }} --configfile NuGet.config
-    
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
-
-            
