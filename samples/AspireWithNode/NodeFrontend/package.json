@@ -1,0 +1,30 @@
+{
+  "name": "nodefrontend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch --import ./instrumentation.js app.js",
+    "watch": "npm install && nodemon --import ./instrumentation.js app.js"
+  },
+  "dependencies": {
+    "@godaddy/terminus": "^4.12.1",
+    "@opentelemetry/api": "^1.6.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.39.4",
+    "@opentelemetry/exporter-logs-otlp-grpc": "^0.45.1",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.45.1",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.45.1",
+    "@opentelemetry/instrumentation-redis-4": "^0.35.3",
+    "@opentelemetry/sdk-logs": "^0.45.1",
+    "@opentelemetry/sdk-metrics": "^1.18.1",
+    "@opentelemetry/sdk-node": "^0.45.1",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "pug": "^3.0.2",
+    "redis": "^4.6.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
