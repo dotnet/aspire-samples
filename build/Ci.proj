@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <SampleSln Include="$(MSBuildThisFileDirectory)../samples/**/*.sln" />
+        <AppHostProjects Include="$(MSBuildThisFileDirectory)../samples/**/*.AppHost/*.AppHost.csproj" />
+    </ItemGroup>
+
+    <Target Name="BuildSamples" BeforeTargets="Build">
+        <Message Text="Building @(SampleSln->Count()) samples" Importance="High" />
+
+        <MSBuild Projects="@(SampleSln)" Targets="Restore" />
+        <MSBuild Projects="@(SampleSln)" Targets="Build" BuildInParallel="True" />
+
+        <Message Text="@(SampleSln->Count()) samples successfully built" Importance="High" />
+    </Target>
+
+    <Target Name="GenerateAppHostManifests" BeforeTargets="Build">
+        <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
+
+        <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">
+            <Output TaskParameter="TargetOutputs" ItemName="GeneratedManifestFiles" />
+        </MSBuild>
+
+        <Message Text="Generated manifest for '%(GeneratedManifestFiles.MSBuildSourceProjectFile)'" Importance="High" />
+        <Message Text="@(AppHostProjects->Count()) manifests generated" Importance="High" />
+    </Target>
+</Project>
