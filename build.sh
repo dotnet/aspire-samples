@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-dotnet build ./build/Ci.proj
+dotnet build ./build/Build.proj

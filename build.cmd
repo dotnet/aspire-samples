@@ -1,2 +1,2 @@
 @ECHO OFF
-dotnet build .\build\Ci.proj
+dotnet build .\build\Build.proj
