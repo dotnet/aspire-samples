@@ -3,27 +3,32 @@
 
 namespace AspireWithDapr.Web;
 
+
 public class WeatherApiClient(DaprClient daprClient)
 {
+    const string stateStore = "statestore";
+    const string stateTTL = "120";
+    const string apiAppId = "api";
+
     public async Task<WeatherForecast[]> GetWeatherAsync()
     {
     
        // Get the weather from the state store if it exists
-       var weather = await daprClient.GetStateAsync<WeatherForecast[]>("statestore", "weather");
+       var weatherData = await daprClient.GetStateAsync<WeatherForecast[]>(stateStore, "weather");
 
-        if (weather is null)
+        if (weatherData is null)
         {
             // If it doesn't exist, get it from the weather service
-            weather = await daprClient.InvokeMethodAsync<WeatherForecast[]>(HttpMethod.Get, "api", "weatherforecast");
+            weatherData = await daprClient.InvokeMethodAsync<WeatherForecast[]>(HttpMethod.Get, apiAppId, "weatherforecast");
     
-            await daprClient.SaveStateAsync("statestore", "weather", weather, metadata: new Dictionary<string, string>() {
+            await daprClient.SaveStateAsync(stateStore, "weather", weatherData, metadata: new Dictionary<string, string>() {
                 {
-                    "ttlInSeconds", "120" 
+                    "ttlInSeconds", stateTTL 
                 }
             });
         }
 
-       return weather;
+       return weatherData;
     }
 }
 
