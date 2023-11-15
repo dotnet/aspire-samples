@@ -14,11 +14,13 @@ description: "A sample .NET Aspire app that collects and displays metrics using 
 
 This is a simple .NET app that shows off collecting metrics with OpenTelemetry and exporting them to Prometheus and Grafana for reporting.
 
+![Screenshot of the ASP.NET Core Grafana dashboard](./images/dashboard-screenshot.png)
+
 ## Demonstrates
 
 - How to configure a .NET Aspire app to export metrics to Prometheus
 - How to add Prometheus and Grafana containers to a .NET Aspire app
-- How to configure Prometheus and Grafana to collect and display metrics in an ASP.NET Core dashboard
+- How to configure Prometheus and Grafana to collect and display metrics in the [.NET Grafana dashboard](https://aka.ms/dotnet/grafana-source)
 
 ## Sample prerequisites
 
