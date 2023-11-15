@@ -34,7 +34,7 @@ To download and run the sample, follow these steps:
 2. In Visual Studio (2022 or later):
     1. On the menu bar, choose **File** > **Open** > **Project/Solution**.
     2. Navigate to the folder that holds the unzipped sample code, and open the solution (.sln) file.
-    3. Right click the _MetricsAppHost_ project in the solution explore and choose it as the startup project.
+    3. Right click the _MetricsApp.AppHost_ project in the solution explore and choose it as the startup project.
     4. Choose the <kbd>F5</kbd> key to run with debugging, or <kbd>Ctrl</kbd>+<kbd>F5</kbd> keys to run the project without debugging.
 3. From the command line:
    1. Navigate to the folder that holds the unzipped sample code.
@@ -43,7 +43,7 @@ To download and run the sample, follow these steps:
 To run the game, run the .NET Aspire app by executing the following at the command prompt (opened to the base directory of the sample):
 
 ``` bash
-dotnet run --project MetricsAppHost
+dotnet run --project MetricsApp.AppHost
 ```
 
 1. On the **Projects** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
