@@ -1,4 +1,4 @@
-﻿using Aspire.Hosting.Lifecycle;
+using Aspire.Hosting.Lifecycle;
 
 internal class NodeAppAddPortLifecycleHook : IDistributedApplicationLifecycleHook
 {
@@ -9,7 +9,7 @@ internal class NodeAppAddPortLifecycleHook : IDistributedApplicationLifecycleHoo
         {
             if (app.TryGetServiceBindings(out var bindings))
             {
-                var envAnnoation = new EnvironmentCallbackAnnotation(env =>
+                var envAnnotation = new EnvironmentCallbackAnnotation(env =>
                 {
                     var multiBindings = bindings.Count() > 1;
 
@@ -28,7 +28,7 @@ internal class NodeAppAddPortLifecycleHook : IDistributedApplicationLifecycleHoo
                     }
                 });
 
-                app.Annotations.Add(envAnnoation);
+                app.Annotations.Add(envAnnotation);
             }
         }
 
