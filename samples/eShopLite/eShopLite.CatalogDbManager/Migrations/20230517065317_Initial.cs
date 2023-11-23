@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace eShopLite.CatalogService.Migrations;
+namespace eShopLite.CatalogDbManager.Migrations;
 
 /// <inheritdoc />
 public partial class Initial : Migration
