@@ -191,6 +191,9 @@ This guide details how to deploy the [eShopLite .NET Aspire application](https:/
     # Provision/deploy the catalogservice
     az containerapp create --name catalogservice --resource-group $RESOURCE_GROUP --environment $ENVIRONMENT --image $loginServer/$IMAGE_PREFIX-catalogservice --target-port 8080 --ingress internal --registry-server $loginServer --registry-identity $identityId --env-vars $loggerFormat $loggerSingleLine $loggerIncludeScopes
 
+    # Provision/deploy the catalogdbmanager
+    az containerapp create --name catalogdbmanager --resource-group $RESOURCE_GROUP --environment $ENVIRONMENT --image $loginServer/$IMAGE_PREFIX-catalogdbmanager --target-port 8080 --ingress internal --registry-server $loginServer --registry-identity $identityId --env-vars $loggerFormat $loggerSingleLine $loggerIncludeScopes
+
     # Provision/deploy the basketservice: Note this requires "--transport http2" because it uses gRPC
     az containerapp create --name basketservice --resource-group $RESOURCE_GROUP --environment $ENVIRONMENT --image $loginServer/$IMAGE_PREFIX-basketservice --target-port 8080 --ingress internal --transport http2 --registry-server $loginServer --registry-identity $identityId --env-vars $loggerFormat $loggerSingleLine $loggerIncludeScopes
 
@@ -214,13 +217,14 @@ This guide details how to deploy the [eShopLite .NET Aspire application](https:/
 
     The logs appear to indicate that the app is calling the *catalogservice* and *basketservice* apps but not getting a response. That's because the *catalogservice* needs a connection string because it needs a database, and the *basketservice* needs connection information for Redis!
 
-## Create a PostgreSQL database and configure the *catalogservice* to use it
+## Create a PostgreSQL database and configure the *catalogservice* and *catalogdbmanager* to use it
 
-1. Let's create an instance of PostgreSQL in our ACA environment for our app to use and add a [service binding](https://learn.microsoft.com/azure/container-apps/services) to the *catalogservice* app for it. The service binding will cause ACA to automatically inject the required connection details into the bound app as environment variables:
+1. Let's create an instance of PostgreSQL in our ACA environment for our app to use and add a [service binding](https://learn.microsoft.com/azure/container-apps/services) to the *catalogservice* and *catalogdbmanager* apps for it. The service binding will cause ACA to automatically inject the required connection details into the bound apps as environment variables:
 
     ```powershell
     az containerapp service postgres create --name postgres --environment $ENVIRONMENT --resource-group $RESOURCE_GROUP
     az containerapp update --name catalogservice --resource-group $RESOURCE_GROUP --bind postgres
+    az containerapp update --name catalogdbmanager --resource-group $RESOURCE_GROUP --bind postgres
     ```
 
 1. Create a debug app that we can use to retrieve the injected connection string value for the bound PostgreSQL instance (we would use the *catalogservice* app itself but it's crashing on startup due to it not being able to find the database!). We'll bind this app to the PostgreSQL instance we just created with the `--bind` argument. This app can be deleted later once the eShopLite app is fully setup:
@@ -229,7 +233,7 @@ This guide details how to deploy the [eShopLite .NET Aspire application](https:/
     az containerapp create --name bindingdebug --image mcr.microsoft.com/k8se/services/postgres:14 --bind postgres --environment $ENVIRONMENT --resource-group $RESOURCE_GROUP --min-replicas 1 --max-replicas 1 --command "/bin/sleep" "infinity"
     ```
 
- 1. Execute the `env` command inside the *bindingdebug* app and find the `POSTGRES_CONNECTION_STRING` environment variable value. We'll use this value to construct a valid .NET connection string for our *catalogservice* app:
+ 1. Execute the `env` command inside the *bindingdebug* app and find the `POSTGRES_CONNECTION_STRING` environment variable value. We'll use this value to construct a valid .NET connection string for our *catalogservice* and *catalogdbmanager* apps:
 
     ```
     az containerapp exec --name bindingdebug --resource-group $RESOURCE_GROUP
@@ -241,10 +245,11 @@ This guide details how to deploy the [eShopLite .NET Aspire application](https:/
     # exit
     ```
 
-1. The *catalogservice* app is using the Aspire component for Entity Framework Core and PostgreSQL, which loads the connection string from the app's configuration with the key `ConnectionStrings__catalog`. Update the app configuration in ACA so that an environment variable with this name contains a valid connection string constructed using the details retrieved in the previous step. Note that .NET expects semi-colon delimited values in the connection string AND 'user' needs to be 'Username', e.g. `Host=postgres;Database=postgres;Username=postgres;Password=AiSf...`:
+1. The *catalogservice* and *catalogdbmanager* apps are using the Aspire component for Entity Framework Core and PostgreSQL, which loads the connection string from the app's configuration with the key `ConnectionStrings__catalogdb`. Update the apps configuration in ACA so that an environment variable with this name contains a valid connection string constructed using the details retrieved in the previous step. Note that .NET expects semi-colon delimited values in the connection string AND 'user' needs to be 'Username', e.g. `Host=postgres;Database=postgres;Username=postgres;Password=AiSf...`:
 
     ```powershell
-    az containerapp update --name catalogservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__catalog="Host=postgres;Database=postgres;Username=postgres;Password=AiSf..."'
+    az containerapp update --name catalogservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__catalogdb="Host=postgres;Database=postgres;Username=postgres;Password=AiSf..."'
+    az containerapp update --name catalogdbmanager --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__catalogdb="Host=postgres;Database=postgres;Username=postgres;Password=AiSf..."'
     ```
 
 1. Browse to the *frontend* app's URL again and see that items from our catalog are now displayed!
@@ -278,18 +283,18 @@ eShopLite includes functionality to add items from the product catalog to a shop
     # exit
     ```
 
-1. The *basketservice* app is using the Aspire component for Redis, which loads the connection information from the app's configuration with the key `ConnectionStrings__redis`. Update the app configuration in ACA so that an environment variable with this name contains a valid connection string constructed using the details retrieved in the previous step. Note that .NET expects comma delimited values in the Redis connection string e.g. `basketredis:6379,password=jH7DePUiK5E...`:
+1. The *basketservice* app is using the Aspire component for Redis, which loads the connection information from the app's configuration with the key `ConnectionStrings__basketcache`. Update the app configuration in ACA so that an environment variable with this name contains a valid connection string constructed using the details retrieved in the previous step. Note that .NET expects comma delimited values in the Redis connection string e.g. `basketredis:6379,password=jH7DePUiK5E...`:
 
     *bash*:
 
     ```bash
-    az containerapp update --name basketservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__redis="basketredis:6379,password=jH7DePUiK5E..."'
+    az containerapp update --name basketservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__basketcache="basketredis:6379,password=jH7DePUiK5E..."'
     ```
 
     *PowerShell*:
 
     ```powershell
-    az containerapp update --name basketservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__redis="basketredis:6379,password=jH7DePUiK5E..."'
+    az containerapp update --name basketservice --resource-group $RESOURCE_GROUP --set-env-vars 'ConnectionStrings__basketcache="basketredis:6379,password=jH7DePUiK5E..."'
     ```
 
 1. Browse to the *frontend* app URL again and note that the basket item count increases as you add items. You can click the basket icon to clear the basket to zero items.
@@ -306,6 +311,9 @@ dotnet publish -r linux-x64 --self-contained -p:PublishProfile=DefaultContainer 
 
 # Deploy the catalogservice to ACA
 az containerapp update --name catalogservice --resource-group $RESOURCE_GROUP --image $loginServer/$IMAGE_PREFIX-catalogservice --revision-suffix changed123
+
+# Deploy the catalogdbmanager to ACA
+az containerapp update --name catalogdbmanager --resource-group $RESOURCE_GROUP --image $loginServer/$IMAGE_PREFIX-catalogdbmanager --revision-suffix changed123
 
 # Deploy the basketservice to ACA
 az containerapp update --name basketservice --resource-group $RESOURCE_GROUP --image $loginServer/$IMAGE_PREFIX-basketservice --revision-suffix changed123
