@@ -5,6 +5,7 @@
     <UserSecretsId>16965dbf-c1f8-4682-b7d8-e250bc520544</UserSecretsId>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems> -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,5 +22,16 @@
     <ProjectReference Include="..\eShopLite.CatalogDb\eShopLite.CatalogDb.csproj" />
     <ProjectReference Include="..\eShopLite.ServiceDefaults\eShopLite.ServiceDefaults.csproj" />
   </ItemGroup>
+
+  <Target Name="SuppressJsonFilesFromCatalogDb" AfterTargets="ComputeFilesToPublish">
+    <ItemGroup>
+      <_FilesToExclude Include="@(ResolvedFileToPublish)"
+                       Condition="$([System.String]::new('%(ResolvedFileToPublish.Identity)').Contains('CatalogDb'))
+                                  and $([System.String]::new('%(ResolvedFileToPublish.Identity)').EndsWith('.json'))" />
+      <ResolvedFileToPublish Remove="@(_FilesToExclude)"/>
+    </ItemGroup>
+  </Target>
+
+
 
 </Project>
