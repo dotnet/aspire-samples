@@ -1,10 +1,10 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace eShopLite.Frontend.Services;
 
 public class CatalogServiceClient(HttpClient client)
 {
-    public Task<Catalog?> GetItemsAsync(int? before = null, int? after = null)
+    public Task<CatalogItemsPage?> GetItemsAsync(int? before = null, int? after = null)
     {
         // Make the query string with encoded parameters
         var query = (before, after) switch
@@ -15,11 +15,11 @@ public class CatalogServiceClient(HttpClient client)
             _ => throw new InvalidOperationException(),
         };
 
-        return client.GetFromJsonAsync<Catalog>($"api/v1/catalog/items/type/all/brand{query}");
+        return client.GetFromJsonAsync<CatalogItemsPage>($"api/v1/catalog/items/type/all/brand{query}");
     }
 }
 
-public record Catalog(int FirstId, int NextId, bool IsLastPage, IEnumerable<CatalogItem> Data);
+public record CatalogItemsPage(int FirstId, int NextId, bool IsLastPage, IEnumerable<CatalogItem> Data);
 
 public record CatalogItem
 {

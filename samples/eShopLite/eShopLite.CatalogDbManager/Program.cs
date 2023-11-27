@@ -1,12 +1,13 @@
-﻿using eShopLite.CatalogDb;
+﻿using Microsoft.EntityFrameworkCore;
+using eShopLite.CatalogDb;
 using eShopLite.CatalogDbManager;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb", null,
-    c => c.UseNpgsql(a => a.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)));
+    dbContextOptionsBuilder => dbContextOptionsBuilder.UseNpgsql(npgsqlDbContextOptionsBuilder =>
+        npgsqlDbContextOptionsBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)));
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(CatalogDbInitializer.ActivitySourceName));
