@@ -39,7 +39,7 @@ az containerapp create --name catalogservice --resource-group $RESOURCE_GROUP --
 # Create the basketservice
 az containerapp create --name basketservice --resource-group $RESOURCE_GROUP --environment $ENVIRONMENT `
     --image $loginServer/$IMAGE_PREFIX-basketservice --ingress internal --target-port 8080 `
-    -env-vars $loggerFormat $loggerSingleLine $loggerIncludeScopes --registry-server $loginServer --registry-identity $identityId
+    --env-vars $loggerFormat $loggerSingleLine $loggerIncludeScopes --registry-server $loginServer --registry-identity $identityId
 
 # Create the frontend
 az containerapp create --name frontend --resource-group $RESOURCE_GROUP --environment $ENVIRONMENT `
