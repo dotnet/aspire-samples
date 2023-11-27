@@ -6,8 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb", null,
-    dbContextOptionsBuilder => dbContextOptionsBuilder.UseNpgsql(npgsqlDbContextOptionsBuilder =>
-        npgsqlDbContextOptionsBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)));
+    optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
+        npgsqlBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)));
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(CatalogDbInitializer.ActivitySourceName));
