@@ -1,5 +1,7 @@
 # .NET Aspire Samples
 
+[![CI (main)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml/badge.svg)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml)
+
 Samples for .NET Aspire.
 
 [.NET Aspire](https://aka.ms/aspireannouncement) is a stack for building resilient, observable, cloud-native apps with .NET.
