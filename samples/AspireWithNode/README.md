@@ -13,7 +13,7 @@ description: "An example of how to integrate a Node.js app into a .NET Aspire ap
 
 # Integrating a Node.js app within a .NET Aspire application
 
-This sample is demonstrates an approach for integrating a Node.js app into a .NET Aspire application.
+This sample demonstrates an approach for integrating a Node.js app into a .NET Aspire application.
 
 The app consists of two services:
 
@@ -24,7 +24,7 @@ The app consists of two services:
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Node.js](https://nodejs.org)
+- [Node.js](https://nodejs.org) - at least version 20.9.0
 - **Optional** [Visual Studio 2022 17.9 Preview](https://visualstudio.microsoft.com/vs/preview/)
 
 ## Running the app
