@@ -1,6 +1,6 @@
 # .NET Aspire Samples
 
-[![CI (main)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml/badge.svg)]([https://github.com/DamianEdwards/RazorSlices/actions/workflows/ci.yml](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml))
+[![CI (main)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml/badge.svg)]([https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml))
 
 Samples for .NET Aspire.
 
