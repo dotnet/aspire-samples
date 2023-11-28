@@ -13,7 +13,7 @@ builder.AddProject<Projects.eShopLite_Frontend>("frontend")
     .WithReference(basketService)
     .WithReference(catalogService);
 
-builder.AddProject<Projects.eShopLite_CatalogDb>("catalogdbapp")
+builder.AddProject<Projects.eShopLite_CatalogDbManager>("catalogdbmanager")
     .WithReference(catalogDb);
 
 builder.Build().Run();

@@ -1,7 +1,8 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using eShopLite.CatalogDb;
 
-namespace eShopLite.CatalogDb;
+namespace eShopLite.CatalogDbManager;
 
 internal class CatalogDbInitializer(IServiceProvider serviceProvider, ILogger<CatalogDbInitializer> logger)
     : BackgroundService
@@ -20,13 +21,12 @@ internal class CatalogDbInitializer(IServiceProvider serviceProvider, ILogger<Ca
 
     private async Task InitializeDatabaseAsync(CatalogDbContext dbContext, CancellationToken cancellationToken)
     {
-        var strategy = dbContext.Database.CreateExecutionStrategy();
-
-        using var activity = _activitySource.StartActivity("Migrating catalog database", ActivityKind.Client);
+        using var activity = _activitySource.StartActivity("Initializing catalog database", ActivityKind.Client);
 
         var sw = Stopwatch.StartNew();
 
-        await strategy.ExecuteAsync(() => dbContext.Database.MigrateAsync(cancellationToken));
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(dbContext.Database.MigrateAsync, cancellationToken);
 
         await SeedAsync(dbContext, cancellationToken);
 

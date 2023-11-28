@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eShopLite.CatalogDb", "eShopLite.CatalogDb\eShopLite.CatalogDb.csproj", "{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eShopLite.CatalogDbManager", "eShopLite.CatalogDbManager\eShopLite.CatalogDbManager.csproj", "{A19D7701-824A-4C07-923A-D413B105B8DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FADE7030-0AAA-4F3E-B7F3-6DBD2AA85A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A19D7701-824A-4C07-923A-D413B105B8DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A19D7701-824A-4C07-923A-D413B105B8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A19D7701-824A-4C07-923A-D413B105B8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A19D7701-824A-4C07-923A-D413B105B8DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

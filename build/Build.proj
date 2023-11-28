@@ -17,7 +17,16 @@
         <Message Text="@(SampleSln->Count()) samples successfully built" Importance="High" />
     </Target>
 
-    <Target Name="GenerateAppHostManifests" BeforeTargets="Build">
+    <Target Name="PublishSamples" AfterTargets="BuildSamples">
+        <Message Text="Publishing @(SampleSln->Count()) samples" Importance="High" />
+
+        <MSBuild Projects="@(SampleSln)" Targets="Restore" />
+        <MSBuild Projects="@(SampleSln)" Targets="Publish" BuildInParallel="True" />
+
+        <Message Text="@(SampleSln->Count()) samples successfully published" Importance="High" />
+    </Target>
+
+    <Target Name="GenerateAppHostManifests" AfterTargets="PublishSamples">
         <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
 
         <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">

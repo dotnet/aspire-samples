@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace eShopLite.CatalogDb;
+namespace eShopLite.CatalogDbManager;
 
 internal class CatalogDbInitializerHealthCheck(CatalogDbInitializer dbInitializer) : IHealthCheck
 {

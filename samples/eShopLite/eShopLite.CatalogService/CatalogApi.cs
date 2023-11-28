@@ -1,4 +1,4 @@
-using eShopLite.CatalogDb;
+﻿using eShopLite.CatalogDb;
 
 namespace eShopLite.CatalogService;
 
@@ -21,7 +21,7 @@ public static class CatalogApi
                 [var first, .., var last] => (first.Id, last.Id)
             };
 
-            return new Catalog(
+            return new CatalogItemsPage(
                 firstId,
                 nextId,
                 itemsOnPage.Count < pageSize,
@@ -52,3 +52,5 @@ public static class CatalogApi
         return group;
     }
 }
+
+public record CatalogItemsPage(int FirstId, int NextId, bool IsLastPage, IEnumerable<CatalogItem> Data);
