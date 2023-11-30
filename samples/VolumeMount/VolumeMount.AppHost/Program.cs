@@ -15,7 +15,7 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpassword))
 
 // To have a persistent volume mount across container instances, it must be named (VolumeMountType.Named).
 var database = builder.AddSqlServerContainer("sqlserver", sqlpassword)
-    .WithVolumeMount($"VolumeMount.sqlserver.data", "/var/opt/mssql", VolumeMountType.Named)
+    .WithVolumeMount("VolumeMount.sqlserver.data", "/var/opt/mssql", VolumeMountType.Named)
     .AddDatabase("appdb");
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
