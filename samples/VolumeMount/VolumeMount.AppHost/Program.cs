@@ -1,11 +1,17 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using Microsoft.Extensions.Hosting;
+
+var builder = DistributedApplication.CreateBuilder(args);
 
 // Using a persistent volume mount requires a stable password for 'sa' rather than the default generated one.
-var sqlpassword = builder.Configuration["sqlpassword"] ??
+var sqlpassword = builder.Configuration["sqlpassword"];
+
+if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpassword))
+{
     throw new InvalidOperationException("""
         A password for the local SQL Server container is not configured.
         Add one to the AppHost project's user secrets with the key 'sqlpassword', e.g. dotnet user-secrets set sqlpassword <password>
         """);
+}
 
 // To have a persistent volume mount across container instances, it must be named (VolumeMountType.Named).
 var database = builder.AddSqlServerContainer("sqlserver", sqlpassword)
