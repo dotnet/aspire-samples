@@ -5,8 +5,8 @@
     <AspNetCoreVersion>8.0.0</AspNetCoreVersion>
     <EfCoreVersion>8.0.0</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
-    <GrpcVersion>2.58.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.1.23557.2</AspireVersion>
+    <GrpcVersion>2.59.0</GrpcVersion>
+    <AspireVersion>8.0.0-preview.2.23580.5</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
@@ -64,6 +64,6 @@
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="7.0.0" />
     <PackageVersion Include="Dapr.AspNetCore" Version="1.12.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0-preview.1.23556.5" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
   </ItemGroup>
 </Project>
