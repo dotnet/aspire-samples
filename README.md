@@ -8,7 +8,7 @@ Samples for .NET Aspire.
 
 ## Official Samples
 
-Official samples can be accessed via the [Samples browser](https://learn.microsoft.com/samples/browse/?expanded=dotnet&products=dotnet-aspire).
+Official samples hosted in this repo can be accessed via the [Samples browser](https://learn.microsoft.com/samples/browse/?expanded=dotnet&products=dotnet-aspire).
 
 Sample highlights include:
 
@@ -16,6 +16,8 @@ Sample highlights include:
 - [Metrics with OpenTelemetry, Prometheus & Grafana](./samples/Metrics)
 - [Integrating a Node.js app](./samples/AspireWithNode)
 - [Integrating DAPR](./samples/AspireWithDapr)
+- [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
+- [Working with database containers](./samples/DatabaseContainers)
 
 ## eShop
 
