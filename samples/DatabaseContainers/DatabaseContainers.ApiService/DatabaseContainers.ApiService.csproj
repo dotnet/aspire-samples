@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,6 +9,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatabaseContainers.ServiceDefaults\DatabaseContainers.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" />
+    <PackageReference Include="Aspire.Npgsql" />
+    <PackageReference Include="Aspire.MySqlConnector" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatabaseContainers.ApiService\DatabaseContainers.ApiService.csproj" />
-    <ProjectReference Include="..\DatabaseContainers.Web\DatabaseContainers.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
