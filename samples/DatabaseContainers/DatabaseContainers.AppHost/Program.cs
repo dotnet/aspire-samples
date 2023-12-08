@@ -34,7 +34,7 @@ var addressBookDb = builder.AddSqlServerContainer("sqlserver")
     // Add the database to the application model so that it can be referenced by other resources.
     .AddDatabase("AddressBook");
 
-var apiservice = builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
+builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
     .WithReference(todosDb)
     .WithReference(catalogDb)
     .WithReference(addressBookDb);
