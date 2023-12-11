@@ -9,25 +9,25 @@ public static class ApiEndpoints
 {
     public static WebApplication MapTodosApi(this WebApplication app)
     {
-        app.MapGet("/todos", async (NpgsqlDataSource db) =>
+        app.MapGet("/todos", async (NpgsqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, Title, IsComplete
                 FROM Todos
                 """;
-            var connection = db.CreateConnection();
-            return await connection.QueryAsync<Todo>(sql);
+
+            return await db.QueryAsync<Todo>(sql);
         });
 
-        app.MapGet("/todos/{id}", async (int id, NpgsqlDataSource db) =>
+        app.MapGet("/todos/{id}", async (int id, NpgsqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, Title, IsComplete
                 FROM Todos
                 WHERE Id = @id
                 """;
-            var connection = db.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Todo>(sql, new { id }) is { } todo
+
+            return await db.QueryFirstOrDefaultAsync<Todo>(sql, new { id }) is { } todo
                 ? Results.Ok(todo)
                 : Results.NotFound();
         });
@@ -37,25 +37,25 @@ public static class ApiEndpoints
 
     public static WebApplication MapCatalogApi(this WebApplication app)
     {
-        app.MapGet("/catalog", async (MySqlDataSource db) =>
+        app.MapGet("/catalog", async (MySqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, Name, Description, Price
                 FROM catalog
                 """;
-            var connection = db.CreateConnection();
-            return await connection.QueryAsync<CatalogItem>(sql);
+
+            return await db.QueryAsync<CatalogItem>(sql);
         });
 
-        app.MapGet("/catalog/{id}", async (int id, MySqlDataSource db) =>
+        app.MapGet("/catalog/{id}", async (int id, MySqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, Name, Description, Price
                 FROM catalog
                 WHERE Id = @id
                 """;
-            var connection = db.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<CatalogItem>(sql, new { id }) is { } item
+
+            return await db.QueryFirstOrDefaultAsync<CatalogItem>(sql, new { id }) is { } item
                 ? Results.Ok(item)
                 : Results.NotFound();
         });
@@ -71,6 +71,7 @@ public static class ApiEndpoints
                 SELECT Id, FirstName, LastName, Email, Phone
                 FROM Contacts
                 """;
+
             return await db.QueryAsync<Contact>(sql);
         });
 
@@ -81,6 +82,7 @@ public static class ApiEndpoints
                 FROM Contacts
                 WHERE Id = @id
                 """;
+
             return await db.QueryFirstOrDefaultAsync<Contact>(sql, new { id }) is { } contact
                 ? Results.Ok(contact)
                 : Results.NotFound();
