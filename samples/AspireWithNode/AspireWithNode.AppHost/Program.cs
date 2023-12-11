@@ -7,6 +7,6 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
 builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
-    .WithServiceBinding(scheme: "http");
+    .WithServiceBinding(scheme: "http", env: "PORT");
 
 builder.Build().Run();
