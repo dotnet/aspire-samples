@@ -20,6 +20,8 @@ This is a simple .NET app that shows how to use Dapr with .NET Aspire orchestrat
 
 ## Sample prerequisites
 
+Dapr installation instructions can be found [here](https://docs.dapr.io/getting-started/install-dapr-cli/).
+
 This sample is written in C# and targets .NET 8.0. It requires the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
 
 ## Building the sample
