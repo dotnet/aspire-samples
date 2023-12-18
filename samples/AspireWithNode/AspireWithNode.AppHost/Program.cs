@@ -7,9 +7,7 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
 builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
-    // This is a workaround for https://github.com/dotnet/aspire/issues/1430
-    // .WithServiceBinding(scheme: "http", env: "PORT")
-    .WithAnnotation(new ServiceBindingAnnotation(System.Net.Sockets.ProtocolType.Tcp, uriScheme: "http", containerPort: 3000, env: "PORT"))
+    .WithServiceBinding(containerPort: 3000, scheme: "http", env: "PORT")
     .AsDockerfileInManifest();
 
 builder.Build().Run();
