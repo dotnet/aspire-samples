@@ -5,8 +5,8 @@
     <AspNetCoreVersion>8.0.0</AspNetCoreVersion>
     <EfCoreVersion>8.0.0</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
-    <GrpcVersion>2.58.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.1.23557.2</AspireVersion>
+    <GrpcVersion>2.59.0</GrpcVersion>
+    <AspireVersion>8.0.0-preview.2.23619.3</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
@@ -48,22 +48,22 @@
     <PackageVersion Include="Grpc.Net.Client" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.Net.ClientFactory" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.Net.Server" Version="$(GrpcVersion)" />    
-    <PackageVersion Include="Grpc.Tools" Version="2.59.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.60.0" />
     <!-- Open Telemetry -->
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0-alpha.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-alpha.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0-alpha.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.6.0-beta.2" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-rc.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EventCounters" Version="1.5.1-alpha.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.6.0-beta.2" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.6.0-beta.2" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.6.0-beta.3" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.7" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.5.1" />
     <!-- VS Test -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <!-- Miscellaneous -->
-    <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="7.0.0" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.0" />
     <PackageVersion Include="Dapr.AspNetCore" Version="1.12.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0-preview.1.23556.5" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
   </ItemGroup>
 </Project>
