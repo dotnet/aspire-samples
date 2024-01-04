@@ -7,13 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OrchardCore.Application.Targets" />
-    <PackageReference Include="OrchardCore.Mvc.Core" />
+    <PackageReference Include="OrchardCore.Module.Targets" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\OrchardCore.Mvc.HelloWorld\OrchardCore.Mvc.HelloWorld.csproj" />
   </ItemGroup>
 
 </Project>

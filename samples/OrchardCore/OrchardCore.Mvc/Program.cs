@@ -1,10 +1,20 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services
+    .AddOrchardCore()
+    .AddMvc();
+
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+}
 
-app.MapGet("/", () => "MVC App");
+app.UseStaticFiles();
 
-app.Run();
+app.UseOrchardCore();
+
+await app.RunAsync();

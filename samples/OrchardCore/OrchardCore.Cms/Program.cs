@@ -1,10 +1,18 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddOrchardCms();
+
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
 
-app.MapGet("/", () => "CMS App");
+app.UseStaticFiles();
+app.UseOrchardCore();
 
-app.Run();
+await app.RunAsync();
