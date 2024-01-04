@@ -18,6 +18,7 @@ Sample highlights include:
 - [Integrating DAPR](./samples/AspireWithDapr)
 - [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
 - [Working with database containers](./samples/DatabaseContainers)
+- [Integrating OrchardCore CMS and MVC](./samples/OrchardCore)
 
 ## eShop
 
