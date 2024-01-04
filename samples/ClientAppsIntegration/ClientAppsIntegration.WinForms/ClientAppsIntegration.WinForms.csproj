@@ -9,11 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientAppsServiceDiscovery.ClientDefaults\ClientAppsServiceDiscovery.ClientDefaults.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Microsoft.Extensions.Hosting "/>
+    <ProjectReference Include="..\ClientAppsIntegration.AppDefaults\ClientAppsIntegration.AppDefaults.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Microsoft.Extensions.Logging" />
   </ItemGroup>

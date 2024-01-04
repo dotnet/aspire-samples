@@ -1,5 +1,5 @@
-using ClientAppsServiceDiscovery.Web;
-using ClientAppsServiceDiscovery.Web.Components;
+using ClientAppsIntegration.Web;
+using ClientAppsIntegration.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientAppsServiceDiscovery.ServiceDefaults\ClientAppsServiceDiscovery.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\ClientAppsIntegration.ServiceDefaults\ClientAppsIntegration.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

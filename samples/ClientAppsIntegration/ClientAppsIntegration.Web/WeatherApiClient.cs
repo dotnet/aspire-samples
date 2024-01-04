@@ -1,4 +1,4 @@
-namespace ClientAppsServiceDiscovery.Web;
+namespace ClientAppsIntegration.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {

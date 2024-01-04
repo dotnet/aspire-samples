@@ -1,4 +1,4 @@
-﻿namespace ClientAppsServiceDiscovery.WinForms;
+﻿namespace ClientAppsIntegration.WinForms;
 
 internal static class Program
 {
@@ -10,7 +10,7 @@ internal static class Program
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.AddServiceDefaults();
+        builder.AddAppDefaults();
 
         builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new("http://apiservice"));
 

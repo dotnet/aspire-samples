@@ -1,4 +1,4 @@
-﻿namespace ClientAppsServiceDiscovery.WinForms;
+﻿namespace ClientAppsIntegration.WinForms;
 
 partial class MainForm
 {
@@ -61,6 +61,7 @@ partial class MainForm
         dgWeather.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgWeather.Location = new Point(12, 77);
         dgWeather.Name = "dgWeather";
+        dgWeather.ReadOnly = true;
         dgWeather.RowHeadersWidth = 51;
         dgWeather.Size = new Size(809, 453);
         dgWeather.TabIndex = 2;

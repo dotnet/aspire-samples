@@ -1,4 +1,4 @@
-﻿namespace ClientAppsServiceDiscovery.WinForms;
+﻿namespace ClientAppsIntegration.WinForms;
 
 public partial class MainForm : Form
 {

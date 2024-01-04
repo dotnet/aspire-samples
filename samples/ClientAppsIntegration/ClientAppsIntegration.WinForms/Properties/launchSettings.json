@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ClientAppsServiceDiscovery.WinForms": {
+    "ClientAppsIntegration.WinForms": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
