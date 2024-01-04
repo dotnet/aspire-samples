@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ClientAppsServiceDiscovery.WinForms": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
