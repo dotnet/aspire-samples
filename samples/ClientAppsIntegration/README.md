@@ -19,7 +19,8 @@ This sample demonstrates working with client apps such as WinForms, WPF, etc., i
 The app is based on the Aspire Starter App template, with the following additional elements:
 
 - **ClientAppsIntegration.WinForms**: This is a WinForms application that displays the results of calling the weather API service application.
-- **ClientAppsIntegration.AppDefaults**: This is a class library that defines the default configuration for orchestrated apps. It's a more general version of the typical `ServiceDefaults` class library that's included in Aspire apps. The `ClientAppsIntegration.WinForms` project references this project and calls its `AddAppDefaults()` method.
+- **ClientAppsIntegration.WPF**: This is a WPF application that displays the results of calling the weather API service application.
+- **ClientAppsIntegration.AppDefaults**: This is a class library that defines the default configuration for orchestrated apps. It's a more general version of the typical `ServiceDefaults` class library that's included in Aspire apps. The `ClientAppsIntegration.WinForms` and `ClientAppsIntegration.WPF` projects reference this project and calls its `AddAppDefaults()` method.
 - **ClientAppsIntegration.ServiceDefaults**: This has been modified from the default `ServiceDefaults` template to be based on and extend the `ClientAppsIntegration.AppDefaults` class library. The `ClientAppsIntegration.ApiService` project references this project and calls its `AddServiceDefaults()` method.
 
 ## Pre-requisites
@@ -32,6 +33,6 @@ The app is based on the Aspire Starter App template, with the following addition
 
 Using Visual Studio, open the solution file `ClientAppsIntegration.sln` and launch/debug the `ClientAppsIntegration.AppHost` project.
 
-In the launched WinForms app, click on "Load Weather" button to have the app call the backend weather API and populate the grid with the results. To explore the error condition behavior, check the "Force Error" checkbox and click on the "Load Weather" button again.
+In the launched WinForms and WPF app, click on "Load Weather" button to have the app call the backend weather API and populate the grid with the results. To explore the error condition behavior, check the "Force Error" checkbox and click on the "Load Weather" button again.
 
-In the Aspire dashboard, use the logs, traces, and metrics pages to see telemtry emitted from the client app.
+In the Aspire dashboard, use the logs, traces, and metrics pages to see telemtry emitted from the client apps.
