@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ClientAppsIntegration.WPF": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

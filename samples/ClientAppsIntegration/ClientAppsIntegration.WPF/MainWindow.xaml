@@ -1,0 +1,28 @@
+﻿<Window x:Class="ClientAppsIntegration.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClientAppsIntegration.WPF"
+        mc:Ignorable="d"
+        Title="Weather Forecasts" Height="450" Width="800" Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Padding="5">
+            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <Button x:Name="btnLoad" HorizontalAlignment="Left" VerticalAlignment="Center" Click="btnLoad_Click">
+                        <TextBlock Margin="5,2">Load Weather</TextBlock>
+                    </Button>
+                    <ProgressBar x:Name="pbLoading" Width="100" Margin="5" IsIndeterminate="True" />
+                </StackPanel>
+                <CheckBox x:Name="chkForceError" Content="Force Error" Margin="0,2" />
+            </StackPanel>
+        </Border>
+
+        <DataGrid x:Name="dgWeather" Grid.Row="1" AutoGenerateColumns="True" d:ItemsSource="{d:SampleData ItemCount=5}" />
+    </Grid>
+</Window>
