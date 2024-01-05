@@ -2,9 +2,6 @@
 
 var apiService = builder.AddProject<Projects.ClientAppsIntegration_ApiService>("apiservice");
 
-builder.AddProject<Projects.ClientAppsIntegration_Web>("webfrontend")
-    .WithReference(apiService);
-
 // Register the client apps by project path as they target a TFM incompatible with the AppHost so can't be added as
 // regular project references (see the AppHost.csproj file for additional metadata added to the ProjectReference to
 // coordinate a build dependency though).
