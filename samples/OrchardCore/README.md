@@ -10,7 +10,7 @@ urlFragment: "aspire-orchard-core"
 description: "A sample .NET Aspire app that shows how to use OrchardCore"
 ---
 
-# .NET Aspire OrchardCore CMS and MVC sample app
+# .NET Aspire OrchardCore CMS sample app
 
 This is a simple .NET app that shows how to use OrchardCore with .NET Aspire orchestration.
 
@@ -46,6 +46,6 @@ To run the .NET Aspire app, open a command line console and change directory to 
 dotnet run --project Aspire/Aspire.AppHost
 ```
 
-On the **Projects** page, click on one of the endpoints (OrchardCore CMS or OrchardCore MVC) for the listed project. This launches the simple .NET app.
+On the **Projects** page, click on one of the endpoints (OrchardCore CMS) for the listed project. This launches the simple .NET app.
 
 For more information about using OrchardCore, see the [OrchardCore documentation](https://docs.orchardcore.net/en/latest/).

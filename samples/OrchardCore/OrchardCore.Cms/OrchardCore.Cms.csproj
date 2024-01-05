@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="OrchardCore.Application.Cms.Targets" />
+    <PackageReference Include="OrchardCore.Logging.NLog" />
   </ItemGroup>
 
   <ItemGroup>

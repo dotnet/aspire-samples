@@ -1,5 +1,8 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using OrchardCore.Logging;
 
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseNLogHost();
 builder.AddServiceDefaults();
 
 builder.Services.AddOrchardCms();
