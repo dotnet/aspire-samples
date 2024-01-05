@@ -12,7 +12,8 @@ internal static class Program
 
         builder.AddAppDefaults();
 
-        builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new("http://apiservice"));
+        var scheme = builder.Environment.IsDevelopment() ? "http" : "https";
+        builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://apiservice"));
 
         var app = builder.Build();
         Services = app.Services;
