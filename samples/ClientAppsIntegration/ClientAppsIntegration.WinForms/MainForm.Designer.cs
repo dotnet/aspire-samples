@@ -87,6 +87,7 @@ partial class MainForm
         Controls.Add(btnLoadWeather);
         Name = "MainForm";
         Text = "Weather Forecasts";
+        FormClosing += MainForm_FormClosing;
         ((System.ComponentModel.ISupportInitialize)dgWeather).EndInit();
         ResumeLayout(false);
         PerformLayout();

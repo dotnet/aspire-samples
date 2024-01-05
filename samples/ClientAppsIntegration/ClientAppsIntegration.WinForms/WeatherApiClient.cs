@@ -4,9 +4,9 @@ namespace ClientAppsIntegration.WinForms;
 
 public class WeatherApiClient(HttpClient httpClient)
 {
-    public async Task<WeatherForecast[]> GetWeatherAsync()
+    public async Task<WeatherForecast[]> GetWeatherAsync(CancellationToken cancellationToken = default)
     {
-        return await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast") ?? [];
+        return await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast", cancellationToken) ?? [];
     }
 }
 

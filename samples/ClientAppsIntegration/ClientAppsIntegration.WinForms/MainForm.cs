@@ -4,6 +4,7 @@ public partial class MainForm : Form
 {
     private readonly ILogger _logger;
     private readonly WeatherApiClient _weatherApiClient;
+    private readonly CancellationTokenSource _closingCts = new();
 
     public MainForm(ILogger<MainForm> logger, WeatherApiClient weatherApiClient)
     {
@@ -25,8 +26,12 @@ public partial class MainForm : Form
                 throw new InvalidOperationException("Forced error!");
             }
 
-            var weather = await _weatherApiClient.GetWeatherAsync();
+            var weather = await _weatherApiClient.GetWeatherAsync(_closingCts.Token);
             dgWeather.DataSource = weather;
+        }
+        catch (TaskCanceledException)
+        {
+            return;
         }
         catch (Exception ex)
         {
@@ -38,5 +43,10 @@ public partial class MainForm : Form
 
         pbLoading.Visible = false;
         btnLoadWeather.Enabled = true;
+    }
+
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        _closingCts.Cancel();
     }
 }
