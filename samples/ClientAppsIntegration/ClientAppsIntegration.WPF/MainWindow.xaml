@@ -15,7 +15,7 @@
             <StackPanel Grid.Row="0" Orientation="Vertical">
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button x:Name="btnLoad" HorizontalAlignment="Left" VerticalAlignment="Center" Click="btnLoad_Click">
-                        <TextBlock Margin="2">Load Weather</TextBlock>
+                        <TextBlock Margin="5,2">Load Weather</TextBlock>
                     </Button>
                     <ProgressBar x:Name="pbLoading" Width="100" Margin="5" IsIndeterminate="True" />
                 </StackPanel>
