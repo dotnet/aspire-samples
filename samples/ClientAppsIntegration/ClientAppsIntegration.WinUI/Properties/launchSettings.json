@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ClientAppsIntegration.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ClientAppsIntegration.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
