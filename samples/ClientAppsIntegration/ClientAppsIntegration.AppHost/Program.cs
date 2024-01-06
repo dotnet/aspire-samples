@@ -11,4 +11,8 @@ builder.AddProject("winformsclient", "../ClientAppsIntegration.WinForms/ClientAp
 builder.AddProject("wpfclient", "../ClientAppsIntegration.WPF/ClientAppsIntegration.WPF.csproj")
     .WithReference(apiService);
 
+builder.AddProject("winuiclient", "../ClientAppsIntegration.WinUI/ClientAppsIntegration.WinUI.csproj")
+    .WithReference(apiService);
+
+
 builder.Build().Run();
