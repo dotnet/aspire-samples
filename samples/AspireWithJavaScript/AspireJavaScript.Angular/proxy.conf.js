@@ -1,6 +1,6 @@
 module.exports = {
     '/api': {
-      target: process.env['services__weatherApi__1'],
+      target: process.env['services__weatherapi__1'],
       pathRewrite: {
         '^/api': '',
       },
