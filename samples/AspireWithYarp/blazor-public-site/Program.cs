@@ -10,7 +10,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
 
-        builder.Services.AddHttpClient<FeedService>(static client => client.BaseAddress = new Uri("http://apigateway/feed"));
+        builder.Services.AddHttpClient<FeedService>(static client => client.BaseAddress = new Uri("http://apigateway"));
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
