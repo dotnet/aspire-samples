@@ -76,7 +76,7 @@ public static class ApiEndpoints
             return await db.QueryAsync<Contact>(sql);
         });
 
-        app.MapGet("/addressbook/{id}", async (HttpContext _, int id, [FromKeyedServices("AddressBook")] SqlConnection db) =>
+        app.MapGet("/addressbook/{id}", async (int id, [FromKeyedServices("AddressBook")] SqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, FirstName, LastName, Email, Phone
@@ -94,7 +94,7 @@ public static class ApiEndpoints
 
     public static WebApplication MapLocalDbApi(this WebApplication app)
     {
-        app.MapGet("/localdb", async (HttpContext _, [FromKeyedServices("LocalDB")] SqlConnection db) =>
+        app.MapGet("/localdb", async ([FromKeyedServices("LocalDB")] SqlConnection db) =>
         {
             const string sql = """
                 SELECT @@VERSION
