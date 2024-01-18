@@ -7,7 +7,8 @@ builder.AddServiceDefaults();
 
 builder.AddNpgsqlDataSource("Todos");
 builder.AddMySqlDataSource("Catalog");
-builder.AddSqlServerClient("AddressBook");
+builder.AddKeyedSqlServerClient("AddressBook");
+builder.AddKeyedSqlServerClient("LocalDB");
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -28,6 +29,7 @@ if (app.Environment.IsDevelopment())
 app.MapTodosApi();
 app.MapCatalogApi();
 app.MapAddressBookApi();
+app.MapLocalDbApi();
 
 app.MapDefaultEndpoints();
 

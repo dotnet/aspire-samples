@@ -37,6 +37,7 @@ var addressBookDb = builder.AddSqlServerContainer("sqlserver")
 builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
     .WithReference(todosDb)
     .WithReference(catalogDb)
-    .WithReference(addressBookDb);
+    .WithReference(addressBookDb)
+    .WithReference(new ConnectionString("LocalDB", "Server=(localdb)\\MSSQLLocalDB;Integrated Security=true"));
 
 builder.Build().Run();

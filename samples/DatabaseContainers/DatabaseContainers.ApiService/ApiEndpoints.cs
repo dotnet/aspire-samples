@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using MySqlConnector;
 using Npgsql;
@@ -75,7 +76,7 @@ public static class ApiEndpoints
             return await db.QueryAsync<Contact>(sql);
         });
 
-        app.MapGet("/addressbook/{id}", async (int id, SqlConnection db) =>
+        app.MapGet("/addressbook/{id}", async (int id, [FromKeyedServices("AddressBook")] SqlConnection db) =>
         {
             const string sql = """
                 SELECT Id, FirstName, LastName, Email, Phone
@@ -86,6 +87,20 @@ public static class ApiEndpoints
             return await db.QueryFirstOrDefaultAsync<Contact>(sql, new { id }) is { } contact
                 ? Results.Ok(contact)
                 : Results.NotFound();
+        });
+
+        return app;
+    }
+
+    public static WebApplication MapLocalDbApi(this WebApplication app)
+    {
+        app.MapGet("/localdb", async ([FromKeyedServices("LocalDB")] SqlConnection db) =>
+        {
+            const string sql = """
+                SELECT @@VERSION
+                """;
+
+            return await db.QueryFirstOrDefaultAsync<string>(sql);
         });
 
         return app;
