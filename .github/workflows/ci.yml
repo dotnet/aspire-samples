@@ -25,6 +25,9 @@ jobs:
     name: Build Samples
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
     steps:
     - uses: actions/checkout@v3
 
