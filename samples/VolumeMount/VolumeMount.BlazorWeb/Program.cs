@@ -8,7 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.AddSqlServerDbContext<ApplicationDbContext>("appdb");
+builder.AddAzureBlobService("BlobConnection");
+builder.AddSqlServerDbContext<ApplicationDbContext>("sqldb");
+builder.AddNpgsqlDbContext<ApplicationDbContext>("postgresdb");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
