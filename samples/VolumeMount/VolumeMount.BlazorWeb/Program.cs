@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using VolumeMount.BlazorWeb.Components;
 using VolumeMount.BlazorWeb.Components.Account;
 using VolumeMount.BlazorWeb.Data;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
