@@ -28,6 +28,9 @@ var storage = builder.AddAzureStorage("Storage");
 
 if (builder.Environment.IsDevelopment())
 {
+    // Use the Azurite storage emulator for local development
+    // Azurite doesn't have a WithVolumeMount method
+    // We have to use the WithAnnotation method, which is what the WithVolumeMount method wraps when it is available
     storage.UseEmulator()
     .WithAnnotation(new VolumeMountAnnotation("VolumeMount.azurite.data", "/data", VolumeMountType.Named));
 }
