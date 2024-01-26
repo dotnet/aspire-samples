@@ -32,7 +32,7 @@ if (builder.Environment.IsDevelopment())
     // Azurite doesn't have a WithVolumeMount method
     // We have to use the WithAnnotation method, which is what the WithVolumeMount method wraps when it is available
     storage.UseEmulator()
-    .WithAnnotation(new VolumeMountAnnotation("VolumeMount.azurite.data", "/data", VolumeMountType.Named));
+        .WithAnnotation(new VolumeMountAnnotation("VolumeMount.azurite.data", "/data", VolumeMountType.Named));
 }
 
 var blobs = storage.AddBlobs("BlobConnection");
