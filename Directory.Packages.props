@@ -10,7 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
+    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Dapr" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.MySqlConnector" Version="$(AspireVersion)" />

@@ -2,10 +2,11 @@
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Using a persistent volume mount requires a stable password for 'sa' rather than the default generated one.
-var sqlpassword = builder.Configuration["sqlpassword"];
+// Using a persistent volume mount requires a stable password rather than the default generated one.
+var sqlpw = builder.Configuration["sqlpassword"];
+var postgrespw = builder.Configuration["postgrespassword"];
 
-if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpassword))
+if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpw))
 {
     throw new InvalidOperationException("""
         A password for the local SQL Server container is not configured.
@@ -14,11 +15,31 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpassword))
 }
 
 // To have a persistent volume mount across container instances, it must be named (VolumeMountType.Named).
-var database = builder.AddSqlServerContainer("sqlserver", sqlpassword)
+var sqlDatabase = builder.AddSqlServerContainer("sqlserver", sqlpw)
     .WithVolumeMount("VolumeMount.sqlserver.data", "/var/opt/mssql", VolumeMountType.Named)
-    .AddDatabase("appdb");
+    .AddDatabase("sqldb");
+
+// Postgres must also have a stable password and a named volume
+var postgresDatabase = builder.AddPostgresContainer("pg", password: postgrespw)
+    .WithVolumeMount("VolumeMount.postgres.data", "/var/lib/postgresql/data", VolumeMountType.Named)
+    .AddDatabase("postgresdb");
+
+var storage = builder.AddAzureStorage("Storage");
+
+if (builder.Environment.IsDevelopment())
+{
+    // Use the Azurite storage emulator for local development
+    // Azurite doesn't have a WithVolumeMount method
+    // We have to use the WithAnnotation method, which is what the WithVolumeMount method wraps when it is available
+    storage.UseEmulator()
+        .WithAnnotation(new VolumeMountAnnotation("VolumeMount.azurite.data", "/data", VolumeMountType.Named));
+}
+
+var blobs = storage.AddBlobs("BlobConnection");
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
-    .WithReference(database);
+    .WithReference(sqlDatabase)
+    .WithReference(postgresDatabase)
+    .WithReference(blobs);
 
 builder.Build().Run();

@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Identity;
 using VolumeMount.BlazorWeb.Components;
 using VolumeMount.BlazorWeb.Components.Account;
 using VolumeMount.BlazorWeb.Data;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.AddSqlServerDbContext<ApplicationDbContext>("appdb");
+builder.AddAzureBlobService("BlobConnection");
+builder.AddSqlServerDbContext<ApplicationDbContext>("sqldb");
+builder.AddNpgsqlDbContext<ApplicationDbContext>("postgresdb");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
