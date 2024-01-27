@@ -1,0 +1,28 @@
+﻿@page "/"
+@inject FeedService FeedService
+
+<PageTitle>Home</PageTitle>
+
+
+@code { 
+    string messageFromFeedApi = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        messageFromFeedApi = await FeedService.GetFeedMessage();
+    }
+}
+
+
+<h1>Welcome To the Public Site 😃</h1>
+
+Welcome to the public site! You are here because of the yarp ingress.
+
+
+<p>
+    This version of the site is utilizing the feed api that is running behind the api gateway. here is the message from the feed microservice
+</p>
+
+<span>
+Here: @messageFromFeedApi
+</span>

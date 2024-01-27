@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\blazor-public-site\BlazorPublicSite.csproj" />
+    <ProjectReference Include="..\BlazorPublicSiteBetaVersion\BlazorPublicSiteBetaVersion.csproj" />
+    <ProjectReference Include="..\FeedMicroservice\FeedMicroservice.csproj" />
+    <ProjectReference Include="..\ProfileMicroservice\ProfileMicroservice.csproj" />
+    <ProjectReference Include="..\YarpApiGateway\YarpApiGateway.csproj" />
+    <ProjectReference Include="..\YarpIngress\YarpIngress.csproj" />
+  </ItemGroup>
+
+</Project>

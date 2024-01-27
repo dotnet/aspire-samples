@@ -1,0 +1,6 @@
+@FeedMicroservice_HostAddress = http://localhost:5196
+
+GET {{FeedMicroservice_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
