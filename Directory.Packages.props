@@ -2,11 +2,11 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <AspNetCoreVersion>8.0.0</AspNetCoreVersion>
-    <EfCoreVersion>8.0.0</EfCoreVersion>
+    <AspNetCoreVersion>8.0.2</AspNetCoreVersion>
+    <EfCoreVersion>8.0.2</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
     <GrpcVersion>2.59.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.2.23619.3</AspireVersion>
+    <AspireVersion>8.0.0-preview.3.24105.21</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
@@ -33,7 +33,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(AspNetCoreVersion)" />
     <!-- Version together with EF -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EfCoreVersion)" />
@@ -42,7 +42,7 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimeVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(RuntimeVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimeVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(RuntimeVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimeVersion)" />
     <!-- gRPC -->
     <PackageVersion Include="Grpc.AspNetCore" Version="$(GrpcVersion)" />
