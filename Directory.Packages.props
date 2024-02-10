@@ -2,8 +2,8 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <AspNetCoreVersion>8.0.2</AspNetCoreVersion>
-    <EfCoreVersion>8.0.2</EfCoreVersion>
+    <AspNetCoreVersion>8.0.1</AspNetCoreVersion>
+    <EfCoreVersion>8.0.1</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
     <GrpcVersion>2.59.0</GrpcVersion>
     <AspireVersion>8.0.0-preview.3.24105.21</AspireVersion>
