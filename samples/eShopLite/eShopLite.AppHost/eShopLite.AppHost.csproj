@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting" />
     <ProjectReference Include="..\eShopLite.CatalogDbManager\eShopLite.CatalogDbManager.csproj" />
-    <ProjectReference Include="..\eShopLite.CatalogDb\eShopLite.CatalogDb.csproj" />
+    <ProjectReference Include="..\eShopLite.CatalogDb\eShopLite.CatalogDb.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\eShopLite.Frontend\eShopLite.Frontend.csproj" />
     <ProjectReference Include="..\eShopLite.CatalogService\eShopLite.CatalogService.csproj" />
     <ProjectReference Include="..\eShopLite.BasketService\eShopLite.BasketService.csproj" />
