@@ -31,6 +31,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Dapr tool installer
+      uses: dapr/setup-dapr@v1
+
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v3
       with:
