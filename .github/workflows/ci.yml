@@ -34,7 +34,7 @@ jobs:
     - name: Dapr tool installer
       uses: dapr/setup-dapr@v1
       with:
-        version: '1.12.5'
+        version: '1.12.0'
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v3
