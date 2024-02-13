@@ -1,0 +1,21 @@
+@using Orleans.Runtime
+@inherits LayoutComponentBase
+@inject ILocalSiloDetails LocalSiloDetails
+
+<PageTitle>Grain Poll</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<footer class="mt-auto border bg-light">
+    <h4 class="text-dark text-center pt-3">Server address <span class="text-success">@LocalSiloDetails.SiloAddress.ToString()</span></h4>
+</footer>
