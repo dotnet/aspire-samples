@@ -50,4 +50,4 @@ jobs:
       with:
         name: build-log
         path: |
-          **/*.binlog
+          *.binlog
