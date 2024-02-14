@@ -6,6 +6,11 @@
     <ItemGroup>
         <SampleSln Include="$(MSBuildThisFileDirectory)../samples/**/*.sln" />
         <AppHostProjects Include="$(MSBuildThisFileDirectory)../samples/**/*.AppHost/*.AppHost.csproj" />
+
+        <!-- ReubenBond: TEMPORARILY skip Dapr sample until https://github.com/dotnet/aspire/issues/2219 is fixed -->
+        <SampleSln Remove="$(MSBuildThisFileDirectory)../samples/AspireWithDapr/AspireWithDapr.sln" />
+        <AppHostProjects Remove="$(MSBuildThisFileDirectory)../samples/AspireWithDapr/AspireWithDapr.AppHost/AspireWithDapr.AppHost.csproj" />
+        <!-- END -->
     </ItemGroup>
 
     <Target Name="BuildSamples" BeforeTargets="Build">
