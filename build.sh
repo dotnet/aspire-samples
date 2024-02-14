@@ -3,4 +3,4 @@
 dotnet workload update
 dotnet workload install aspire
 
-dotnet build ./build/Build.proj -bl
+dotnet build ./build/Build.proj
