@@ -13,6 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AspireJavaScript.Angular", "AspireJavaScript.Angular\AspireJavaScript.Angular.esproj", "{96A530E7-A84B-467F-810C-1169F1DF8013}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AspireJavaScript.React", "AspireJavaScript.React\AspireJavaScript.React.esproj", "{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AspireJavaScript.Vue", "AspireJavaScript.Vue\AspireJavaScript.Vue.esproj", "{601663A1-8724-4371-BC81-11D76E2613CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +37,24 @@ Global
 		{94BA356D-2B9D-45C3-9481-847E35B38318}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94BA356D-2B9D-45C3-9481-847E35B38318}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94BA356D-2B9D-45C3-9481-847E35B38318}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96A530E7-A84B-467F-810C-1169F1DF8013}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7943D82A-FCF6-4843-A10D-C0EA0D1A5808}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{601663A1-8724-4371-BC81-11D76E2613CE}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

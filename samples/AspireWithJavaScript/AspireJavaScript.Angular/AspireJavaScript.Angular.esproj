@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.513252-alpha">
+  <PropertyGroup>
+    <!-- Don't run the build (or compile) script located in package.json during Visual Studio build -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+  </PropertyGroup>
+</Project>
