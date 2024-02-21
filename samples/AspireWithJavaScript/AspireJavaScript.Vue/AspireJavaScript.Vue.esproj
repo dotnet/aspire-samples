@@ -2,5 +2,6 @@
   <PropertyGroup>
     <!-- Don't run the build (or compile) script located in package.json during Visual Studio build -->
     <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <StartupCommand>npm run dev</StartupCommand>
   </PropertyGroup>
 </Project>

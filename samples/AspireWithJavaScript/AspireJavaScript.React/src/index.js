@@ -5,9 +5,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const endpoint = import.meta.env?.REACT_APP_WEATHER_API || 'http://localhost:5084';
 root.render(
   <React.StrictMode>
-    <App weatherApi={`${process.env.REACT_APP_WEATHER_API}/weatherforecast`} />
+    <App weatherApi={`${endpoint}/weatherforecast`} />
   </React.StrictMode>
 );
 
