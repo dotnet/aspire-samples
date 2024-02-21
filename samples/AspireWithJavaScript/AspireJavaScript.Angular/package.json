@@ -7,9 +7,10 @@
   "scripts": {
     "ng": "ng",
     "start": "run-script-os",
-    "start:win32": "ng serve --port %PORT%",
-    "start:default": "ng serve --port $PORT",
+    "start:win32": "ng serve --port %PORT% --host 0.0.0.0",
+    "start:default": "ng serve --port $PORT --host 0.0.0.0",
     "build": "ng build",
+    "build-prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -20,8 +21,8 @@
     "@angular/compiler": "^17.0.0",
     "@angular/core": "^17.0.0",
     "@angular/forms": "^17.0.0",
-    "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
+    "@angular/platform-browser": "^17.0.0",
     "@angular/router": "^17.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
