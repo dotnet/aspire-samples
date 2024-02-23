@@ -6,19 +6,19 @@ var weatherApi =
 // Angular: npm run start
 builder.AddNpmApp("angular", "../AspireJavaScript.Angular")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(containerPort: 80, env: "PORT")
+    .WithHttpEndpoint(containerPort: 3000, env: "PORT")
     .AsDockerfileInManifest();
 
 // React: npm run start
 builder.AddNpmApp("react", "../AspireJavaScript.React")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(containerPort: 80, env: "PORT")
+    .WithHttpEndpoint(containerPort: 3001, env: "PORT")
     .AsDockerfileInManifest();
 
 // Vue: npm run dev
 builder.AddNpmApp("vue", "../AspireJavaScript.Vue", "dev")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(containerPort: 80, env: "PORT")
+    .WithHttpEndpoint(containerPort: 3002, env: "PORT")
     .AsDockerfileInManifest();
 
 builder.Build().Run();
