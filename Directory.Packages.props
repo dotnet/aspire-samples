@@ -6,7 +6,7 @@
     <EfCoreVersion>8.0.2</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
     <GrpcVersion>2.60.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.3.24105.21</AspireVersion>
+    <AspireVersion>8.0.0-preview.4.24127.12</AspireVersion>
     <OrleansVersion>8.1.0-preview1</OrleansVersion>
   </PropertyGroup>
   <ItemGroup>
