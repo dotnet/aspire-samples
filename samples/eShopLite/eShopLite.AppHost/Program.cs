@@ -1,7 +1,7 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogDb = builder.AddPostgresContainer("catalog").AddDatabase("catalogdb");
-var basketCache = builder.AddRedisContainer("basketcache");
+var catalogDb = builder.AddPostgres("catalog").AddDatabase("catalogdb");
+var basketCache = builder.AddRedis("basketcache");
 
 var catalogService = builder.AddProject<Projects.eShopLite_CatalogService>("catalogservice")
     .WithReference(catalogDb);
