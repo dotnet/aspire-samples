@@ -46,7 +46,7 @@ To run the game, run the .NET Aspire app by executing the following at the comma
 dotnet run --project MetricsApp.AppHost
 ```
 
-1. On the **Projects** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
+1. On the **Resources** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
 2. In the .NET app:
   1. Visit the **Weather** and **Auth Required** pages to generate metrics. Values will be captured for `http.server.request.duration` and other instruments.
   2. On the **Home** page, click the Grafana dashboard link. This launches the ASP.NET Core dashboard in Grafana.
