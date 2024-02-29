@@ -43,7 +43,7 @@ To run the game, run the .NET Aspire app by executing the following at the comma
 dotnet run --project OrleansVoting.AppHost
 ```
 
-1. On the **Projects** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
+1. On the **Resources** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
 2. In the .NET app:
     1. Enter a poll title, some questions, and click **Create**, *or* click **DEMO: auto-fill poll** to auto-fill the poll.
     2. On the poll page, Click one of the poll options to vote for it.

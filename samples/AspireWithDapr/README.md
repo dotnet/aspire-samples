@@ -44,7 +44,7 @@ To run the game, run the .NET Aspire app by executing the following at the comma
 dotnet run --project AspireWithDapr.AppHost
 ```
 
-1. On the **Projects** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
+1. On the **Resources** page, click on one of the endpoints for the listed project. This launches the simple .NET app.
 1. In the .NET app:
     1. Visit the **Weather**.
 
