@@ -14,7 +14,7 @@ description: "An example of working with database containers in a .NET Aspire ap
 
 # Working with database containers in a .NET Aspire application
 
-This sample demonstrates working with database containers in a .NET Aspire app, using the features of the underlying container image to modify the default database created during container startup. This is especially helpful when not using an ORM like Entity Framework Core that can run migrations on application startup (e.g., [as in the eShopLite sample](../eShopLite/eShopLite.CatalogDbManager)) and handle cases when the database configured in the AppHost is not yet created.
+This sample demonstrates working with database containers in a .NET Aspire app, using the features of the underlying container image to modify the default database created during container startup. This is especially helpful when not using an ORM like Entity Framework Core that can run migrations on application startup (e.g., [as in the Aspire Shop sample](../AspireShop/AspireShop.CatalogDbManager)) and handle cases when the database configured in the AppHost is not yet created.
 
 ![Screenshot of the Swagger UI for the API service that returns data from the configured database containers](./images/db-containers-apiservice-swagger-ui.png)
 
