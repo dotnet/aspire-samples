@@ -16,6 +16,8 @@ The Aspire dashboard can be used to view OpenTelemetry data from any app. The da
 
 This is a simple .NET app that downloads data from [PokeAPI](https://pokeapi.co/). The app sends telemetry to the Aspire dashboard which can be viewed in the dashboard telemetry UI.
 
+![Screenshot of the standalone .NET Aspire dashboard](./images/aspire-dashboard-screenshot.png)
+
 ## Demonstrates
 
 - How to run the Aspire dashboard from a Docker container
