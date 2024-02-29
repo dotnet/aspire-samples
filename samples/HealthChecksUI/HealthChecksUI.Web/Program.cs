@@ -1,5 +1,5 @@
-using AspireApp33.Web;
-using AspireApp33.Web.Components;
+using HealthChecksUI.Web;
+using HealthChecksUI.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

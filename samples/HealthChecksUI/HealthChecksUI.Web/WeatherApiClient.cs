@@ -1,4 +1,4 @@
-namespace AspireApp33.Web;
+namespace HealthChecksUI.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {

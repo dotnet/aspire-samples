@@ -2,13 +2,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34623.280
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp33.AppHost", "AspireApp33.AppHost\AspireApp33.AppHost.csproj", "{35D2EFCF-A26E-423C-8089-2C3602190B35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.AppHost", "HealthChecksUI.AppHost\HealthChecksUI.AppHost.csproj", "{35D2EFCF-A26E-423C-8089-2C3602190B35}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireApp33.ServiceDefaults", "AspireApp33.ServiceDefaults\AspireApp33.ServiceDefaults.csproj", "{777A482C-5152-49DF-8E42-123D0A2CC8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthChecksUI.ServiceDefaults", "HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj", "{777A482C-5152-49DF-8E42-123D0A2CC8C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireApp33.ApiService", "AspireApp33.ApiService\AspireApp33.ApiService.csproj", "{17F9034C-A1B4-4FCB-8668-408A3D5FA1E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthChecksUI.ApiService", "HealthChecksUI.ApiService\HealthChecksUI.ApiService.csproj", "{17F9034C-A1B4-4FCB-8668-408A3D5FA1E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireApp33.Web", "AspireApp33.Web\AspireApp33.Web.csproj", "{B94B9156-BEC8-4734-8633-7FD9F6BE864C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthChecksUI.Web", "HealthChecksUI.Web\HealthChecksUI.Web.csproj", "{B94B9156-BEC8-4734-8633-7FD9F6BE864C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

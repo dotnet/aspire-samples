@@ -9,12 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspireApp33.ApiService\AspireApp33.ApiService.csproj" />
-    <ProjectReference Include="..\AspireApp33.Web\AspireApp33.Web.csproj" />
+    <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="8.0.0-preview.4.24126.1" />
+    <ProjectReference Include="..\HealthChecksUI.ApiService\HealthChecksUI.ApiService.csproj" />
+    <ProjectReference Include="..\HealthChecksUI.Web\HealthChecksUI.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" />
   </ItemGroup>
 
 </Project>

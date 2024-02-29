@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspireApp33.ServiceDefaults\AspireApp33.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

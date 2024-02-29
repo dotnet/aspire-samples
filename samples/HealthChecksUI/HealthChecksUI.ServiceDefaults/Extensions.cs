@@ -1,7 +1,7 @@
-using HealthChecks.UI.Client;
+﻿using HealthChecks.UI.Client;
+using HealthChecksUI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -13,27 +13,6 @@ namespace Microsoft.Extensions.Hosting;
 
 public static class Extensions
 {
-    public static WebApplicationBuilder ConfigureKestrelDefaults(this WebApplicationBuilder builder)
-    {
-        // HACK: Ideally this could be done from the AppHost but the application model doesn't expose the required information yet
-        var internalHealthChecksPort = builder.Configuration["INTERNAL_HEALTHCHECKS_LISTEN_PORT"];
-
-        if (internalHealthChecksPort is not null)
-        {
-            HashSet<string> serverUrls = [..builder.WebHost.GetSetting(WebHostDefaults.ServerUrlsKey)?.Split(';')];
-
-            var internalHealthChecksHost = builder.Configuration["INTERNAL_HEALTHCHECKS_LISTEN_HOST"] ?? "localhost";
-            var internalHealthChecksScheme = builder.Configuration["INTERNAL_HEALTHCHECKS_LISTEN_SCHEME"] ?? "http";
-            var healthChecksUrl = $"{internalHealthChecksScheme}://{internalHealthChecksHost}:{internalHealthChecksPort}";
-            serverUrls.Add(healthChecksUrl);
-
-            // Configure Kestrel to listen on separate port for internal health checks
-            builder.WebHost.UseSetting(WebHostDefaults.ServerUrlsKey, string.Join(';', serverUrls));
-        }
-
-        return builder;
-    }
-
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
     {
         builder.ConfigureOpenTelemetry();
@@ -133,13 +112,13 @@ public static class Extensions
             Predicate = r => r.Tags.Contains("live")
         });
 
-        // Health checks for the HealthChecks UI
-        var internalHealthChecksPort = app.Configuration["INTERNAL_HEALTHCHECKS_PORT"];
-        if (!string.IsNullOrEmpty(internalHealthChecksPort))
+        // Health checks for the HealthChecksUI
+        var internalHealthChecksUrl = app.Configuration[HealthChecksUIEnvVars.InternalUrl];
+        if (!string.IsNullOrEmpty(internalHealthChecksUrl) && Uri.TryCreate(internalHealthChecksUrl, UriKind.Absolute, out var uri))
         {
-            var internalHealthChecksPath = app.Configuration["INTERNAL_HEALTHCHECKS_PATH"] ?? "/healthz";
-            var hostMask = $"*:{internalHealthChecksPort}";
-            app.MapHealthChecks(internalHealthChecksPath, new() { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse })
+            var hostMask = $"*:{uri.Port}";
+            var path = uri.AbsolutePath; // TODO: Strip PathBase from this if present
+            app.MapHealthChecks(path, new() { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse })
                 .RequireHost(hostMask);
         }
 

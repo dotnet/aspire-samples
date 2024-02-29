@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspireApp33.ServiceDefaults\AspireApp33.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="8.0.0-preview.4.24126.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
   </ItemGroup>
 
 </Project>

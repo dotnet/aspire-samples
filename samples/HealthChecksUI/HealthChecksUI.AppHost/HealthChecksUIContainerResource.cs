@@ -1,65 +1,6 @@
 ﻿using Aspire.Hosting.Lifecycle;
 
-namespace Aspire.Hosting;
-
-public static class HealthChecksUIDefaults
-{
-    public const string ContainerImageName = "xabarilcoding/healthchecksui";
-    public const int ContainerPort = 80;
-    public const string ProbePath = "/healthz";
-    public const string InternalEndpointName = "internalhealthchecks";
-}
-
-public static class HealthChecksUIEnvVars
-{
-    public const string InternalListenScheme = "INTERNAL_HEALTHCHECKS_LISTEN_SCHEME";
-    public const string InternalListenHost = "INTERNAL_HEALTHCHECKS_LISTEN_HOST";
-    public const string InternalListenPort = "INTERNAL_HEALTHCHECKS_LISTEN_PORT";
-    public const string InternalPort = "INTERNAL_HEALTHCHECKS_PORT";
-    public const string InternalPath = "INTERNAL_HEALTHCHECKS_PATH";
-    public const string UiPath = "ui_path";
-    public const string RootConfigurationKeyPrefix = "HealthChecksUI__";
-    public const string HealthChecksConfigurationKeyPrefix = RootConfigurationKeyPrefix + "HealthChecks__";
-    public const string HealthCheckConfigurationName = "Name";
-    public const string HealthCheckConfigurationUri = "Uri";
-}
-
-public static class HealthChecksUIExtensions
-{
-    public static IResourceBuilder<HealthChecksUIContainerResource> AddHealthChecksUI(
-        this IDistributedApplicationBuilder builder,
-        string name,
-        int? port = null,
-        string? tag = null)
-    {
-        builder.Services.TryAddLifecycleHook<HealthChecksUILifecycleHook>();
-
-        var keycloakContainer = new HealthChecksUIContainerResource(name);
-
-        return builder
-            .AddResource(keycloakContainer)
-            .WithAnnotation(new ContainerImageAnnotation { Image = HealthChecksUIDefaults.ContainerImageName, Tag = tag ?? "latest" })
-            .WithEnvironment(HealthChecksUIEnvVars.UiPath, "/")
-            .WithHttpEndpoint(hostPort: port, containerPort: HealthChecksUIDefaults.ContainerPort);
-    }
-
-    public static IResourceBuilder<HealthChecksUIContainerResource> WithReference(
-        this IResourceBuilder<HealthChecksUIContainerResource> builder,
-        IResourceBuilder<ProjectResource> project,
-        string probePath = HealthChecksUIDefaults.ProbePath,
-        string endpointName = HealthChecksUIDefaults.InternalEndpointName,
-        int? hostPort = null)
-    {
-        var healthCheck = new HealthCheck(project, endpointName: endpointName, probePath: probePath) { Port = hostPort };
-        if (probePath is not null)
-        {
-            healthCheck.ProbePath = probePath;
-        }
-        builder.Resource.HealthChecks.Add(healthCheck);
-
-        return builder;
-    }
-}
+namespace HealthChecksUI;
 
 public class HealthChecksUIContainerResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery
 {
@@ -126,21 +67,26 @@ internal class HealthChecksUILifecycleHook : IDistributedApplicationLifecycleHoo
                 if (healthChecksEndpoint is null)
                 {
                     // Add an endpoint for health checks if not already present
-                    // TODO: Figure out HTTP vs. HTTPS
+                    // TODO: Figure out HTTP vs. HTTPS, e.g. find other endpoints added and if there's an HTTPS endpoint then make this one HTTPS too
                     project.WithHttpEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
                 }
 
-                // Set the environment variable for the port of the health checks endpoint
-                project.WithEnvironment(HealthChecksUIEnvVars.InternalPort, () =>
+                // Set the environment variables for the port and probe path of the health checks endpoint
+                project.WithEnvironment(HealthChecksUIEnvVars.InternalUrl, () =>
                 {
                     if (project.Resource.TryGetAllocatedEndPoints(out var endpoints)
                         && endpoints.SingleOrDefault(e => string.Equals(e.Name, healthCheck.EndpointName, StringComparison.OrdinalIgnoreCase)) is { } allocatedEndpoint)
                     {
-                        return allocatedEndpoint.Port.ToString();
+                        var baseUri = new Uri(allocatedEndpoint.UriString);
+                        var fullUri = new Uri(baseUri, healthCheck.ProbePath);
+
+                        return fullUri.ToString();
+                        //return allocatedEndpoint.Port.ToString();
                     }
 
                     throw new InvalidOperationException($"Couldn't find endpoint with name '{healthCheck.EndpointName}' for health checks.");
                 });
+                //project.WithEnvironment(HealthChecksUIEnvVars.InternalPath, () => healthCheck.ProbePath);
             }
         }
 
