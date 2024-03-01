@@ -12,9 +12,9 @@ description: "A sample of using the Aspire dashboard to view telemetry from non-
 
 # Standalone Aspire dashboard sample app
 
-The Aspire dashboard can be used to view telemetry from any app. The dashboard supports running standalone, and apps configured with an [OpenTelemetry SDK](https://opentelemetry.io/docs/getting-started/dev/) send it data.
+View telemetry from any app in the Aspire dashboard. The dashboard supports running standalone, and apps configured with an [OpenTelemetry SDK](https://opentelemetry.io/docs/getting-started/dev/) can send it data.
 
-This sample is a simple .NET console app that downloads data from [PokeAPI](https://pokeapi.co/). The app sends telemetry to the Aspire dashboard which can be viewed in the dashboard telemetry UI.
+This sample is a .NET console app that downloads data from [PokeAPI](https://pokeapi.co/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
 
 ![Screenshot of the standalone .NET Aspire dashboard](./images/aspire-dashboard-screenshot.png)
 
