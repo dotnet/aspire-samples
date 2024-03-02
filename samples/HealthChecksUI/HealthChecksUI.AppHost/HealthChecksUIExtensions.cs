@@ -46,11 +46,11 @@ public static class HealthChecksUIExtensions
         string endpointName = HealthChecksUIDefaults.EndpointName,
         int? endpointPort = null)
     {
-        var healthCheck = new MonitoredProject(project, endpointName: endpointName, probePath: probePath)
+        var monitoredProject = new MonitoredProject(project, endpointName: endpointName, probePath: probePath)
         {
             EndpointPort = endpointPort
         };
-        builder.Resource.MonitoredProjects.Add(healthCheck);
+        builder.Resource.MonitoredProjects.Add(monitoredProject);
 
         return builder;
     }
