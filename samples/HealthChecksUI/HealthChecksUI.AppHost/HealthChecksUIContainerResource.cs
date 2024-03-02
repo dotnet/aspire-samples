@@ -164,6 +164,7 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                             $"{{{project.Resource.Name}.bindings.{healthCheck.EndpointName}.url}}/{healthCheck.ProbePath.TrimStart('/')}");
 
                         // Set the AllowedHosts environment variable to configure host filtering
+                        // TODO: We probably want to do this by default in Aspire.Hosting
                         if (project.Resource.TryGetEndpoints(out var endpoints))
                         {
                             var hosts = endpoints.Select(e => $"{{{project.Resource.Name}.bindings.{e.Name}.host}}");
