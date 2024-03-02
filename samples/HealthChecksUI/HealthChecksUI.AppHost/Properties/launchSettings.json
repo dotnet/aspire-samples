@@ -17,8 +17,8 @@
       "commandLineArgs": "--publisher manifest --output-path aspire-manifest.json",
       "dotnetRunMessages": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "DOTNET_ENVIRONMENT": "Production"
       }
     }
   }
