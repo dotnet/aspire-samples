@@ -20,7 +20,7 @@
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
         "HEALTHCHECKSUI_URLS": "{apiservice.bindings.http.url}/healthz",
-        "AllowedHosts": "{apiservice.bindings.http.host}"
+        "AllowedHosts": "{apiservice.bindings.http.host};{apiservice.bindings.https.host}"
       },
       "bindings": {
         "http": {
@@ -43,7 +43,7 @@
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
         "ConnectionStrings__cache": "{cache.connectionString}",
         "HEALTHCHECKSUI_URLS": "{webfrontend.bindings.healthchecksui.url}/healthz",
-        "AllowedHosts": "{webfrontend.bindings.healthchecksui.host}",
+        "AllowedHosts": "{webfrontend.bindings.http.host};{webfrontend.bindings.https.host};{webfrontend.bindings.healthchecksui.host}",
         "services__apiservice__0": "{apiservice.bindings.http.url}",
         "services__apiservice__1": "{apiservice.bindings.https.url}"
       },

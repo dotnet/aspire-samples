@@ -164,8 +164,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                             $"{{{project.Resource.Name}.bindings.{healthCheck.EndpointName}.url}}/{healthCheck.ProbePath.TrimStart('/')}");
 
                         // Set the AllowedHosts environment variable to configure host filtering
-                        context.EnvironmentVariables.AddDelimitedValue("AllowedHosts",
-                            $"{{{project.Resource.Name}.bindings.{healthCheck.EndpointName}.host}}");
+                        if (project.Resource.TryGetEndpoints(out var endpoints))
+                        {
+                            var hosts = endpoints.Select(e => $"{{{project.Resource.Name}.bindings.{e.Name}.host}}");
+                            context.EnvironmentVariables.AddDelimitedValues("AllowedHosts", hosts);
+                        }
                     }
                 });
             }
