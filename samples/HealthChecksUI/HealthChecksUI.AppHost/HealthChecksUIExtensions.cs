@@ -21,10 +21,10 @@ public static class HealthChecksUIExtensions
     {
         builder.Services.TryAddLifecycleHook<HealthChecksUILifecycleHook>();
 
-        var keycloakContainer = new HealthChecksUIResource(name);
+        var resource = new HealthChecksUIResource(name);
 
         return builder
-            .AddResource(keycloakContainer)
+            .AddResource(resource)
             .WithAnnotation(new ContainerImageAnnotation { Image = HealthChecksUIDefaults.ContainerImageName, Tag = tag ?? "5.0.0" })
             .WithEnvironment(HealthChecksUIResource.KnownEnvVars.UiPath, "/")
             .WithHttpEndpoint(hostPort: port, containerPort: HealthChecksUIDefaults.ContainerPort);
