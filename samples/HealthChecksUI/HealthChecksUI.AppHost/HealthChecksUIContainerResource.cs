@@ -162,6 +162,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         // Set/update the environment variable for health checks endpoint URL
                         context.EnvironmentVariables.AddDelimitedValue(HEALTHCHECKSUI_URLS,
                             $"{{{project.Resource.Name}.bindings.{healthCheck.EndpointName}.url}}/{healthCheck.ProbePath.TrimStart('/')}");
+
+                        // Set the AllowedHosts environment variable to configure host filtering
+                        context.EnvironmentVariables.AddDelimitedValue("AllowedHosts",
+                            // TODO: Not sure how to build an manifest expression here that just gets the host part of the URL
+                            $"{{{healthCheck.Project.GetEndpoint(healthCheck.EndpointName).ValueExpression}");
                     }
                 });
             }
