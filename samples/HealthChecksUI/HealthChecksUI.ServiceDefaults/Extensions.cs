@@ -1,5 +1,6 @@
-﻿using HealthChecks.UI.Client;
-using HealthChecksUI;
+﻿using System;
+using System.Net;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
@@ -107,21 +108,59 @@ public static class Extensions
         app.MapHealthChecks("/health");
 
         // Only health checks tagged with the "live" tag must pass for app to be considered alive
-        app.MapHealthChecks("/alive", new HealthCheckOptions
+        app.MapHealthChecks("/alive", new()
         {
             Predicate = r => r.Tags.Contains("live")
         });
 
         // Health checks for the HealthChecksUI
-        var internalHealthChecksUrl = app.Configuration[HealthChecksUIEnvVars.InternalUrl];
-        if (!string.IsNullOrEmpty(internalHealthChecksUrl) && Uri.TryCreate(internalHealthChecksUrl, UriKind.Absolute, out var uri))
+        var healthChecksUrls = app.Configuration["HEALTHCHECKSUI_URLS"];
+        if (!string.IsNullOrWhiteSpace(healthChecksUrls))
         {
-            var hostMask = $"*:{uri.Port}";
-            var path = uri.AbsolutePath; // TODO: Strip PathBase from this if present
-            app.MapHealthChecks(path, new() { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse })
-                .RequireHost(hostMask);
+            var pathToHostsMap = GetPathToHostsMap(healthChecksUrls);
+
+            foreach (var path in pathToHostsMap.Keys)
+            {
+                // Ensure that the HealthChecksUI endpoint is only accessible from configured hosts, e.g. localhost, hub.docker.internal, etc.
+                var hosts = pathToHostsMap[path].ToArray();
+
+                app.MapHealthChecks(path, new() { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse })
+                    // This ensures that the HealthChecksUI endpoint is only accessible from the configured health checks URLs.
+                    // See this documentation to learn more about restricting access to health checks endpoints via routing:
+                    // https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-8.0#use-health-checks-routing
+                    .RequireHost(hosts);
+            }
         }
 
         return app;
+    }
+
+    private static Dictionary<string, List<string>> GetPathToHostsMap(string healthChecksUrls)
+    {
+        // Given a value like "localhost:12345/healthz;hub.docker.internal:12345/healthz" return a dictionary like:
+        // { { "healthz", [ "localhost:12345", "hub.docker.internal:12345" ] } }
+
+        var uris = healthChecksUrls.Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(url => new Uri(url, UriKind.Absolute))
+            .ToArray();
+
+        var map = new Dictionary<string, List<string>>();
+
+        foreach (var uri in uris)
+        {
+            var host = uri.Authority;
+            var path = uri.AbsolutePath;
+
+            if (map.TryGetValue(path, out var hosts))
+            {
+                hosts.Add(host);
+            }
+            else
+            {
+                map.Add(path, [host]);
+            }
+        }
+
+        return map;
     }
 }

@@ -1,35 +1,55 @@
-﻿using Aspire.Hosting.Lifecycle;
+﻿using Aspire.Hosting;
+using Aspire.Hosting.Lifecycle;
+using Microsoft.AspNetCore.SignalR;
 
 namespace HealthChecksUI;
 
 public class HealthChecksUIContainerResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery
 {
-    public IList<HealthCheck> HealthChecks { get; } = [];
+    public IList<HealthCheckProject> HealthChecks { get; } = [];
+
+    /// <summary>
+    /// Known environment variables for the HealthChecksUI container that can be used to configure the container.
+    /// Taken from https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/blob/master/doc/ui-docker.md#environment-variables-table
+    /// </summary>
+    public static class EnvVars
+    {
+        public const string UiPath = "ui_path";
+        // These keys are taken from https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks?tab=readme-ov-file#sample-2-configuration-using-appsettingsjson
+        public const string HealthChecksConfigSection = "HealthChecksUI__HealthChecks";
+        public const string HealthCheckName = "Name";
+        public const string HealthCheckUri = "Uri";
+
+        public static string GetHealthCheckNameKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckName}";
+
+        public static string GetHealthCheckUriKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckUri}";
+    }
 }
 
-public class HealthCheck(IResourceBuilder<ProjectResource> project, string endpointName, string probePath)
+/// <summary>
+/// Represents a project to be monitored by a <see href="HealthChecksUIContainerResource"/>.
+/// </summary>
+public class HealthCheckProject(IResourceBuilder<ProjectResource> project, string endpointName, string probePath)
 {
     private string? _name;
     private Uri? _uri;
+    private string? _uriExpression;
 
-    public IResourceBuilder<ProjectResource> Project { get; } = project;
+    public IResourceBuilder<ProjectResource> Project { get; } = project ?? throw new ArgumentNullException(nameof(project));
 
-    public string EndpointName { get; } = endpointName;
+    public string EndpointName { get; } = endpointName ?? throw new ArgumentNullException(nameof(endpointName));
 
     public string Name
     {
         get => _name ?? Project.Resource.Name;
-        set
-        {
-            _name = value;
-        }
+        set { _name = value; }
     }
 
     public int? Port { get; set; }
 
-    public string ProbePath { get; set; } = probePath;
+    public string ProbePath { get; set; } = probePath ?? throw new ArgumentNullException(nameof(probePath));
 
-    public Uri Uri
+    public Uri ProjectUri
     {
         get
         {
@@ -43,10 +63,27 @@ public class HealthCheck(IResourceBuilder<ProjectResource> project, string endpo
             return _uri;
         }
     }
+
+    public string ProjectUriExpression
+    {
+        get
+        {
+            if (_uriExpression is null)
+            {
+                var baseUrl = Project.GetEndpoint(EndpointName).ValueExpression.TrimEnd('/');
+                var path = ProbePath.TrimStart('/');
+                _uriExpression = $"{baseUrl}/{path}";
+            }
+
+            return _uriExpression;
+        }
+    }
 }
 
-internal class HealthChecksUILifecycleHook : IDistributedApplicationLifecycleHook
+internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContext executionContext) : IDistributedApplicationLifecycleHook
 {
+    private const string HEALTHCHECKSUI_URLS = "HEALTHCHECKSUI_URLS";
+
     public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
         // Configure each project referenced by a Health Checks UI resource to listen on configured endpoint for health checks for the UI
@@ -60,34 +97,63 @@ internal class HealthChecksUILifecycleHook : IDistributedApplicationLifecycleHoo
             {
                 var project = healthCheck.Project;
 
-                var healthChecksEndpoint = project.Resource.Annotations
-                    .OfType<EndpointAnnotation>()
-                    .SingleOrDefault(a => string.Equals(a.Name, healthCheck.EndpointName, StringComparison.OrdinalIgnoreCase));
+                var existingHealthCheckEndpoint = project.Resource.GetEndpoint(healthCheck.EndpointName);
 
-                if (healthChecksEndpoint is null)
+                if (existingHealthCheckEndpoint is null)
                 {
-                    // Add an endpoint for health checks if not already present
-                    // TODO: Figure out HTTP vs. HTTPS, e.g. find other endpoints added and if there's an HTTPS endpoint then make this one HTTPS too
-                    project.WithHttpEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
+                    // Add an endpoint for health checks if not already present.
+                    // Use existing endpoints to figure out if project is configured for HTTPS or not (related to https://github.com/dotnet/aspire/issues/2453)
+                    if (project.Resource.HasHttpsEndpoint())
+                    {
+                        project.WithHttpsEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
+                    }
+                    else if (project.Resource.HasHttpEndpoint())
+                    {
+                        project.WithHttpEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Project resource '{project.Resource.Name}' has no HTTP or HTTPS endpoints so cannot be configured for HealthChecksUI.");
+                    }
                 }
 
-                // Set the environment variables for the port and probe path of the health checks endpoint
-                project.WithEnvironment(HealthChecksUIEnvVars.InternalUrl, () =>
+                project.WithEnvironment(context =>
                 {
-                    if (project.Resource.TryGetAllocatedEndPoints(out var endpoints)
-                        && endpoints.SingleOrDefault(e => string.Equals(e.Name, healthCheck.EndpointName, StringComparison.OrdinalIgnoreCase)) is { } allocatedEndpoint)
+                    if (context.ExecutionContext.IsRunMode)
                     {
-                        var baseUri = new Uri(allocatedEndpoint.UriString);
-                        var fullUri = new Uri(baseUri, healthCheck.ProbePath);
+                        // Running during dev inner-loop
+                        // Set/update the environment variable for health checks endpoint URL
+                        if (project.Resource.GetAllocatedEndpoint(healthCheck.EndpointName) is { } allocatedEndpoint
+                            && Uri.TryCreate(allocatedEndpoint.UriString, UriKind.Absolute, out var baseUri))
+                        {
+                            var healthChecksUri = new Uri(baseUri, healthCheck.ProbePath);
 
-                        return fullUri.ToString();
-                        //return allocatedEndpoint.Port.ToString();
+                            context.EnvironmentVariables.AddDelimitedValues(HEALTHCHECKSUI_URLS,
+                                [healthChecksUri.ToString(), healthChecksUri.ToString().Replace("localhost", "host.docker.internal")]);
+
+                            // Set the AllowedHosts environment variable to configure host filtering
+                            context.EnvironmentVariables.AddDelimitedValues("AllowedHosts", [baseUri.Host, baseUri.Host.Replace("localhost", "host.docker.internal")]);
+
+                            return;
+                        }
+
+                        throw new InvalidOperationException($"Couldn't find endpoint with name '{healthCheck.EndpointName}' for health checks or endpoint could not be parsed as a valid URI.");
                     }
-
-                    throw new InvalidOperationException($"Couldn't find endpoint with name '{healthCheck.EndpointName}' for health checks.");
+                    else
+                    {
+                        // Publishing the manifest
+                        // "{resourcename.bindings.endpoint.url}"
+                        // Set/update the environment variable for health checks endpoint URL
+                        context.EnvironmentVariables.AddDelimitedValue(HEALTHCHECKSUI_URLS,
+                            $"{{{project.Resource.Name}.bindings.{healthCheck.EndpointName}.url}}/{healthCheck.ProbePath.TrimStart('/')}");
+                    }
                 });
-                //project.WithEnvironment(HealthChecksUIEnvVars.InternalPath, () => healthCheck.ProbePath);
             }
+        }
+
+        if (executionContext.IsPublishMode)
+        {
+            ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: true);
         }
 
         return Task.CompletedTask;
@@ -95,26 +161,70 @@ internal class HealthChecksUILifecycleHook : IDistributedApplicationLifecycleHoo
 
     public Task AfterEndpointsAllocatedAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
-        var healhChecksUIResources = appModel.Resources.OfType<HealthChecksUIContainerResource>();
+        ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: false);
 
-        // Add environment variables pointing to health checks endpoints of each referenced project on each Health Checks UI resource
+        return Task.CompletedTask;
+    }
+
+    private static void ConfigureHealthChecksUIContainers(IResourceCollection resources, bool isPublishing)
+    {
+        var healhChecksUIResources = resources.OfType<HealthChecksUIContainerResource>();
+
         foreach (var healthChecksUIResource in healhChecksUIResources)
         {
             var healthChecks = healthChecksUIResource.HealthChecks;
 
+            // Add environment variables to configure the HealthChecksUI container with the health checks endpoints of each referenced project
+            // See example configuration at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks?tab=readme-ov-file#sample-2-configuration-using-appsettingsjson
             for (var i = 0; i < healthChecks.Count; i++)
             {
                 var healthCheck = healthChecks[i];
 
                 healthChecksUIResource.Annotations.Add(
-                    new EnvironmentCallbackAnnotation($"{HealthChecksUIEnvVars.HealthChecksConfigurationKeyPrefix}{i}__{HealthChecksUIEnvVars.HealthCheckConfigurationName}",
-                    () => healthCheck.Name));
+                    new EnvironmentCallbackAnnotation(
+                        HealthChecksUIContainerResource.EnvVars.GetHealthCheckNameKey(i),
+                        () => healthCheck.Name));
                 healthChecksUIResource.Annotations.Add(
-                    new EnvironmentCallbackAnnotation($"{HealthChecksUIEnvVars.HealthChecksConfigurationKeyPrefix}{i}__{HealthChecksUIEnvVars.HealthCheckConfigurationUri}",
-                    () => healthCheck.Uri.ToString().Replace("localhost", "host.docker.internal")));
+                    new EnvironmentCallbackAnnotation(
+                        HealthChecksUIContainerResource.EnvVars.GetHealthCheckUriKey(i),
+                        () => isPublishing ? healthCheck.ProjectUriExpression : healthCheck.ProjectUri.ToString().Replace("localhost", "host.docker.internal")));
             }
         }
+    }
+}
 
-        return Task.CompletedTask;
+internal static class ResourceExtensions
+{
+    public static EndpointAnnotation? GetEndpoint(this IResource resource, string name) =>
+        resource.Annotations.OfType<EndpointAnnotation>().FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    public static AllocatedEndpointAnnotation? GetAllocatedEndpoint(this IResource resource, string name) =>
+        resource.Annotations.OfType<AllocatedEndpointAnnotation>().FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    public static bool HasHttpEndpoint(this IResource resource) =>
+        resource.TryGetEndpoints(out var endpoints) && endpoints.Any(e => string.Equals(e.UriScheme, "http", StringComparison.OrdinalIgnoreCase));
+
+    public static bool HasHttpsEndpoint(this IResource resource) =>
+        resource.TryGetEndpoints(out var endpoints) && endpoints.Any(e => string.Equals(e.UriScheme, "https", StringComparison.OrdinalIgnoreCase));
+
+    public static void AddDelimitedValues(this IDictionary<string, string> dictionary, string key, IEnumerable<string> values, char separator = ';')
+    {
+        HashSet<string> existingValues = dictionary.TryGetValue(key, out var existing)
+            ? new(existing.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            : [];
+        foreach (var value in values)
+        {
+            existingValues.Add(value);
+        }
+        dictionary[key] = string.Join(separator, existingValues);
+    }
+
+    public static void AddDelimitedValue(this IDictionary<string, string> dictionary, string key, string value, char separator = ';')
+    {
+        HashSet<string> values = dictionary.TryGetValue(key, out var existing)
+            ? new(existing.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            : [];
+        values.Add(value);
+        dictionary[key] = string.Join(separator, values);
     }
 }

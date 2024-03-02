@@ -17,8 +17,8 @@ public static class HealthChecksUIExtensions
 
         return builder
             .AddResource(keycloakContainer)
-            .WithAnnotation(new ContainerImageAnnotation { Image = HealthChecksUIDefaults.ContainerImageName, Tag = tag ?? "latest" })
-            .WithEnvironment(HealthChecksUIEnvVars.UiPath, "/")
+            .WithAnnotation(new ContainerImageAnnotation { Image = HealthChecksUIDefaults.ContainerImageName, Tag = tag ?? "5.0.0" })
+            .WithEnvironment(HealthChecksUIContainerResource.EnvVars.UiPath, "/")
             .WithHttpEndpoint(hostPort: port, containerPort: HealthChecksUIDefaults.ContainerPort);
     }
 
@@ -26,16 +26,25 @@ public static class HealthChecksUIExtensions
         this IResourceBuilder<HealthChecksUIContainerResource> builder,
         IResourceBuilder<ProjectResource> project,
         string probePath = HealthChecksUIDefaults.ProbePath,
-        string endpointName = HealthChecksUIDefaults.InternalEndpointName,
+        string endpointName = HealthChecksUIDefaults.EndpointName,
         int? hostPort = null)
     {
-        var healthCheck = new HealthCheck(project, endpointName: endpointName, probePath: probePath) { Port = hostPort };
-        if (probePath is not null)
+        var healthCheck = new HealthCheckProject(project, endpointName: endpointName, probePath: probePath)
         {
-            healthCheck.ProbePath = probePath;
-        }
+            Port = hostPort
+        };
         builder.Resource.HealthChecks.Add(healthCheck);
 
         return builder;
     }
+
+    // TODO: Support referencing supported database containers and/or connection strings and configuring the HealthChecksUI container to use them
+}
+
+public static class HealthChecksUIDefaults
+{
+    public const string ContainerImageName = "xabarilcoding/healthchecksui";
+    public const int ContainerPort = 80;
+    public const string ProbePath = "/healthz";
+    public const string EndpointName = "healthchecksui";
 }

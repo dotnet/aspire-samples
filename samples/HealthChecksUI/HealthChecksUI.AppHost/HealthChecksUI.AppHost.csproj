@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HealthChecksUI.ApiService\HealthChecksUI.ApiService.csproj" />
     <ProjectReference Include="..\HealthChecksUI.Web\HealthChecksUI.Web.csproj" />
   </ItemGroup>
