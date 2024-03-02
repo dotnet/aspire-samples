@@ -5,7 +5,15 @@ namespace Aspire.Hosting;
 
 public static class HealthChecksUIExtensions
 {
-    public static IResourceBuilder<HealthChecksUIContainerResource> AddHealthChecksUI(
+    /// <summary>
+    /// Adds a HealthChecksUI container to the application model.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="name">The resource name.</param>
+    /// <param name="port">The host port to expose the container on.</param>
+    /// <param name="tag">The tag to use for the container image. Defaults to <c>"5.0.0"</c>.</param>
+    /// <returns></returns>
+    public static IResourceBuilder<HealthChecksUIResource> AddHealthChecksUI(
         this IDistributedApplicationBuilder builder,
         string name,
         int? port = null,
@@ -13,27 +21,36 @@ public static class HealthChecksUIExtensions
     {
         builder.Services.TryAddLifecycleHook<HealthChecksUILifecycleHook>();
 
-        var keycloakContainer = new HealthChecksUIContainerResource(name);
+        var keycloakContainer = new HealthChecksUIResource(name);
 
         return builder
             .AddResource(keycloakContainer)
             .WithAnnotation(new ContainerImageAnnotation { Image = HealthChecksUIDefaults.ContainerImageName, Tag = tag ?? "5.0.0" })
-            .WithEnvironment(HealthChecksUIContainerResource.EnvVars.UiPath, "/")
+            .WithEnvironment(HealthChecksUIResource.KnownEnvVars.UiPath, "/")
             .WithHttpEndpoint(hostPort: port, containerPort: HealthChecksUIDefaults.ContainerPort);
     }
 
-    public static IResourceBuilder<HealthChecksUIContainerResource> WithReference(
-        this IResourceBuilder<HealthChecksUIContainerResource> builder,
+    /// <summary>
+    /// Adds a reference to a project that will be monitored by the HealthChecksUI container.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="project">The project.</param>
+    /// <param name="probePath">The request path the project serves health check details from.</param>
+    /// <param name="endpointName">The name of the endpoint the project serves health check details from. If it doesn't exist it will be added.</param>
+    /// <param name="endpointPort">Port to use if creating a new endpoint for the health checks.</param>
+    /// <returns></returns>
+    public static IResourceBuilder<HealthChecksUIResource> WithReference(
+        this IResourceBuilder<HealthChecksUIResource> builder,
         IResourceBuilder<ProjectResource> project,
         string probePath = HealthChecksUIDefaults.ProbePath,
         string endpointName = HealthChecksUIDefaults.EndpointName,
-        int? hostPort = null)
+        int? endpointPort = null)
     {
-        var healthCheck = new HealthCheckProject(project, endpointName: endpointName, probePath: probePath)
+        var healthCheck = new MonitoredProject(project, endpointName: endpointName, probePath: probePath)
         {
-            Port = hostPort
+            EndpointPort = endpointPort
         };
-        builder.Resource.HealthChecks.Add(healthCheck);
+        builder.Resource.MonitoredProjects.Add(healthCheck);
 
         return builder;
     }

@@ -1,18 +1,21 @@
-﻿using Aspire.Hosting;
-using Aspire.Hosting.Lifecycle;
-using Microsoft.AspNetCore.SignalR;
+﻿using Aspire.Hosting.Lifecycle;
 
 namespace HealthChecksUI;
 
-public class HealthChecksUIContainerResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery
+/// <summary>
+/// A container-based resource for the HealthChecksUI container.
+/// See https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks?tab=readme-ov-file#HealthCheckUI
+/// </summary>
+/// <param name="name">The resource name.</param>
+public class HealthChecksUIResource(string name) : ContainerResource(name), IResourceWithServiceDiscovery
 {
-    public IList<HealthCheckProject> HealthChecks { get; } = [];
+    public IList<MonitoredProject> MonitoredProjects { get; } = [];
 
     /// <summary>
     /// Known environment variables for the HealthChecksUI container that can be used to configure the container.
     /// Taken from https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/blob/master/doc/ui-docker.md#environment-variables-table
     /// </summary>
-    public static class EnvVars
+    public static class KnownEnvVars
     {
         public const string UiPath = "ui_path";
         // These keys are taken from https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks?tab=readme-ov-file#sample-2-configuration-using-appsettingsjson
@@ -20,32 +23,41 @@ public class HealthChecksUIContainerResource(string name) : ContainerResource(na
         public const string HealthCheckName = "Name";
         public const string HealthCheckUri = "Uri";
 
-        public static string GetHealthCheckNameKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckName}";
+        internal static string GetHealthCheckNameKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckName}";
 
-        public static string GetHealthCheckUriKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckUri}";
+        internal static string GetHealthCheckUriKey(int index) => $"{HealthChecksConfigSection}__{index}__{HealthCheckUri}";
     }
 }
 
 /// <summary>
-/// Represents a project to be monitored by a <see href="HealthChecksUIContainerResource"/>.
+/// Represents a project to be monitored by a <see cref="HealthChecksUIResource"/>.
 /// </summary>
-public class HealthCheckProject(IResourceBuilder<ProjectResource> project, string endpointName, string probePath)
+public class MonitoredProject(IResourceBuilder<ProjectResource> project, string endpointName, string probePath)
 {
     private string? _name;
     private Uri? _uri;
     private string? _uriExpression;
 
+    /// <summary>
+    /// The project to be monitored.
+    /// </summary>
     public IResourceBuilder<ProjectResource> Project { get; } = project ?? throw new ArgumentNullException(nameof(project));
 
+    /// <summary>
+    /// The name of the endpoint the project serves health check details from. If it doesn't exist it will be added.
+    /// </summary>
     public string EndpointName { get; } = endpointName ?? throw new ArgumentNullException(nameof(endpointName));
+
+    /// <summary>
+    /// The port to use if creating a new endpoint for the health checks.
+    /// </summary>
+    public int? EndpointPort { get; set; }
 
     public string Name
     {
         get => _name ?? Project.Resource.Name;
         set { _name = value; }
     }
-
-    public int? Port { get; set; }
 
     public string ProbePath { get; set; } = probePath ?? throw new ArgumentNullException(nameof(probePath));
 
@@ -87,11 +99,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
     public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
         // Configure each project referenced by a Health Checks UI resource to listen on configured endpoint for health checks for the UI
-        var healthChecksUIResources = appModel.Resources.OfType<HealthChecksUIContainerResource>();
+        var healthChecksUIResources = appModel.Resources.OfType<HealthChecksUIResource>();
 
         foreach (var healthChecksUIResource in healthChecksUIResources)
         {
-            var healthChecks = healthChecksUIResource.HealthChecks;
+            var healthChecks = healthChecksUIResource.MonitoredProjects;
 
             foreach (var healthCheck in healthChecks)
             {
@@ -105,16 +117,20 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                     // Use existing endpoints to figure out if project is configured for HTTPS or not (related to https://github.com/dotnet/aspire/issues/2453)
                     if (project.Resource.HasHttpsEndpoint())
                     {
-                        project.WithHttpsEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
+                        project.WithHttpsEndpoint(hostPort: healthCheck.EndpointPort, name: healthCheck.EndpointName);
                     }
                     else if (project.Resource.HasHttpEndpoint())
                     {
-                        project.WithHttpEndpoint(hostPort: healthCheck.Port, name: healthCheck.EndpointName);
+                        project.WithHttpEndpoint(hostPort: healthCheck.EndpointPort, name: healthCheck.EndpointName);
                     }
                     else
                     {
                         throw new InvalidOperationException($"Project resource '{project.Resource.Name}' has no HTTP or HTTPS endpoints so cannot be configured for HealthChecksUI.");
                     }
+                }
+                else if (healthCheck.EndpointPort.HasValue)
+                {
+                    throw new InvalidOperationException($"Cannot specify a custom port for health check endpoint for project'{project.Resource.Name}' as the endpoint name specified '{healthCheck.EndpointName}' already exists.");
                 }
 
                 project.WithEnvironment(context =>
@@ -168,11 +184,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
 
     private static void ConfigureHealthChecksUIContainers(IResourceCollection resources, bool isPublishing)
     {
-        var healhChecksUIResources = resources.OfType<HealthChecksUIContainerResource>();
+        var healhChecksUIResources = resources.OfType<HealthChecksUIResource>();
 
         foreach (var healthChecksUIResource in healhChecksUIResources)
         {
-            var healthChecks = healthChecksUIResource.HealthChecks;
+            var healthChecks = healthChecksUIResource.MonitoredProjects;
 
             // Add environment variables to configure the HealthChecksUI container with the health checks endpoints of each referenced project
             // See example configuration at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks?tab=readme-ov-file#sample-2-configuration-using-appsettingsjson
@@ -182,11 +198,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
 
                 healthChecksUIResource.Annotations.Add(
                     new EnvironmentCallbackAnnotation(
-                        HealthChecksUIContainerResource.EnvVars.GetHealthCheckNameKey(i),
+                        HealthChecksUIResource.KnownEnvVars.GetHealthCheckNameKey(i),
                         () => healthCheck.Name));
                 healthChecksUIResource.Annotations.Add(
                     new EnvironmentCallbackAnnotation(
-                        HealthChecksUIContainerResource.EnvVars.GetHealthCheckUriKey(i),
+                        HealthChecksUIResource.KnownEnvVars.GetHealthCheckUriKey(i),
                         () => isPublishing ? healthCheck.ProjectUriExpression : healthCheck.ProjectUri.ToString().Replace("localhost", "host.docker.internal")));
             }
         }

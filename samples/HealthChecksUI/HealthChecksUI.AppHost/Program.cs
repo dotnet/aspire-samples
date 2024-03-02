@@ -9,7 +9,7 @@ var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
     .WithReference(apiService);
 
 builder.AddHealthChecksUI("healthchecksui")
-    .WithReference(apiService)
-    .WithReference(webFrontend, endpointName: "http");
+    .WithReference(apiService, endpointName: "http")
+    .WithReference(webFrontend);
 
 builder.Build().Run();
