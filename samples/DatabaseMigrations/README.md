@@ -20,6 +20,8 @@ The sample has three important projects:
 - `DatabaseMigrations.MigrationService` - A background worker app that applies migrations when it starts up.
 - `DatabaseMigrations.ApiModel` - The EF Core context, model and migrations. This project is used by the API and migration service.
 
+`DatabaseMigrations.ApiService` and `DatabaseMigrations.MigrationService` reference a SQL Server resource. During local development the SQL Server resource is launched in a container.
+
 ## Demonstrates
 
 - How to create migrations in an Aspire solution
@@ -34,6 +36,7 @@ This sample is written in C# and targets .NET 8.0. It requires the [.NET 8.0 SDK
 The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrations. The [`dotnet ef` command-line tool](https://learn.microsoft.com/ef/core/managing-schemas/migrations/#install-the-tools) can be used to create new migrations:
 
 1. Update the `Entry` entity in database context in `MyDb1Context.cs`. Add a `Name` property:
+
     ```cs
     public class Entry
     {
@@ -41,14 +44,20 @@ The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrati
         public string? Name { get; set; }
     }
     ```
+
 2. Open a command prompt in the `DatabaseMigrations.ApiService` directory and run the EF Core migration tool to create a migration named `MyNewMigration`
+
     ```bash
     dotnet ef migrations add MyNewMigration --project ..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj
     ```
+
     The proceeding command:
+
         * Runs EF Core migration command-line tool in the `DatabaseMigrations.ApiService` directory. `dotnet ef` is run in this location because the API service is where the DB context is used.
         * Creates a migration named `MyNewMigration`.
         * Creates the migration in the `DatabaseMigrations.ApiModel`.
+
+3. View the created migration in the `DatabaseMigrations.ApiModel` project.
 
 ## Run the app
 
