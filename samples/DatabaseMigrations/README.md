@@ -52,7 +52,6 @@ The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrati
     ```
 
     The proceeding command:
-
         * Runs EF Core migration command-line tool in the `DatabaseMigrations.ApiService` directory. `dotnet ef` is run in this location because the API service is where the DB context is used.
         * Creates a migration named `MyNewMigration`.
         * Creates the migration in the `DatabaseMigrations.ApiModel`.
