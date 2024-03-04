@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
 
-namespace DatabaseMigration.MigrationService;
+namespace DatabaseMigrations.MigrationService;
 
 public class ApiDbInitializer(
     IServiceProvider serviceProvider,

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DatabaseMigration.ApiModel.Migrations
+namespace DatabaseMigrations.ApiModel.Migrations
 {
     [DbContext(typeof(MyDb1Context))]
     partial class MyDb1ContextModelSnapshot : ModelSnapshot

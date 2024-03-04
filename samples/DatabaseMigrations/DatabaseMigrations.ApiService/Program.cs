@@ -11,7 +11,7 @@ builder.AddSqlServerDbContext<MyDb1Context>("db1", configureDbContextOptions: op
 {
     options.UseSqlServer(sqlServerOptions =>
     {
-        sqlServerOptions.MigrationsAssembly("DatabaseMigration.ApiModel");
+        sqlServerOptions.MigrationsAssembly("DatabaseMigrations.ApiModel");
     });
 });
 

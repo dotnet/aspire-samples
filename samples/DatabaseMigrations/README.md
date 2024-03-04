@@ -5,74 +5,59 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: "Standalone Aspire dashboard sample app"
-urlFragment: "aspire-standalone-dashboard"
-description: "A sample of using the Aspire dashboard to view telemetry from non-Aspire apps."
+name: "Database migrations with Entity Framework Core sample app"
+urlFragment: "aspire-efcore-migrations"
+description: "A sample of using Entity Framework Core database migrations feature to update a database schema."
 ---
 
-# Standalone Aspire dashboard sample app
+# Database migrations with Entity Framework Core sample app
 
-View telemetry from any app in the Aspire dashboard. The dashboard supports running standalone, and apps configured with an [OpenTelemetry SDK](https://opentelemetry.io/docs/getting-started/dev/) can send it data.
+This sample demonstrates how to use Entity Framework Core's [migrations feature](https://learn.microsoft.com/ef/core/managing-schemas/migrations) with Aspire.
 
-This sample is a .NET console app that downloads data from [PokeAPI](https://pokeapi.co/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
+The sample has three important projects:
 
-![Screenshot of the standalone .NET Aspire dashboard](./images/aspire-dashboard-screenshot.png)
-
-> [!NOTE]
-> [PokeAPI](https://pokeapi.co/) is a free, open-source RESTful API that is not owned by Microsoft.
+- `DatabaseMigrations.ApiService` - A web app that calls the database.
+- `DatabaseMigrations.MigrationService` - A background worker app that applies migrations when it starts up.
+- `DatabaseMigrations.ApiModel` - The EF Core context, model and migrations. This project is used by the API and migration service.
 
 ## Demonstrates
 
-- How to run the Aspire dashboard from a Docker container
-- How to configure a .NET app to export telemetry to the dashboard
-- How to view telemetry in the Aspire dashboard
+- How to create migrations in an Aspire solution
+- How to apply migrations in an Aspire solution
 
 ## Sample prerequisites
 
 This sample is written in C# and targets .NET 8.0. It requires the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
 
-This sample runs the Aspire dashboard from a Docker container. It requires Docker to be installed.
+## Create migration
 
-## Start Aspire dashboard
+The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrations. The [`dotnet ef` command-line tool](https://learn.microsoft.com/ef/core/managing-schemas/migrations/#install-the-tools) can be used to create new migrations:
 
-The following command starts the Aspire dashboard in a Docker container:
+1. Update the `Entry` entity in database context in `MyDb1Context.cs`. Add a `Name` property:
+    ```cs
+    public class Entry
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string? Name { get; set; }
+    }
+    ```
+2. Open a command prompt in the `DatabaseMigrations.ApiService` directory and run the EF Core migration tool to create a migration named `MyNewMigration`
+    ```bash
+    dotnet ef migrations add MyNewMigration --project ..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj
+    ```
+    The proceeding command:
+        * Runs EF Core migration command-line tool in the `DatabaseMigrations.ApiService` directory. `dotnet ef` is run in this location because the API service is where the DB context is used.
+        * Creates a migration named `MyNewMigration`.
+        * Creates the migration in the `DatabaseMigrations.ApiModel`.
 
-``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.4
-```
+## Run the app
 
-The docker command:
+If using Visual Studio, open the solution file `DatabaseMigrations.sln` and launch/debug the `DatabaseMigrations.AppHost` project.
 
-* Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard` image.
-* The container has two ports:
-  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
-  * Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
+If using the .NET CLI, run `dotnet run` from the `DatabaseContainers.AppHost` directory.
 
-## Building the sample
+When the app starts up, the `DatabaseMigrations.MigrationService` background worker runs migrations on the SQL Server container. The migration service:
 
-To download and run the sample, follow these steps:
-
-1. Clone the `dotnet/aspire-samples` repository.
-2. In Visual Studio (2022 or later):
-    1. On the menu bar, choose **File** > **Open** > **Project/Solution**.
-    2. Navigate to the folder that holds the sample code, and open the solution (.sln) file.
-    3. Choose the <kbd>F5</kbd> key to run with debugging, or <kbd>Ctrl</kbd>+<kbd>F5</kbd> keys to run the project without debugging.
-3. From the command line:
-   1. Navigate to the folder that holds the sample code.
-   2. At the command line, type [`dotnet run`](https://docs.microsoft.com/dotnet/core/tools/dotnet-run).
-
-Run the .NET app by executing the following at the command prompt (opened to the base directory of the sample):
-
-``` bash
-dotnet run --project ConsoleApp
-```
-
-1. The console app launches, downloads information about all Pokemon and then exits.
-2. View the Aspire dashboard at http://localhost:18888 to see app telemetry.
-    1. View structured logs to see the list of downloaded Pokemon.
-    2. View traces to see HTTP requests made.
-    3. View metrics to see numeric data about the app such as average HTTP request duration.
-
-## Configure OpenTelemetry
-
-The telemetry export endpoint is configured with the `OTEL_EXPORTER_OTLP_ENDPOINT` setting. This value is set to `http://localhost:4317` in the sample's appsettings.json file. Removing the `OTEL_EXPORTER_OTLP_ENDPOINT` value disables exporting telemetry.
+* Creates a database in the SQL Server container.
+* Creates the database schema.
+* Stops itself once the migration is complete.
