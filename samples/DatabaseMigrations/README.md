@@ -45,7 +45,7 @@ The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrati
     }
     ```
 
-2. Open a command prompt in the `DatabaseMigrations.ApiService` directory and run the EF Core migration tool to create a migration named `MyNewMigration`
+2. Open a command prompt in the `DatabaseMigrations.ApiService` directory and run the EF Core migration tool to create a migration named **MyNewMigration**.
 
     ```bash
     dotnet ef migrations add MyNewMigration --project ..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj
@@ -57,7 +57,7 @@ The `DatabaseMigrations.ApiModel` project contains the EF Core model and migrati
         * Creates a migration named `MyNewMigration`.
         * Creates the migration in the `DatabaseMigrations.ApiModel`.
 
-3. View the created migration in the `DatabaseMigrations.ApiModel` project.
+3. View the new migration in the `DatabaseMigrations.ApiModel` project.
 
 ## Run the app
 
