@@ -18,7 +18,7 @@ The sample has three important projects:
 
 - `DatabaseMigrations.ApiService` - A web app that calls the database.
 - `DatabaseMigrations.MigrationService` - A background worker app that applies migrations when it starts up.
-- `DatabaseMigrations.ApiModel` - The EF Core context, model and migrations. This project is used by the API and migration service.
+- `DatabaseMigrations.ApiModel` - The EF Core context, entities, and migrations. This project is used by the API and migration service.
 
 `DatabaseMigrations.ApiService` and `DatabaseMigrations.MigrationService` reference a SQL Server resource. During local development the SQL Server resource is launched in a container.
 
