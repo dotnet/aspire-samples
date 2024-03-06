@@ -1,4 +1,6 @@
 ﻿using Aspire.Hosting.Lifecycle;
+using Aspire.Hosting.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace HealthChecksUI;
 
@@ -87,7 +89,7 @@ public class MonitoredProject(IResourceBuilder<ProjectResource> project, string 
     }
 }
 
-internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContext executionContext) : IDistributedApplicationLifecycleHook
+internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContext executionContext, IConfiguration configuration) : IDistributedApplicationLifecycleHook
 {
     private const string HEALTHCHECKSUI_URLS = "HEALTHCHECKSUI_URLS";
 
@@ -118,9 +120,8 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         {
                             var healthChecksUri = new Uri(baseUri, monitoredProject.ProbePath);
 
-                            // TODO: Handle Podman case
                             context.EnvironmentVariables.AddDelimitedValues(HEALTHCHECKSUI_URLS,
-                                [healthChecksUri.ToString(), healthChecksUri.ToString().Replace("localhost", "host.docker.internal")]);
+                                [healthChecksUri.ToString(), HostNameResolver.ReplaceLocalhostWithContainerHost(healthChecksUri.ToString(), configuration)]);
 
                             return;
                         }
@@ -141,7 +142,7 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
 
         if (executionContext.IsPublishMode)
         {
-            ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: true);
+            ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: true, configuration);
         }
 
         return Task.CompletedTask;
@@ -149,12 +150,12 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
 
     public Task AfterEndpointsAllocatedAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
-        ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: false);
+        ConfigureHealthChecksUIContainers(appModel.Resources, isPublishing: false, configuration);
 
         return Task.CompletedTask;
     }
 
-    private static void ConfigureHealthChecksUIContainers(IResourceCollection resources, bool isPublishing)
+    private static void ConfigureHealthChecksUIContainers(IResourceCollection resources, bool isPublishing, IConfiguration configuration)
     {
         var healhChecksUIResources = resources.OfType<HealthChecksUIResource>();
 
@@ -177,8 +178,7 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         HealthChecksUIResource.KnownEnvVars.GetHealthCheckUriKey(i),
                         () => isPublishing
                             ? monitoredProject.ProjectUriExpression
-                            // TODO: Handle Podman case
-                            : monitoredProject.ProjectUri.ToString().Replace("localhost", "host.docker.internal")));
+                            : HostNameResolver.ReplaceLocalhostWithContainerHost(monitoredProject.ProjectUri.ToString(), configuration)));
             }
         }
     }
