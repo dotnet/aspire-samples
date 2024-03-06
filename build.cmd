@@ -1,6 +1,6 @@
 @ECHO OFF
 
-dotnet workload update
-dotnet workload install aspire
+REM dotnet workload update
+REM dotnet workload install aspire
 
 dotnet build .\build\Build.proj

@@ -19,19 +19,18 @@
       "env": {
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
-        "HEALTHCHECKSUI_URLS": "{apiservice.bindings.http.url}/healthz",
-        "AllowedHosts": "{apiservice.bindings.http.host};{apiservice.bindings.https.host}"
+        "HEALTHCHECKSUI_URLS": "{apiservice.bindings.http.url}/healthz"
       },
       "bindings": {
         "http": {
           "scheme": "http",
           "protocol": "tcp",
-          "transport": "http"
+          "transport": "tcp"
         },
         "https": {
           "scheme": "https",
           "protocol": "tcp",
-          "transport": "http"
+          "transport": "tcp"
         }
       }
     },
@@ -42,8 +41,7 @@
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
         "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
         "ConnectionStrings__cache": "{cache.connectionString}",
-        "HEALTHCHECKSUI_URLS": "{webfrontend.bindings.healthchecksui.url}/healthz",
-        "AllowedHosts": "{webfrontend.bindings.http.host};{webfrontend.bindings.https.host};{webfrontend.bindings.healthchecksui.host}",
+        "HEALTHCHECKSUI_URLS": "{webfrontend.bindings.http.url}/healthz",
         "services__apiservice__0": "{apiservice.bindings.http.url}",
         "services__apiservice__1": "{apiservice.bindings.https.url}"
       },
@@ -51,17 +49,24 @@
         "http": {
           "scheme": "http",
           "protocol": "tcp",
-          "transport": "http"
+          "transport": "tcp"
         },
         "https": {
           "scheme": "https",
           "protocol": "tcp",
-          "transport": "http"
+          "transport": "tcp"
         },
-        "healthchecksui": {
+        "http-external": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "external": true
+        },
+        "https-external": {
           "scheme": "https",
           "protocol": "tcp",
-          "transport": "http"
+          "transport": "tcp",
+          "external": true
         }
       }
     },
@@ -73,7 +78,7 @@
         "HealthChecksUI__HealthChecks__0__Name": "apiservice",
         "HealthChecksUI__HealthChecks__0__Uri": "{apiservice.bindings.http.url}/healthz",
         "HealthChecksUI__HealthChecks__1__Name": "webfrontend",
-        "HealthChecksUI__HealthChecks__1__Uri": "{webfrontend.bindings.healthchecksui.url}/healthz"
+        "HealthChecksUI__HealthChecks__1__Uri": "{webfrontend.bindings.http.url}/healthz"
       },
       "bindings": {
         "http": {

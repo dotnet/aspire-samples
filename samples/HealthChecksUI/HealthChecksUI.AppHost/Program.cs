@@ -6,10 +6,11 @@ var apiService = builder.AddProject<Projects.HealthChecksUI_ApiService>("apiserv
 
 var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
     .WithReference(cache)
-    .WithReference(apiService);
+    .WithReference(apiService)
+    .AsExternal();
 
 builder.AddHealthChecksUI("healthchecksui")
-    .WithReference(apiService, endpointName: "http")
+    .WithReference(apiService)
     .WithReference(webFrontend);
 
 builder.Build().Run();

@@ -48,11 +48,6 @@ public class MonitoredProject(IResourceBuilder<ProjectResource> project, string 
     /// </summary>
     public string EndpointName { get; } = endpointName ?? throw new ArgumentNullException(nameof(endpointName));
 
-    /// <summary>
-    /// The port to use if creating a new endpoint for the health checks.
-    /// </summary>
-    public int? EndpointPort { get; set; }
-
     public string Name
     {
         get => _name ?? Project.Resource.Name;
@@ -67,7 +62,7 @@ public class MonitoredProject(IResourceBuilder<ProjectResource> project, string 
         {
             if (_uri is null)
             {
-                var baseUri = new Uri(Project.GetEndpoint(EndpointName).Value);
+                var baseUri = new Uri(Project.GetEndpoint(EndpointName).Url);
                 var healthChecksUri = new Uri(baseUri, ProbePath);
                 _uri = healthChecksUri;
             }
@@ -82,7 +77,7 @@ public class MonitoredProject(IResourceBuilder<ProjectResource> project, string 
         {
             if (_uriExpression is null)
             {
-                var baseUrl = Project.GetEndpoint(EndpointName).ValueExpression.TrimEnd('/');
+                var baseUrl = Project.GetEndpoint(EndpointName).GetExpression().TrimEnd('/');
                 var path = ProbePath.TrimStart('/');
                 _uriExpression = $"{baseUrl}/{path}";
             }
@@ -107,30 +102,11 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
             {
                 var project = monitoredProject.Project;
 
-                var existingHealthCheckEndpoint = project.Resource.GetEndpoint(monitoredProject.EndpointName);
-
-                if (existingHealthCheckEndpoint is null)
+                if (project.Resource.GetEndpoint(monitoredProject.EndpointName) is null)
                 {
-                    // Add an endpoint for health checks if not already present.
-                    // Use existing endpoints to figure out if project is configured for HTTPS or not (related to https://github.com/dotnet/aspire/issues/2453)
-                    if (project.Resource.HasHttpsEndpoint())
-                    {
-                        project.WithHttpsEndpoint(hostPort: monitoredProject.EndpointPort, name: monitoredProject.EndpointName);
-                    }
-                    else if (project.Resource.HasHttpEndpoint())
-                    {
-                        project.WithHttpEndpoint(hostPort: monitoredProject.EndpointPort, name: monitoredProject.EndpointName);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Project resource '{project.Resource.Name}' has no HTTP or HTTPS endpoints so cannot be configured for HealthChecksUI.");
-                    }
+                    throw new InvalidOperationException($"Could not find specified endpoint '{monitoredProject.EndpointName}' on project resource '{project.Resource.Name}' for health checks.");
                 }
-                else if (monitoredProject.EndpointPort.HasValue)
-                {
-                    throw new InvalidOperationException($"Cannot specify a custom port for health check endpoint for project'{project.Resource.Name}' as the endpoint name specified '{monitoredProject.EndpointName}' already exists.");
-                }
-
+                
                 project.WithEnvironment(context =>
                 {
                     if (context.ExecutionContext.IsRunMode)
@@ -142,11 +118,9 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         {
                             var healthChecksUri = new Uri(baseUri, monitoredProject.ProbePath);
 
+                            // TODO: Handle Podman case
                             context.EnvironmentVariables.AddDelimitedValues(HEALTHCHECKSUI_URLS,
                                 [healthChecksUri.ToString(), healthChecksUri.ToString().Replace("localhost", "host.docker.internal")]);
-
-                            // Set the AllowedHosts environment variable to configure host filtering
-                            context.EnvironmentVariables.AddDelimitedValues("AllowedHosts", [baseUri.Host, baseUri.Host.Replace("localhost", "host.docker.internal")]);
 
                             return;
                         }
@@ -160,14 +134,6 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         // Set/update the environment variable for health checks endpoint URL
                         context.EnvironmentVariables.AddDelimitedValue(HEALTHCHECKSUI_URLS,
                             $"{{{project.Resource.Name}.bindings.{monitoredProject.EndpointName}.url}}/{monitoredProject.ProbePath.TrimStart('/')}");
-
-                        // Set the AllowedHosts environment variable to configure host filtering
-                        // TODO: We probably want to do this by default in Aspire.Hosting
-                        if (project.Resource.TryGetEndpoints(out var endpoints))
-                        {
-                            var hosts = endpoints.Select(e => $"{{{project.Resource.Name}.bindings.{e.Name}.host}}");
-                            context.EnvironmentVariables.AddDelimitedValues("AllowedHosts", hosts);
-                        }
                     }
                 });
             }
@@ -209,7 +175,10 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                 healthChecksUIResource.Annotations.Add(
                     new EnvironmentCallbackAnnotation(
                         HealthChecksUIResource.KnownEnvVars.GetHealthCheckUriKey(i),
-                        () => isPublishing ? monitoredProject.ProjectUriExpression : monitoredProject.ProjectUri.ToString().Replace("localhost", "host.docker.internal")));
+                        () => isPublishing
+                            ? monitoredProject.ProjectUriExpression
+                            // TODO: Handle Podman case
+                            : monitoredProject.ProjectUri.ToString().Replace("localhost", "host.docker.internal")));
             }
         }
     }
@@ -229,10 +198,10 @@ internal static class ResourceExtensions
     public static bool HasHttpsEndpoint(this IResource resource) =>
         resource.TryGetEndpoints(out var endpoints) && endpoints.Any(e => string.Equals(e.UriScheme, "https", StringComparison.OrdinalIgnoreCase));
 
-    public static void AddDelimitedValues(this IDictionary<string, string> dictionary, string key, IEnumerable<string> values, char separator = ';')
+    public static void AddDelimitedValues(this IDictionary<string, object> dictionary, string key, IEnumerable<string> values, char separator = ';')
     {
-        HashSet<string> existingValues = dictionary.TryGetValue(key, out var existing)
-            ? new(existing.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        HashSet<string> existingValues = dictionary.TryGetValue(key, out var existing) && existing is not null && existing.ToString() is { } existingValueString
+            ? new(existingValueString.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             : [];
         foreach (var value in values)
         {
@@ -241,10 +210,10 @@ internal static class ResourceExtensions
         dictionary[key] = string.Join(separator, existingValues);
     }
 
-    public static void AddDelimitedValue(this IDictionary<string, string> dictionary, string key, string value, char separator = ';')
+    public static void AddDelimitedValue(this IDictionary<string, object> dictionary, string key, string value, char separator = ';')
     {
-        HashSet<string> values = dictionary.TryGetValue(key, out var existing)
-            ? new(existing.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        HashSet<string> values = dictionary.TryGetValue(key, out var existing) && existing is not null && existing.ToString() is { } existingValueString
+            ? new(existingValueString.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             : [];
         values.Add(value);
         dictionary[key] = string.Join(separator, values);

@@ -23,8 +23,6 @@ properties:
       env:
       - name: AZURE_CLIENT_ID
         value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
-      - name: AllowedHosts
-        value: apiservice.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
       - name: HEALTHCHECKSUI_URLS
         value: https://apiservice.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}/healthz
       - name: OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES
