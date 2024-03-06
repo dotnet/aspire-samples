@@ -1,4 +1,4 @@
-using AspireShop.CatalogDb;
+﻿using AspireShop.CatalogDb;
 using AspireShop.CatalogService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +11,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {

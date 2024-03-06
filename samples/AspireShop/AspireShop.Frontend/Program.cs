@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using AspireShop.Frontend.Components;
 using AspireShop.Frontend.Services;
 using AspireShop.GrpcBasket;
@@ -9,14 +9,16 @@ builder.AddServiceDefaults();
 
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 
-builder.Services.AddHttpServiceReference<CatalogServiceClient>("http://catalogservice", healthRelativePath: "readiness");
+builder.Services.AddHttpServiceReference<CatalogServiceClient>("https://catalogservice", healthRelativePath: "readiness");
 
 builder.Services.AddSingleton<BasketServiceClient>()
-    .AddGrpcServiceReference<Basket.BasketClient>("http://basketservice", failureStatus: HealthStatus.Degraded);
+    .AddGrpcServiceReference<Basket.BasketClient>("https://basketservice", failureStatus: HealthStatus.Degraded);
 
 builder.Services.AddRazorComponents();
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -29,7 +31,7 @@ app.UseStaticFiles();
 
 app.MapRazorComponents<App>();
 
-app.MapForwarder("/catalog/images/{id}", "http://catalogservice", "/api/v1/catalog/items/{id}/image");
+app.MapForwarder("/catalog/images/{id}", "https://catalogservice", "/api/v1/catalog/items/{id}/image");
 
 app.MapDefaultEndpoints();
 
