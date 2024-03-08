@@ -30,7 +30,7 @@ var addressBookDb = builder.AddSqlServer("sqlserver")
     // Mount the SQL scripts directory into the container so that the init scripts run.
     .WithBindMount("../DatabaseContainers.ApiService/data/sqlserver", "/docker-entrypoint-initdb.d")
     // Run the custom entrypoint script on startup.
-    .WithArgs("/usr/config/entrypoint.sh")
+    .WithEntrypoint("/usr/config/entrypoint.sh")
     // Add the database to the application model so that it can be referenced by other resources.
     .AddDatabase("AddressBook");
 
