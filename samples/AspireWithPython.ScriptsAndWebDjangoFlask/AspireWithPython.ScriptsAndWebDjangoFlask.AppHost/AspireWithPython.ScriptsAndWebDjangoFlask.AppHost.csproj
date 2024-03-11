@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspireWithPython.ScriptsAndWebDjangoFlask.ApiService\AspireWithPython.ScriptsAndWebDjangoFlask.ApiService.csproj" />
+    <ProjectReference Include="..\AspireWithPython.ScriptsAndWebDjangoFlask.Web\AspireWithPython.ScriptsAndWebDjangoFlask.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" Version="8.0.0-preview.3.24105.21" />
+    <PackageReference Include="HolisticWare.Tools.Aspire.Hosting.Clients.Python" Version="0.0.1-alpha-20240309152347" />
+  </ItemGroup>
+
+</Project>
