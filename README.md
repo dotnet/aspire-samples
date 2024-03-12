@@ -12,7 +12,7 @@ Official samples hosted in this repo can be accessed via the [Samples browser](h
 
 Sample highlights include:
 
-- [eShop Lite](./samples/eShopLite/)
+- [Aspire Shop](./samples/AspireShop/)
 - [Metrics with OpenTelemetry, Prometheus & Grafana](./samples/Metrics)
 - [Integrating a Node.js app](./samples/AspireWithNode)
 - [Integrating DAPR](./samples/AspireWithDapr)

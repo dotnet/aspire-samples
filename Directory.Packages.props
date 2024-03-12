@@ -2,12 +2,11 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <AspNetCoreVersion>8.0.2</AspNetCoreVersion>
-    <EfCoreVersion>8.0.2</EfCoreVersion>
-    <RuntimeVersion>8.0.0</RuntimeVersion>
-    <GrpcVersion>2.60.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.3.24105.21</AspireVersion>
-    <OrleansVersion>8.1.0-preview1</OrleansVersion>
+    <AspNetCoreVersion>8.0.3</AspNetCoreVersion>
+    <EfCoreVersion>8.0.3</EfCoreVersion>
+    <GrpcVersion>2.61.0</GrpcVersion>
+    <AspireVersion>8.0.0-preview.4.24156.9</AspireVersion>
+    <OrleansVersion>8.1.0-preview3</OrleansVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
@@ -35,19 +34,19 @@
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(AspNetCoreVersion)" />
     <!-- Version together with EF -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfCoreVersion)" />
-    <!-- Version together with runtime -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimeVersion)" />
+    <!-- Version independently on top of base runtime version -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <!-- gRPC -->
     <PackageVersion Include="Grpc.AspNetCore" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.AspNetCore.HealthChecks" Version="$(GrpcVersion)" />
@@ -55,7 +54,7 @@
     <PackageVersion Include="Grpc.Net.Client" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.Net.ClientFactory" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.Net.Server" Version="$(GrpcVersion)" />
-    <PackageVersion Include="Grpc.Tools" Version="2.61.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.62.0" />
     <!-- Open Telemetry -->
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-rc.1" />
@@ -71,12 +70,12 @@
     <PackageVersion Include="Microsoft.Orleans.Reminders" Version="$(OrleansVersion)" />
     <PackageVersion Include="Microsoft.Orleans.Server" Version="$(OrleansVersion)" />
     <!-- VS Test -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <!-- Miscellaneous -->
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.0" />
-    <PackageVersion Include="Dapr.AspNetCore" Version="1.12.0" />
+    <PackageVersion Include="Dapr.AspNetCore" Version="1.13.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
-    <PackageVersion Include="Dapper" Version="2.1.28" />
+    <PackageVersion Include="Dapper" Version="2.1.35" />
   </ItemGroup>
 </Project>
