@@ -78,5 +78,6 @@
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
     <PackageVersion Include="Dapper" Version="2.1.28" />
+    <PackageVersion Include="HolisticWare.Tools.Aspire.Hosting.Clients.Python" Version="0.0.1-alpha-20240309152347" />
   </ItemGroup>
 </Project>
