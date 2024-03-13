@@ -8,6 +8,6 @@ builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
     .WithEndpoint(containerPort: 3000, scheme: "http", env: "PORT")
-    .AsDockerfileInManifest();
+    .PublishAsDockerFile();
 
 builder.Build().Run();

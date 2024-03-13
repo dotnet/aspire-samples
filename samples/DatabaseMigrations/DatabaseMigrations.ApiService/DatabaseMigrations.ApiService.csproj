@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
+
+    <ProjectReference Include="..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj" />
+    <ProjectReference Include="..\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
