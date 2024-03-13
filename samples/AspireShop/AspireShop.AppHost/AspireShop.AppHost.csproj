@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting" />
+    <ProjectReference Include="..\AspireShop.BasketService\AspireShop.BasketService.csproj" />
+    <ProjectReference Include="..\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj" />
+    <ProjectReference Include="..\AspireShop.CatalogService\AspireShop.CatalogService.csproj" />
+    <ProjectReference Include="..\AspireShop.Frontend\AspireShop.Frontend.csproj" />
+  </ItemGroup>
+
+</Project>
