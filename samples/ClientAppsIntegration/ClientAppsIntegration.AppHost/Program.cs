@@ -6,9 +6,11 @@ var apiService = builder.AddProject<Projects.ClientAppsIntegration_ApiService>("
 // regular project references (see the AppHost.csproj file for additional metadata added to the ProjectReference to
 // coordinate a build dependency though).
 builder.AddProject("winformsclient", "../ClientAppsIntegration.WinForms/ClientAppsIntegration.WinForms.csproj")
-    .WithReference(apiService);
+    .WithReference(apiService)
+    .ExcludeFromManifest();
 
 builder.AddProject("wpfclient", "../ClientAppsIntegration.WPF/ClientAppsIntegration.WPF.csproj")
-    .WithReference(apiService);
+    .WithReference(apiService)
+    .ExcludeFromManifest();
 
 builder.Build().Run();
