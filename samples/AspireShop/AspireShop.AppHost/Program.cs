@@ -1,7 +1,13 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogDb = builder.AddPostgres("catalog").AddDatabase("catalogdb");
-var basketCache = builder.AddRedis("basketcache");
+var catalogPw = builder.AddParameter("catalogpw", secret: true);
+var catalogDb = builder.AddPostgres("catalog", password: catalogPw)
+    .WithDataVolume()
+    .AddDatabase("catalogdb");
+
+var basketCache = builder.AddRedis("basketcache")
+    .WithRedisCommander()
+    .WithDataVolume();
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
     .WithReference(catalogDb);

@@ -1,10 +1,10 @@
-using AspireShop.BasketService;
+﻿using AspireShop.BasketService;
 using AspireShop.BasketService.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddRedis("basketcache");
+builder.AddRedisClient("basketcache");
 
 builder.Services.AddGrpc();
 builder.Services.AddGrpcHealthChecks();
