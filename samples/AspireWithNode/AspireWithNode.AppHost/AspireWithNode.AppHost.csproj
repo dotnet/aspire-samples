@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
   </ItemGroup>
 
   <ItemGroup>
