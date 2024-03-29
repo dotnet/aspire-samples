@@ -36,7 +36,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         });
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
-        await app.StartAsync();
+        await app.StartAsync(waitForResourcesToStart: true);
 
         foreach (var project in projects)
         {

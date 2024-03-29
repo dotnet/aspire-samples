@@ -1,10 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
-using Aspire.Hosting.Dapr;
 using Aspire.Hosting.Utils;
-using Azure.ResourceManager.Sql.Models;
+using IdentityModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -39,7 +36,9 @@ public static class DistributedApplicationExtensions
         var parameters = builder.Resources.OfType<ParameterResource>().Where(p => !p.IsConnectionString).ToList();
         foreach (var parameter in parameters)
         {
-            builder.Configuration[$"Parameters:{parameter.Name}"] = PasswordGenerator.Generate(16, true, true, true, false, 1, 1, 1, 0);
+            builder.Configuration[$"Parameters:{parameter.Name}"] = parameter.Secret
+                ? PasswordGenerator.Generate(16, true, true, true, false, 1, 1, 1, 0)
+                : Convert.ToHexString(CryptoRandom.CreateRandomKey(4));
         }
 
         return builder;
