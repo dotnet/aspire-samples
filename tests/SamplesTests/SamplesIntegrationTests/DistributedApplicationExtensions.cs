@@ -40,6 +40,31 @@ public static class DistributedApplicationExtensions
         return builder;
     }
 
+    public static TBuilder WithAnonymousVolumeNames<TBuilder>(this TBuilder builder)
+        where TBuilder : IDistributedApplicationTestingBuilder
+    {
+        foreach (var resource in builder.Resources)
+        {
+            if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
+            {
+                var mountsList = mounts.ToList();
+
+                for (var i = 0; i < mountsList.Count; i++)
+                {
+                    var mount = mountsList[i];
+                    if (mount.Type == ContainerMountType.Volume)
+                    {
+                        var newMount = new ContainerMountAnnotation(null, mount.Target, mount.Type, mount.IsReadOnly);
+                        resource.Annotations.Remove(mount);
+                        resource.Annotations.Add(newMount);
+                    }
+                }
+            }
+        }
+
+        return builder;
+    }
+
     private class ResourceWatcher(DistributedApplicationModel applicationModel, ResourceNotificationService resourceNotification, ResourceLoggerService resourceLoggerService, ITestOutputHelper testOutputHelper)
         : BackgroundService
     {

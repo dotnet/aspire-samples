@@ -32,6 +32,7 @@ internal static class DistributedApplicationTestFactory
         var builder = await testBuilderTask;
 
         builder.WithRandomParameterValues();
+        builder.WithAnonymousVolumeNames();
         builder.WriteOutputTo(testOutput);
 
         return builder;
