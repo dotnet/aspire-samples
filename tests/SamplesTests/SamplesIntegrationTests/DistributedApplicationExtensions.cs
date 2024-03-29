@@ -2,7 +2,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using Aspire.Hosting.Utils;
-using IdentityModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
