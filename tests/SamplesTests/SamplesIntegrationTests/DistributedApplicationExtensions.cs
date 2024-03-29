@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Aspire.Hosting.Utils;
 using IdentityModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,7 +35,7 @@ public static class DistributedApplicationExtensions
         var parameters = builder.Resources.OfType<ParameterResource>().Where(p => !p.IsConnectionString).ToList();
         foreach (var parameter in parameters)
         {
-            builder.Configuration[$"Parameters:{parameter.Name}"] = Convert.ToHexString(CryptoRandom.CreateRandomKey(16));
+            builder.Configuration[$"Parameters:{parameter.Name}"] = PasswordGenerator.Generate(16, true, true, true, false, 1, 1, 1, 0);
         }
 
         return builder;

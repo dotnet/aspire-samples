@@ -9,8 +9,8 @@ namespace SamplesIntegrationTests;
 public class AppHostTests(ITestOutputHelper testOutput)
 {
     [Theory]
-    [MemberData(nameof(AppHostProjectPaths))]
-    public async Task AppHostProjectLaunchesAndShutsDownCleanly(string projectPath)
+    [MemberData(nameof(AppHostProjects))]
+    public async Task AppHostRunsCleanly(string projectName, string projectPath)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
         await using var app = await appHost.BuildAsync();
@@ -20,8 +20,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
     }
 
     [Theory]
-    [MemberData(nameof(AppHostProjectPaths))]
-    public async Task ProjectResourcesHealthEndpointsReturnHealthy(string projectPath)
+    [MemberData(nameof(AppHostProjects))]
+    public async Task HealthEndpointsReturnHealthy(string projectName, string projectPath)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
         appHost.Services.ConfigureHttpClientDefaults(http =>
@@ -71,11 +71,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
         }
     }
 
-    public static object[][] AppHostProjectPaths()
+    public static object[][] AppHostProjects()
     {
         var samplesDir = Path.Combine(GetRepoRoot(), "samples");
         var appHostProjects = Directory.GetFiles(samplesDir, "*.AppHost.csproj", SearchOption.AllDirectories);
-        return appHostProjects.Select(p => new object[] { p }).ToArray();
+        return appHostProjects.Select(p => new object[] { Path.GetFileNameWithoutExtension(p), p }).ToArray();
     }
 
     private static string GetRepoRoot()
