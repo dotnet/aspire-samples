@@ -24,16 +24,16 @@ public class AppHostTests(ITestOutputHelper testOutput)
     public async Task HealthEndpointsReturnHealthy(string projectFile)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
-        appHost.Services.ConfigureHttpClientDefaults(http =>
-        {
-            http.AddStandardResilienceHandler(resilience =>
-            {
-                resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
-                resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
-                resilience.Retry.MaxRetryAttempts = 10;
-                resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(20);
-            });
-        });
+        //appHost.Services.ConfigureHttpClientDefaults(http =>
+        //{
+        //    http.AddStandardResilienceHandler(resilience =>
+        //    {
+        //        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
+        //        resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+        //        resilience.Retry.MaxRetryAttempts = 10;
+        //        resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(20);
+        //    });
+        //});
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
         await app.StartAsync(waitForResourcesToStart: true);

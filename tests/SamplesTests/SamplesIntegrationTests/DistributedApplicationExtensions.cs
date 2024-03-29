@@ -105,7 +105,9 @@ public static class DistributedApplicationExtensions
         return appModel.Resources.Where(r =>
             r.GetType().IsAssignableTo(typeof(ContainerResource))
             || r.GetType().IsAssignableTo(typeof(ExecutableResource))
-            || r.GetType().IsAssignableTo(typeof(ProjectResource)));
+            || r.GetType().IsAssignableTo(typeof(ProjectResource))
+            || r.GetType().IsAssignableTo(typeof(AzureConstructResource))
+            );
     }
 
     private static readonly TimeSpan resourceStartTimeout = TimeSpan.FromSeconds(30);
@@ -175,34 +177,41 @@ public static class DistributedApplicationExtensions
     {
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.WhenAll(WatchNotifications(stoppingToken), WatchLogs(stoppingToken));
+            return WatchNotifications(stoppingToken);
         }
 
         private async Task WatchNotifications(CancellationToken stoppingToken)
         {
+            var loggingResources = new HashSet<string>();
+            var logWatchTasks = new List<Task>();
+
             await foreach (var resourceEvent in resourceNotification.WatchAsync().WithCancellation(stoppingToken))
             {
-                if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } state)
+                if (loggingResources.Add(resourceEvent.ResourceId))
                 {
-                    testOutputHelper.WriteLine("Resource '{0}' of type '{1}' state: {2}", resourceEvent.ResourceId, resourceEvent.Resource.GetType().Name, state.Text);
+                    logWatchTasks.Add(WatchLogs(resourceEvent.Resource.Name, resourceEvent.ResourceId, stoppingToken));
+                }
+                if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } state && !string.IsNullOrEmpty(state.Text))
+                {
+                    testOutputHelper.WriteLine("Resource '{0}' of type '{1}' -> {2}", resourceEvent.ResourceId, resourceEvent.Resource.GetType().Name, state.Text);
+                }
+                else if (resourceEvent.Snapshot.ExitCode is { } exitCode)
+                {
+                    testOutputHelper.WriteLine("Resource '{0}' exited with code {1}", resourceEvent.ResourceId, exitCode);
                 }
             }
+
+            await Task.WhenAll(logWatchTasks);
         }
 
-        private Task WatchLogs(CancellationToken stoppingToken)
+        private async Task WatchLogs(string resourceName, string resourceId, CancellationToken stoppingToken)
         {
-            var logTasks = applicationModel.Resources.Select(r => WatchLogs(r, stoppingToken));
-            return Task.WhenAll(logTasks);
-        }
-
-        private async Task WatchLogs(IResource resource, CancellationToken stoppingToken)
-        {
-            await foreach (var logEvent in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
+            await foreach (var logEvent in resourceLoggerService.WatchAsync(resourceId).WithCancellation(stoppingToken))
             {
                 foreach (var line in logEvent)
                 {
                     var kind = line.IsErrorMessage ? "error" : "log";
-                    testOutputHelper.WriteLine("Resource '{0}' {1}: {2}", resource.Name, kind, line.Content);
+                    testOutputHelper.WriteLine("Resource '{0}' {1}: {2}", resourceName, kind, line.Content);
                 }
             }
         }
