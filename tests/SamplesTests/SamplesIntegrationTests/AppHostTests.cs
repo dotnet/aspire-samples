@@ -10,9 +10,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
 {
     [Theory]
     [MemberData(nameof(AppHostProjects))]
-    public async Task AppHostRunsCleanly(string projectName, string projectPath)
+    public async Task AppHostRunsCleanly(string projectFile)
     {
-        var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
         await using var app = await appHost.BuildAsync();
 
         await app.StartAsync(waitForResourcesToStart: true);
@@ -21,9 +21,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     [Theory]
     [MemberData(nameof(AppHostProjects))]
-    public async Task HealthEndpointsReturnHealthy(string projectName, string projectPath)
+    public async Task HealthEndpointsReturnHealthy(string projectFile)
     {
-        var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
         appHost.Services.ConfigureHttpClientDefaults(http =>
         {
             http.AddStandardResilienceHandler(resilience =>
@@ -55,7 +55,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }
             catch (Exception ex)
             {
-                Assert.Fail($"Error calling health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectPath)}': {ex.Message}");
+                Assert.Fail($"Error calling health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectFile)}': {ex.Message}");
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.BadRequest)
@@ -64,7 +64,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 continue;
             }
 
-            Assert.True(HttpStatusCode.OK == response.StatusCode, $"Health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectPath)}' returned status code {response.StatusCode}");
+            Assert.True(HttpStatusCode.OK == response.StatusCode, $"Health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectFile)}' returned status code {response.StatusCode}");
 
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Healthy", content);
@@ -75,9 +75,15 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static object[][] AppHostProjects()
     {
-        var samplesDir = Path.Combine(GetRepoRoot(), "samples");
+        var repoRoot = GetRepoRoot();
+        var samplesDir = Path.Combine(repoRoot, "samples");
         var appHostProjects = Directory.GetFiles(samplesDir, "*.AppHost.csproj", SearchOption.AllDirectories);
-        return appHostProjects.Select(p => new object[] { Path.GetFileNameWithoutExtension(p), p }).ToArray();
+        return appHostProjects.Select(p => new object[] { Path.GetRelativePath(repoRoot, p) }).ToArray();
+    }
+
+    private static string GetProjectPath(string projectFile)
+    {
+        return Path.GetFullPath(projectFile, GetRepoRoot());
     }
 
     private static string GetRepoRoot()

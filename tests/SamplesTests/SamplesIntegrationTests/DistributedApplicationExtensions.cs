@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Security.Cryptography;
 using System.Text;
 using Aspire.Hosting.Utils;
 using IdentityModel;
@@ -38,7 +39,7 @@ public static class DistributedApplicationExtensions
         {
             builder.Configuration[$"Parameters:{parameter.Name}"] = parameter.Secret
                 ? PasswordGenerator.Generate(16, true, true, true, false, 1, 1, 1, 0)
-                : Convert.ToHexString(CryptoRandom.CreateRandomKey(4));
+                : Convert.ToHexString(RandomNumberGenerator.GetBytes(4));
         }
 
         return builder;
