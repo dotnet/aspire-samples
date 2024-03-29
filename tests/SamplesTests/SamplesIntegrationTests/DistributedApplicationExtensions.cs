@@ -23,7 +23,6 @@ public static class DistributedApplicationExtensions
         });
 
         builder.Services.AddHostedService(sp => new ResourceWatcher(
-            sp.GetRequiredService<DistributedApplicationModel>(),
             sp.GetRequiredService<ResourceNotificationService>(),
             sp.GetRequiredService<ResourceLoggerService>(),
             testOutputHelper));
@@ -169,7 +168,6 @@ public static class DistributedApplicationExtensions
     }
 
     private class ResourceWatcher(
-        DistributedApplicationModel applicationModel,
         ResourceNotificationService resourceNotification,
         ResourceLoggerService resourceLoggerService,
         ITestOutputHelper testOutputHelper)
