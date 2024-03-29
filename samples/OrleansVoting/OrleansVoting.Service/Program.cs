@@ -2,7 +2,7 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddKeyedRedis("voting-redis");
+builder.AddKeyedRedisClient("voting-redis");
 builder.AddServiceDefaults();
 builder.UseOrleans(orleansBuilder =>
 {

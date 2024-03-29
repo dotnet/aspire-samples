@@ -9,10 +9,12 @@ builder.AddServiceDefaults();
 
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 
-builder.Services.AddHttpServiceReference<CatalogServiceClient>("https+http://catalogservice", healthRelativePath: "readiness");
+builder.Services.AddHttpServiceReference<CatalogServiceClient>("https+http://catalogservice", healthRelativePath: "health");
+
+var isHttps = builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https";
 
 builder.Services.AddSingleton<BasketServiceClient>()
-    .AddGrpcServiceReference<Basket.BasketClient>("https://basketservice", failureStatus: HealthStatus.Degraded);
+    .AddGrpcServiceReference<Basket.BasketClient>($"{(isHttps ? "https" : "http")}://basketservice", failureStatus: HealthStatus.Degraded);
 
 builder.Services.AddRazorComponents();
 
