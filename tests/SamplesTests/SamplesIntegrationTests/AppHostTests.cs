@@ -1,19 +1,18 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Reflection;
+﻿using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
+//[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace SamplesIntegrationTests;
 
-public class AppHostTests
+public class AppHostTests(ITestOutputHelper testOutput)
 {
     [Theory]
     [MemberData(nameof(AppHostProjectPaths))]
     public async Task AppHostProjectLaunchesAndShutsDownCleanly(string projectPath)
     {
-        var appHost = await CreateDistributedApplicationBuilder(projectPath);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
         await app.StartAsync();
@@ -24,7 +23,7 @@ public class AppHostTests
     [MemberData(nameof(AppHostProjectPaths))]
     public async Task ProjectResourcesHealthEndpointsReturnHealthy(string projectPath)
     {
-        var appHost = await CreateDistributedApplicationBuilder(projectPath);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
         appHost.Services.ConfigureHttpClientDefaults(http =>
         {
             http.AddStandardResilienceHandler(resilience =>
@@ -56,7 +55,7 @@ public class AppHostTests
             }
             catch (Exception ex)
             {
-                Assert.Fail($"Error calling health endpoint for project '{GetProjectName(project)}' in app '{Path.GetFileNameWithoutExtension(projectPath)}': {ex.Message}");
+                Assert.Fail($"Error calling health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectPath)}': {ex.Message}");
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.BadRequest)
@@ -65,7 +64,7 @@ public class AppHostTests
                 continue;
             }
 
-            Assert.True(HttpStatusCode.OK == response.StatusCode, $"Health endpoint for project '{GetProjectName(project)}' in app '{Path.GetFileNameWithoutExtension(projectPath)}' returned status code {response.StatusCode}");
+            Assert.True(HttpStatusCode.OK == response.StatusCode, $"Health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectPath)}' returned status code {response.StatusCode}");
 
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Healthy", content);
@@ -77,40 +76,6 @@ public class AppHostTests
         var samplesDir = Path.Combine(GetRepoRoot(), "samples");
         var appHostProjects = Directory.GetFiles(samplesDir, "*.AppHost.csproj", SearchOption.AllDirectories);
         return appHostProjects.Select(p => new object[] { p }).ToArray();
-    }
-
-    private static async Task<IDistributedApplicationTestingBuilder> CreateDistributedApplicationBuilder(string appHostProjectPath)
-    {
-        var appHostProjectName = Path.GetFileNameWithoutExtension(appHostProjectPath) ?? throw new InvalidOperationException("AppHost project was not found.");
-        var appHostProjectDirectory = Path.GetDirectoryName(appHostProjectPath) ?? throw new InvalidOperationException("Directory for AppHost project was not found.");
-#if DEBUG
-        var configuration = "Debug";
-#else
-        var configuration = "Release";
-#endif
-        // TODO: Handle different assets output path
-        var appHostAssembly = Assembly.LoadFrom(Path.Combine(appHostProjectDirectory, "bin", configuration, "net8.0", $"{appHostProjectName}.dll"));
-
-        var appHostType = appHostAssembly.GetTypes().FirstOrDefault(t => t.Name.EndsWith("_AppHost"))
-            ?? throw new InvalidOperationException("Generated AppHost type not found.");
-
-        var createAsyncMethod = typeof(DistributedApplicationTestingBuilder).GetMethod(nameof(DistributedApplicationTestingBuilder.CreateAsync))
-            ?? throw new InvalidOperationException("DistributedApplicationTestingBuilder.CreateAsync method not found.");
-
-        var createAsyncConcrete = createAsyncMethod.MakeGenericMethod(appHostType);
-
-        var testBuilderTask = createAsyncConcrete.Invoke(null, [CancellationToken.None]) as Task<IDistributedApplicationTestingBuilder>
-            ?? throw new UnreachableException();
-
-        var builder = await testBuilderTask;
-
-        return builder;
-    }
-
-    private static string GetProjectName(ProjectResource project)
-    {
-        var metadata = project.GetProjectMetadata();
-        return Path.GetFileNameWithoutExtension(metadata.ProjectPath);
     }
 
     private static string GetRepoRoot()
