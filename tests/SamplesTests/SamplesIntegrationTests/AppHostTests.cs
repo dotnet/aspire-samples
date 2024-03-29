@@ -15,7 +15,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(projectPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
-        await app.StartAsync();
+        await app.StartAsync(waitForResourcesToStart: true);
         await app.StopAsync();
     }
 
@@ -69,6 +69,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Healthy", content);
         }
+
+        await app.StopAsync();
     }
 
     public static object[][] AppHostProjects()
