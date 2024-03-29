@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using Aspire.Hosting.Dapr;
 using Aspire.Hosting.Utils;
 using Azure.ResourceManager.Sql.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,9 +77,7 @@ public static class DistributedApplicationExtensions
         if (waitForResourcesToStart)
         {
             var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("WaitForResources");
-
-            var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-            var resources = appModel.Resources.Where(r => r.GetType() != typeof(ParameterResource)).ToList();
+            var resources = GetWaitableResources(app).ToList();
             var remainingResources = new ConcurrentDictionary<string, int>(resources.Select(r => KeyValuePair.Create(r.Name, 0)), StringComparer.OrdinalIgnoreCase);
 
             logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", remainingResources.Count);
@@ -100,6 +99,17 @@ public static class DistributedApplicationExtensions
         }
     }
 
+    private static IEnumerable<IResource> GetWaitableResources(this DistributedApplication app)
+    {
+        var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
+        return appModel.Resources.Where(r =>
+            r.GetType().IsAssignableTo(typeof(ContainerResource))
+            || r.GetType().IsAssignableTo(typeof(ExecutableResource))
+            || r.GetType().IsAssignableTo(typeof(ProjectResource)));
+    }
+
+    private static readonly TimeSpan resourceStartTimeout = TimeSpan.FromSeconds(30);
+
     public static async Task WaitForResourceToStartAsync(this DistributedApplication app, string resourceName, ILogger? logger = null, CancellationToken cancellationToken = default)
     {
         var notificationService = app.Services.GetRequiredService<ResourceNotificationService>();
@@ -107,7 +117,7 @@ public static class DistributedApplicationExtensions
         var resource = appModel.Resources.FirstOrDefault(r => string.Equals(r.Name, resourceName, StringComparison.OrdinalIgnoreCase))
             ?? throw new ArgumentException($"Resource with name '{resourceName}' was not found", nameof(resourceName));
 
-        var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        var timeoutCts = new CancellationTokenSource(resourceStartTimeout);
         var cts = cancellationToken == default
             ? timeoutCts
             : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
