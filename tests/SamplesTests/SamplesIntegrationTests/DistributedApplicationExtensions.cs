@@ -114,26 +114,31 @@ public static class DistributedApplicationExtensions
         return logs;
     }
 
-    public static void EnsureNoResourceErrors(this DistributedApplication app, string? resourceName = null)
+    public static void EnsureNoResourceErrors(this DistributedApplication app, string? resourceName)
+    {
+        app.EnsureNoResourceErrors(r => string.Equals(r.Name, resourceName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static void EnsureNoResourceErrors(this DistributedApplication app, Func<IResource, bool>? resourcePredicate = null)
     {
         var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
 
-        if (!string.IsNullOrEmpty(resourceName))
+        var resourcesMatched = 0;
+        foreach (var (resource, logs) in logStore)
         {
-            var resource = app.Services.GetRequiredService<DistributedApplicationModel>().Resources.FirstOrDefault(r => r.Name == resourceName)
-                ?? throw new ArgumentException($"Resource with name '{resourceName}' could not be found.", nameof(resourceName));
-            var logs = logStore[resource];
-            EnsureNoErrors(resource, logs);
-        }
-        else
-        {
-            foreach (var (resource, logs) in logStore)
+            if (resourcePredicate is null || resourcePredicate(resource))
             {
                 EnsureNoErrors(resource, logs);
+                resourcesMatched++;
             }
         }
 
-        void EnsureNoErrors(IResource resource, IEnumerable<LogLine> logs)
+        if (resourcesMatched == 0 && resourcePredicate is not null)
+        {
+            throw new ArgumentException("No resources matched the predicate.", nameof(resourcePredicate));
+        }
+
+        static void EnsureNoErrors(IResource resource, IEnumerable<LogLine> logs)
         {
             var errors = logs.Where(l => l.IsErrorMessage).ToList();
             if (errors.Count > 0)

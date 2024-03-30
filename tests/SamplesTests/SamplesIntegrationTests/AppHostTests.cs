@@ -15,8 +15,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
-        Assert.DoesNotContain(app.GetResourceLogs(), entry => entry.Key is ProjectResource or ExecutableResource && entry.Value.Any(log => log.IsErrorMessage));
-        //app.EnsureNoResourceErrors();
+        app.EnsureNoResourceErrors(resource => resource is ProjectResource or ExecutableResource);
 
         await app.StopAsync();
     }
