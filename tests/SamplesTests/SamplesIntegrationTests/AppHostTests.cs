@@ -1,8 +1,6 @@
-﻿using System.Net;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics;
+using System.Net;
 using Xunit.Abstractions;
-
-//[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace SamplesIntegrationTests;
 
@@ -16,6 +14,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await using var app = await appHost.BuildAsync();
 
         await app.StartAsync(waitForResourcesToStart: true);
+
+        Assert.DoesNotContain(app.GetResourceLogs(), entry => entry.Key is ProjectResource or ExecutableResource && entry.Value.Any(log => log.IsErrorMessage));
+        //app.EnsureNoResourceErrors();
+
         await app.StopAsync();
     }
 
@@ -47,6 +49,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }
 
             using var client = app.CreateHttpClient(project.Name);
+
+            await project.TryApplyEfMigrationsAsync(client);
+
             HttpResponseMessage? response = null;
 
             try

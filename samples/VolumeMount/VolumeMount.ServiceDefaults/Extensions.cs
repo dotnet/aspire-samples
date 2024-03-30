@@ -100,9 +100,6 @@ public static class Extensions
             {
                 Predicate = r => r.Tags.Contains("live")
             });
-
-            // Uncomment the following line to enable the Prometheus endpoint (requires the OpenTelemetry.Exporter.Prometheus.AspNetCore package)
-            // app.MapPrometheusScrapingEndpoint();
         }
 
         return app;

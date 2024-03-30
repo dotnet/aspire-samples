@@ -6,7 +6,7 @@ namespace SamplesIntegrationTests;
 
 internal static class DistributedApplicationTestFactory
 {
-    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostProjectPath, ITestOutputHelper testOutput, bool throwOnError = false)
+    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostProjectPath, ITestOutputHelper testOutput)
     {
         var appHostProjectName = Path.GetFileNameWithoutExtension(appHostProjectPath) ?? throw new InvalidOperationException("AppHost project was not found.");
         var appHostProjectDirectory = Path.GetDirectoryName(appHostProjectPath) ?? throw new InvalidOperationException("Directory for AppHost project was not found.");
@@ -33,7 +33,7 @@ internal static class DistributedApplicationTestFactory
 
         builder.WithRandomParameterValues();
         builder.WithAnonymousVolumeNames();
-        builder.WriteOutputTo(testOutput, throwOnError);
+        builder.WriteOutputTo(testOutput);
 
         return builder;
     }
