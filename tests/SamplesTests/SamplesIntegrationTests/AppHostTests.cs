@@ -15,6 +15,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
+        // Workaround race in DCP that can result in resources being deleted while they are still starting
+        await Task.Delay(100);
+
+        app.EnsureNoAppHostErrors();
         app.EnsureNoResourceErrors(resource => resource is ProjectResource or ExecutableResource);
 
         await app.StopAsync();
@@ -37,7 +41,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
         //});
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
+
         await app.StartAsync(waitForResourcesToStart: true);
+
+        // Workaround race in DCP that can result in resources being deleted while they are still starting
+        await Task.Delay(100);
 
         foreach (var project in projects)
         {
@@ -73,6 +81,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Healthy", content);
         }
+
+        app.EnsureNoAppHostErrors();
 
         await app.StopAsync();
     }

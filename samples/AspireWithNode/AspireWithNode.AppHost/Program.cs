@@ -7,7 +7,7 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
 builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
-    .WithEndpoint(containerPort: 3000, scheme: "http", env: "PORT")
+    .WithEndpoint(targetPort: 3000, scheme: "http", env: "PORT")
     .PublishAsDockerFile();
 
 builder.Build().Run();

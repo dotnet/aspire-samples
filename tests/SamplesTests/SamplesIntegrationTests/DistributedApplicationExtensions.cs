@@ -14,23 +14,26 @@ public static class DistributedApplicationExtensions
     public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, ITestOutputHelper testOutputHelper)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
-        var xunitLoggerProvider = new XUnitLoggerProvider(testOutputHelper);
-        builder.Services.AddLogging(logging =>
-        {
-            logging.ClearProviders();
-            logging.AddProvider(xunitLoggerProvider);
-        });
+        // Configure the builder's logger to redirect it to xunit's output & store for assertion later
+        builder.Services.AddLogging(logging => logging.ClearProviders());
+        builder.Services.AddSingleton(testOutputHelper);
+        builder.Services.AddSingleton<ILoggerProvider, XUnitLoggerProvider>();
+        builder.Services.AddSingleton<LoggerLogStore>();
+        builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
 
-        builder.Services.AddSingleton(sp => new ResourceLogWatcher(
-            sp.GetRequiredService<ResourceNotificationService>(),
-            sp.GetRequiredService<ResourceLoggerService>(),
-            testOutputHelper));
-
+        // Add background service to watch resource logs, store them for assertion later, and write them to xunit's output
+        builder.Services.AddSingleton<ResourceLogWatcher>();
         builder.Services.AddHostedService(sp => sp.GetRequiredService<ResourceLogWatcher>());
 
         return builder;
     }
 
+    /// <summary>
+    /// Ensures all parameters in the application configuration have values set.
+    /// </summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public static TBuilder WithRandomParameterValues<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
@@ -45,6 +48,12 @@ public static class DistributedApplicationExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Replaces all named volumes with anonymous volumes so they're isolated across test runs and from the volume the app uses during development.
+    /// </summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public static TBuilder WithAnonymousVolumeNames<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
@@ -70,17 +79,32 @@ public static class DistributedApplicationExtensions
         return builder;
     }
 
-    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, bool disableResilience)
-        => app.CreateHttpClient(resourceName, null, disableResilience);
+    /// <summary>
+    /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourceName"></param>
+    /// <param name="useHttpClientFactory"></param>
+    /// <returns></returns>
+    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, bool useHttpClientFactory)
+        => app.CreateHttpClient(resourceName, null, useHttpClientFactory);
 
-    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, bool disableResilience)
+    /// <summary>
+    /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourceName"></param>
+    /// <param name="endpointName"></param>
+    /// <param name="useHttpClientFactory"></param>
+    /// <returns></returns>
+    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, bool useHttpClientFactory)
     {
-        if (!disableResilience)
+        if (useHttpClientFactory)
         {
             return app.CreateHttpClient(resourceName, endpointName);
         }
 
-        // Don't use the HttpClientFactory to create the HttpClient so no resilience policies are applied
+        // Don't use the HttpClientFactory to create the HttpClient so, e.g., no resilience policies are applied
         var httpClient = new HttpClient
         {
             BaseAddress = app.GetEndpoint(resourceName, endpointName)
@@ -89,6 +113,7 @@ public static class DistributedApplicationExtensions
         return httpClient;
     }
 
+    /// <inheritdoc cref = "IHost.StartAsync" />
     public static async Task StartAsync(this DistributedApplication app, bool waitForResourcesToStart, CancellationToken cancellationToken = default)
     {
         await app.StartAsync(cancellationToken);
@@ -99,12 +124,30 @@ public static class DistributedApplicationExtensions
         }
     }
 
+    public static IReadOnlyDictionary<string, IList<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> GetAppHostLogs(this DistributedApplication app)
+    {
+        var logStore = app.Services.GetRequiredService<LoggerLogStore>();
+        return logStore.GetLogs();
+    }
+
+    /// <summary>
+    /// Gets the logs for all resources in the application.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
     public static IReadOnlyDictionary<IResource, IReadOnlyList<LogLine>> GetResourceLogs(this DistributedApplication app)
     {
         var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
         return logStore.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<LogLine>)entry.Value);
     }
 
+    /// <summary>
+    /// Gets the logs for the specified resource in the application.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourceName"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public static IList<LogLine> GetResourceLogs(this DistributedApplication app, string resourceName)
     {
         var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
@@ -114,11 +157,40 @@ public static class DistributedApplicationExtensions
         return logs;
     }
 
-    public static void EnsureNoResourceErrors(this DistributedApplication app, string? resourceName)
+    /// <summary>
+    /// Ensures no errors were logged for the application's AppHost.
+    /// </summary>
+    /// <param name="app"></param>
+    public static void EnsureNoAppHostErrors(this DistributedApplication app)
+    {
+        var logs = app.GetAppHostLogs();
+
+        var errors = logs.Where(category => category.Value.Any(log => log.Level == LogLevel.Error || log.Level == LogLevel.Critical)).ToList();
+        if (errors.Count > 0)
+        {
+            throw new DistributedApplicationException(
+                $"AppHost '{app.Services.GetRequiredService<IHostEnvironment>().ApplicationName}' logged errors: {Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, errors.Select(cat => string.Join(Environment.NewLine, cat.Value.Where(log => log.Level == LogLevel.Error || log.Level == LogLevel.Critical).Select(log => $"{log.Level} [{cat.Key}] {log.Message}"))))}");
+        }
+    }
+
+    /// <summary>
+    /// Ensures no errors were logged for the specified resource in the application.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourceName"></param>
+    public static void EnsureNoResourceErrors(this DistributedApplication app, string resourceName)
     {
         app.EnsureNoResourceErrors(r => string.Equals(r.Name, resourceName, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Ensures no errors were logged for the specified resources in the application.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourcePredicate"></param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="DistributedApplicationException"></exception>
     public static void EnsureNoResourceErrors(this DistributedApplication app, Func<IResource, bool>? resourcePredicate = null)
     {
         var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
@@ -333,11 +405,6 @@ public static class DistributedApplicationExtensions
         }
     }
 
-    private class XUnitLogger<T>(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider)
-        : XUnitLogger(testOutputHelper, scopeProvider, typeof(T).FullName ?? ""), ILogger<T>
-    {
-    }
-
     private class XUnitLoggerProvider(ITestOutputHelper testOutputHelper) : ILoggerProvider
     {
         private readonly LoggerExternalScopeProvider _scopeProvider = new();
@@ -349,6 +416,49 @@ public static class DistributedApplicationExtensions
 
         public void Dispose()
         {
+        }
+    }
+
+    private class StoredLogsLogger(LoggerLogStore logStore, IExternalScopeProvider scopeProvider, string categoryName) : ILogger
+    {
+        public string CategoryName { get; } = categoryName;
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull =>  scopeProvider.Push(state);
+
+        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            logStore.AddLog(this, logLevel, formatter(state, exception), exception);
+        }
+    }
+
+    private class StoredLogsLoggerProvider(LoggerLogStore logStore) : ILoggerProvider
+    {
+        private readonly LoggerExternalScopeProvider _scopeProvider = new();
+
+        public ILogger CreateLogger(string categoryName)
+        {
+            return new StoredLogsLogger(logStore, _scopeProvider, categoryName);
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    private class LoggerLogStore
+    {
+        private readonly ConcurrentDictionary<StoredLogsLogger, List<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> _store = [];
+
+        public void AddLog(StoredLogsLogger logger, LogLevel level, string message, Exception? exception)
+        {
+            _store.GetOrAdd(logger, _ => []).Add((DateTimeOffset.Now, level, message, exception));
+        }
+
+        public IReadOnlyDictionary<string, IList<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> GetLogs()
+        {
+            return _store.ToDictionary(entry => entry.Key.CategoryName, entry => (IList<(DateTimeOffset, LogLevel, string, Exception?)>)entry.Value);
         }
     }
 }
