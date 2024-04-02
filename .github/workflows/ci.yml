@@ -34,12 +34,16 @@ jobs:
     - name: Dapr tool installer
       uses: dapr/setup-dapr@v1
       with:
-        version: '1.12.0'
+        version: '1.13.1'
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
