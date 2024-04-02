@@ -43,5 +43,6 @@ builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
 
 builder.Build().Run();
 
+// BUG: Workaround for https://github.com/dotnet/aspire/issues/3323
 static string GetFullPath(string relativePath) =>
     Path.GetFullPath(Path.Combine(Projects.DatabaseContainers_AppHost.ProjectPath, relativePath));

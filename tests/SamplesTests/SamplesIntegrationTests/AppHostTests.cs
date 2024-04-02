@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
@@ -29,16 +28,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
     public async Task HealthEndpointsReturnHealthy(string projectFile)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
-        //appHost.Services.ConfigureHttpClientDefaults(http =>
-        //{
-        //    http.AddStandardResilienceHandler(resilience =>
-        //    {
-        //        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
-        //        resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
-        //        resilience.Retry.MaxRetryAttempts = 10;
-        //        resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(20);
-        //    });
-        //});
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
@@ -55,14 +44,12 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 continue;
             }
 
-            using var client = app.CreateHttpClient(project.Name);
-
-            await project.TryApplyEfMigrationsAsync(client);
+            await app.TryApplyEfMigrationsAsync(project);
 
             HttpResponseMessage? response = null;
-
             try
             {
+                using var client = app.CreateHttpClient(project.Name);
                 response = await client.GetAsync("/health");
             }
             catch (Exception ex)

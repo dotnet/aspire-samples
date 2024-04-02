@@ -5,11 +5,12 @@ import express from 'express';
 import { createTerminus, HealthCheckError } from '@godaddy/terminus';
 import { createClient } from 'redis';
 
+const environment = process.env.NODE_ENV || 'development';
 const app = express();
 const port = env.PORT ?? 8080;
 
 const cacheAddress = env['ConnectionStrings__cache'];
-const apiServer = env['services__weatherapi__1'];
+const apiServer = env['services__weatherapi__https__0'] ?? env['services__weatherapi__http__0'];
 const passwordPrefix = ",password=";
 
 var cacheConfig = {
@@ -25,6 +26,7 @@ if (cachePasswordIndex > 0) {
     }
 }
 
+console.log(`environment: ${environment}`);
 console.log(`cacheAddress: ${cacheAddress}`);
 console.log(`apiServer: ${apiServer}`);
 

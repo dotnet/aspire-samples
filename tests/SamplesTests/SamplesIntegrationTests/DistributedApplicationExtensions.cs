@@ -1,4 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Aspire.Hosting.Utils;
@@ -113,6 +116,24 @@ public static class DistributedApplicationExtensions
         return httpClient;
     }
 
+    /// <summary>
+    /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="resourceName"></param>
+    /// <param name="endpointName"></param>
+    /// <param name="httpClientName"></param>
+    /// <returns></returns>
+    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, string? httpClientName)
+    {
+        var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
+        
+        var httpClient = !string.IsNullOrEmpty(httpClientName) ? httpClientFactory.CreateClient(httpClientName) : httpClientFactory.CreateClient();
+        httpClient.BaseAddress = app.GetEndpoint(resourceName, endpointName);
+
+        return httpClient;
+    }
+
     /// <inheritdoc cref = "IHost.StartAsync" />
     public static async Task StartAsync(this DistributedApplication app, bool waitForResourcesToStart, CancellationToken cancellationToken = default)
     {
@@ -220,6 +241,82 @@ public static class DistributedApplicationExtensions
         }
     }
 
+    /// <summary>
+    /// Attempts to apply EF migrations for the specified project by sending a request to the migrations endpoint <c>/ApplyDatabaseMigrations</c>.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <param name="project"></param>
+    /// <returns></returns>
+    /// <exception cref="UnreachableException"></exception>
+    public static async Task<bool> TryApplyEfMigrationsAsync(this DistributedApplication app, ProjectResource project)
+    {
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(TryApplyEfMigrationsAsync));
+        var projectName = project.GetName();
+
+        // First check if the project has a migration endpoint, if it doesn't it will respond with a 404
+        logger.LogInformation("Checking if project '{ProjectName}' has a migration endpoint", projectName);
+        using (var checkHttpClient = app.CreateHttpClient(project.Name))
+        {
+            using var emptyDbContextContent = new FormUrlEncodedContent([new("context", "")]);
+            using var checkResponse = await checkHttpClient.PostAsync("/ApplyDatabaseMigrations", emptyDbContextContent);
+            if (checkResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                logger.LogInformation("Project '{ProjectName}' does not have a migration endpoint", projectName);
+                return false;
+            }
+        }
+
+        logger.LogInformation("Attempting to apply EF migrations for project '{ProjectName}'", projectName);
+
+        // Load the project assembly and find all DbContext types
+        var projectDirectory = Path.GetDirectoryName(project.GetProjectMetadata().ProjectPath) ?? throw new UnreachableException();
+#if DEBUG
+        var configuration = "Debug";
+#else
+        var configuration = "Release";
+#endif
+        var projectAssemblyPath = Path.Combine(projectDirectory, "bin", configuration, "net8.0", $"{projectName}.dll");
+        var projectAssembly = Assembly.LoadFrom(projectAssemblyPath);
+        var dbContextTypes = projectAssembly.GetTypes().Where(t => DerivesFromDbContext(t));
+
+        logger.LogInformation("Found {DbContextCount} DbContext types in project '{ProjectName}'", dbContextTypes.Count(), projectName);
+
+        // Call the migration endpoint for each DbContext type
+        var migrationsApplied = false;
+        using var applyMigrationsHttpClient = app.CreateHttpClient(project.Name, useHttpClientFactory: false);
+        applyMigrationsHttpClient.Timeout = TimeSpan.FromSeconds(240);
+        foreach (var dbContextType in dbContextTypes)
+        {
+            logger.LogInformation("Applying migrations for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+            using var content = new FormUrlEncodedContent([new("context", dbContextType.AssemblyQualifiedName)]);
+            using var response = await applyMigrationsHttpClient.PostAsync("/ApplyDatabaseMigrations", content);
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                migrationsApplied = true;
+                logger.LogInformation("Migrations applied for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+            }
+        }
+
+        return migrationsApplied;
+    }
+
+    private static bool DerivesFromDbContext(Type type)
+    {
+        var baseType = type.BaseType;
+
+        while (baseType is not null)
+        {
+            if (baseType.FullName == "Microsoft.EntityFrameworkCore.DbContext" && baseType.Assembly.GetName().Name == "Microsoft.EntityFrameworkCore")
+            {
+                return true;
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
+    }
+
     private static readonly TimeSpan resourceStartDefaultTimeout = TimeSpan.FromSeconds(30);
 
     private static async Task WaitForResourcesToStartAsync(DistributedApplication app, CancellationToken cancellationToken = default)
@@ -254,20 +351,24 @@ public static class DistributedApplicationExtensions
                     }
 
                     // Resource exited cleanly
-                    HandleResourceStarted(resourceEvent.Resource);
+                    HandleResourceStarted(resourceEvent.Resource, " (exited with code 0)");
                 }
                 else if (snapshot.State is { } state)
                 {
-                    if (state.Text.Contains("running", StringComparison.OrdinalIgnoreCase)
-                        || state.Text.Contains("exited", StringComparison.OrdinalIgnoreCase))
+                    if (state.Text.Contains("running", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Resource started or exited
+                        // Resource started
                         HandleResourceStarted(resourceEvent.Resource);
                     }
                     else if (state.Text.Contains("failedtostart", StringComparison.OrdinalIgnoreCase))
                     {
                         // Resource failed to start
                         throw new DistributedApplicationException($"Resource '{resourceName}' failed to start: {state.Text}");
+                    }
+                    else if (state.Text.Contains("exited", StringComparison.OrdinalIgnoreCase) && remainingResources.Contains(resourceEvent.Resource))
+                    {
+                        // Resource went straight to exited state
+                        throw new DistributedApplicationException($"Resource '{resourceName}' exited without first running: {state.Text}");
                     }
                     else if (state.Text.Contains("starting", StringComparison.OrdinalIgnoreCase)
                              || state.Text.Contains("hidden", StringComparison.OrdinalIgnoreCase))
@@ -289,13 +390,13 @@ public static class DistributedApplicationExtensions
             }
         }
 
-        void HandleResourceStarted(IResource resource)
+        void HandleResourceStarted(IResource resource, string? suffix = null)
         {
             remainingResources.Remove(resource);
-            logger.LogInformation("Resource '{resourceName}' started", resource.Name);
+            logger.LogInformation($"Resource '{{resourceName}}' started{suffix}", resource.Name);
             if (remainingResources.Count > 0)
             {
-                var resourceNames = string.Join(", ", remainingResources);
+                var resourceNames = string.Join(", ", remainingResources.Select(r => r.Name));
                 logger.LogInformation("Still waiting on {resourcesToStartCount} resources to start: {resourcesToStart}", remainingResources.Count, resourceNames);
             }
         }
