@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
@@ -6,16 +7,19 @@ namespace SamplesIntegrationTests;
 public class AppHostTests(ITestOutputHelper testOutput)
 {
     [Theory]
-    [MemberData(nameof(AppHostProjects))]
-    public async Task AppHostRunsCleanly(string projectFile)
+    [MemberData(nameof(AppHostAssemblies))]
+    public async Task AppHostRunsCleanly(string appHostPath)
     {
-        var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
         var appHostLogs = app.GetAppHostLogs();
         var resourceLogs = app.GetResourceLogs();
 
         await app.StartAsync(waitForResourcesToStart: true);
+
+        // Workaround race in DCP that can result in resources being deleted while they are still starting
+        await Task.Delay(100);
 
         appHostLogs.EnsureNoErrors();
         resourceLogs.EnsureNoErrors(resource => resource is ProjectResource or ExecutableResource);
@@ -24,10 +28,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
     }
 
     [Theory]
-    [MemberData(nameof(AppHostProjects))]
-    public async Task HealthEndpointsReturnHealthy(string projectFile)
+    [MemberData(nameof(AppHostsAssembliesWithTestEndpoints))]
+    public async Task TestEndpointsReturnOk(string appHostPath, IReadOnlyDictionary<string, IReadOnlyList<string>> testEndpoints)
     {
-        var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
+        var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
@@ -36,37 +40,42 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
-        foreach (var project in projects)
+        // Workaround race in DCP that can result in resources being deleted while they are still starting
+        await Task.Delay(100);
+
+        foreach (var resource in testEndpoints.Keys)
         {
-            if (!project.TryGetEndpoints(out var _))
+            var endpoints = testEndpoints[resource];
+
+            if (endpoints.Count == 0)
             {
-                // No endpoints so ignore this project
+                // No test endpoints so ignore this resource
                 continue;
             }
-
-            await app.TryApplyEfMigrationsAsync(project);
 
             HttpResponseMessage? response = null;
-            try
-            {
-                using var client = app.CreateHttpClient(project.Name);
-                response = await client.GetAsync("/health");
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail($"Error calling health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectFile)}': {ex.Message}");
-            }
 
-            if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.BadRequest)
+            using var client = app.CreateHttpClient(resource);
+
+            foreach (var path in endpoints)
             {
-                // Project isn't configured with health checks endpoint
-                continue;
+                if (string.Equals("/ApplyDatabaseMigrations", path, StringComparison.OrdinalIgnoreCase)
+                    && projects.FirstOrDefault(p => string.Equals(p.Name, resource, StringComparison.OrdinalIgnoreCase)) is { } project)
+                {
+                    await app.TryApplyEfMigrationsAsync(project);
+                    continue;
+                }
+
+                try
+                {
+                    response = await client.GetAsync(path);
+                    Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{path}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"Error when calling endpoint '{path} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}': {ex.Message}");
+                }
             }
-
-            Assert.True(HttpStatusCode.OK == response.StatusCode, $"Health endpoint for project '{project.GetName()}' in app '{Path.GetFileNameWithoutExtension(projectFile)}' returned status code {response.StatusCode}");
-
-            var content = await response.Content.ReadAsStringAsync();
-            Assert.Equal("Healthy", content);
         }
 
         appHostLogs.EnsureNoErrors();
@@ -75,33 +84,47 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await app.StopAsync();
     }
 
-    public static object[][] AppHostProjects()
+    public static object[][] AppHostAssemblies()
     {
-        var repoRoot = GetRepoRoot();
-        var samplesDir = Path.Combine(repoRoot, "samples");
-        var appHostProjects = Directory.GetFiles(samplesDir, "*.AppHost.csproj", SearchOption.AllDirectories);
-        return appHostProjects.Select(p => new object[] { Path.GetRelativePath(repoRoot, p) }).ToArray();
+        var appHostAssemblies = GetSamplesAppHostAssemblyPaths();
+        return appHostAssemblies.Select(p => new object[] { Path.GetRelativePath(AppContext.BaseDirectory, p) }).ToArray();
     }
 
-    private static string GetProjectPath(string projectFile)
+    public static object[][] AppHostsAssembliesWithTestEndpoints()
     {
-        return Path.GetFullPath(projectFile, GetRepoRoot());
+        var appHostAssemblies = GetSamplesAppHostAssemblyPaths();
+        var result = new List<object[]>();
+
+        foreach (var appHost in appHostAssemblies)
+        {
+            var appHostAssembly = Assembly.LoadFrom(Path.Combine(appHost)) ?? throw new InvalidOperationException($"Could not load AppHost assembly '{appHost}'");
+            var typeName = appHostAssembly.GetCustomAttributes<AssemblyMetadataAttribute>().FirstOrDefault(a => a.Key == "TestEndpointsTypeName")?.Value;
+            var methodName = appHostAssembly.GetCustomAttributes<AssemblyMetadataAttribute>().FirstOrDefault(a => a.Key == "TestEndpointsMethodName")?.Value;
+
+            if (!string.IsNullOrEmpty(typeName) && !string.IsNullOrEmpty(methodName))
+            {
+                var type = appHostAssembly.GetType(typeName);
+                var method = type?.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)
+                    ?? throw new InvalidOperationException($"Could not find a public static method named '{methodName}' on type '{typeName}' in assembly {appHost}");
+                if (!method.ReturnType.IsAssignableTo(typeof(IReadOnlyDictionary<string, IReadOnlyList<string>>)))
+                {
+                    throw new InvalidOperationException($"TestEndpoints method '{methodName}' on type '{typeName}' in assembly {appHost} must return a type assignable to IReadOnlyDictionary<string, IReadOnlyList<string>>");
+                }
+                var testEndpoints = method.Invoke(null, null) as IReadOnlyDictionary<string, IReadOnlyList<string>>
+                    ?? throw new InvalidOperationException($"TestEndpoints method '{methodName}' on type '{typeName}' in assembly {appHost} returned null");
+                
+                result.Add([Path.GetRelativePath(AppContext.BaseDirectory, appHost), testEndpoints]);
+            }
+        }
+
+        return [.. result];
     }
 
-    private static string GetRepoRoot()
+    private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
     {
-        var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        while (currentDirectory != null && !File.Exists(Path.Combine(currentDirectory.FullName, "global.json")))
-        {
-            currentDirectory = currentDirectory.Parent;
-        }
-
-        if (currentDirectory == null)
-        {
-            throw new InvalidOperationException("Could not find the repository root.");
-        }
-
-        return currentDirectory.FullName;
+        return Directory.GetFiles(AppContext.BaseDirectory, "*.AppHost.dll")
+            .Where(fileName => !fileName.EndsWith("Aspire.Hosting.AppHost.dll", StringComparison.OrdinalIgnoreCase)
+                               // Known issue with Dapr in preview.5 and randomization of resource names that occurs in integration testing
+                               && !fileName.EndsWith("AspireWithDapr.AppHost.dll", StringComparison.OrdinalIgnoreCase));
     }
 }

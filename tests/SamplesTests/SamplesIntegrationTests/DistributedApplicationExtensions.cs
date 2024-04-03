@@ -6,12 +6,13 @@ using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
 public static partial class DistributedApplicationExtensions
 {
+    internal const string OutputWriterKey = $"{nameof(DistributedApplicationExtensions)}.OutputWriter";
+
     /// <summary>
     /// Adds a background service to watch resource status changes and optionally logs.
     /// </summary>
@@ -25,9 +26,9 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
-    /// Configures the builder to write logs to xunit's output and store for optional assertion later.
+    /// Configures the builder to write logs to the supplied <see cref="TextWriter"/> and store for optional assertion later.
     /// </summary>
-    public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, ITestOutputHelper testOutputHelper)
+    public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, TextWriter outputWriter)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
         builder.Services.AddResourceWatching();
@@ -37,8 +38,7 @@ public static partial class DistributedApplicationExtensions
 
         // Configure the builder's logger to redirect it to xunit's output & store for assertion later
         builder.Services.AddLogging(logging => logging.ClearProviders());
-        builder.Services.AddSingleton(testOutputHelper);
-        builder.Services.AddSingleton<ILoggerProvider, XUnitLoggerProvider>();
+        builder.Services.AddKeyedSingleton(OutputWriterKey, outputWriter);
         builder.Services.AddSingleton<LoggerLogStore>();
         builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
 
@@ -156,22 +156,6 @@ public static partial class DistributedApplicationExtensions
 
         await app.StartAsync(cancellationToken);
         await resourcesStartingTask;
-    }
-
-    /// <inheritdoc cref = "IHost.StopAsync" />
-    public static async Task StopAsync(this DistributedApplication app, bool waitForResourcesToStop, TimeSpan? waitForResourcesTimeout = null, CancellationToken cancellationToken = default)
-    {
-        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
-        var resourcesStoppingTask = waitForResourcesToStop ? resourceWatcher.WaitForResourcesToStop() : Task.CompletedTask;
-
-        await app.StopAsync(cancellationToken);
-
-        waitForResourcesTimeout ??= TimeSpan.FromSeconds(60);
-        var stopTimeoutCts = new CancellationTokenSource(waitForResourcesTimeout.Value);
-        var stopTimeoutTcs = new TaskCompletionSource();
-        stopTimeoutCts.Token.Register(() => stopTimeoutTcs.TrySetException(new DistributedApplicationException($"Resources did not stop within the configured timeout {waitForResourcesTimeout}")));
-        
-        await (await Task.WhenAny(resourcesStoppingTask, stopTimeoutTcs.Task));
     }
 
     public static LoggerLogStore GetAppHostLogs(this DistributedApplication app)

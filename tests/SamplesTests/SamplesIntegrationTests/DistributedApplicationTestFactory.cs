@@ -1,22 +1,15 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
-internal static class DistributedApplicationTestFactory
+internal static partial class DistributedApplicationTestFactory
 {
-    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostProjectPath, ITestOutputHelper testOutput)
+    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostAssemblyPath, TextWriter? outputWriter)
     {
-        var appHostProjectName = Path.GetFileNameWithoutExtension(appHostProjectPath) ?? throw new InvalidOperationException("AppHost project was not found.");
-        var appHostProjectDirectory = Path.GetDirectoryName(appHostProjectPath) ?? throw new InvalidOperationException("Directory for AppHost project was not found.");
-#if DEBUG
-        var configuration = "Debug";
-#else
-        var configuration = "Release";
-#endif
-        // TODO: Handle different assets output path
-        var appHostAssembly = Assembly.LoadFrom(Path.Combine(appHostProjectDirectory, "bin", configuration, "net8.0", $"{appHostProjectName}.dll"));
+        var appHostProjectName = Path.GetFileNameWithoutExtension(appHostAssemblyPath) ?? throw new InvalidOperationException("AppHost assembly was not found.");
+
+        var appHostAssembly = Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, appHostAssemblyPath));
 
         var appHostType = appHostAssembly.GetTypes().FirstOrDefault(t => t.Name.EndsWith("_AppHost"))
             ?? throw new InvalidOperationException("Generated AppHost type not found.");
@@ -33,7 +26,10 @@ internal static class DistributedApplicationTestFactory
 
         builder.WithRandomParameterValues();
         builder.WithAnonymousVolumeNames();
-        builder.WriteOutputTo(testOutput);
+        if (outputWriter is not null)
+        {
+            builder.WriteOutputTo(outputWriter);
+        }
 
         return builder;
     }

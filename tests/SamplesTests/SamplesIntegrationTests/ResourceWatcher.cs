@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
@@ -13,7 +12,6 @@ internal sealed class ResourceWatcher(
     ILogger<ResourceWatcher> logger)
     : BackgroundService
 {
-    private readonly TimeSpan resourceStartDefaultTimeout = TimeSpan.FromSeconds(30);
     private readonly HashSet<string> _waitingToStartResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _startedResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _waitingToStopResources = new(StringComparer.OrdinalIgnoreCase);
@@ -21,7 +19,6 @@ internal sealed class ResourceWatcher(
     private readonly Dictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
     private readonly TaskCompletionSource _resourcesStartedTcs = new();
     private readonly TaskCompletionSource _resourcesStoppedTcs = new();
-    //private readonly CancellationTokenSource _shutdownCts = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,15 +32,8 @@ internal sealed class ResourceWatcher(
         });
         logger.LogInformation("Watching {resourceCount} resources for start/stop changes", statusWatchableResources.Count);
 
-        //stoppingToken.Register(() =>
-        //{
-        //    logger.LogInformation("Resource watcher stopping");
-
-        //    // Allow 30 seconds after stopping signal for resources to stop
-        //    _shutdownCts.CancelAfter(TimeSpan.FromSeconds(30));
-        //});
-
-        await WatchNotifications();
+        // We need to pass the stopping token in here because the ResourceNotificationService doesn't stop on host shutdown in preview.5
+        await WatchNotifications(stoppingToken);
 
         logger.LogInformation("Resource watcher stopped");
     }
@@ -58,17 +48,17 @@ internal sealed class ResourceWatcher(
 
     public Task WaitForResourcesToStop() => _resourcesStoppedTcs.Task;
 
-    private async Task WatchNotifications()
+    private async Task WatchNotifications(CancellationToken cancellationToken)
     {
         var logStore = serviceProvider.GetService<ResourceLogStore>();
-        var testOutputHelper = serviceProvider.GetService<ITestOutputHelper>();
-        var watchingLogs = logStore is not null || testOutputHelper is not null;
+        var outputWriter = serviceProvider.GetKeyedService<TextWriter>(DistributedApplicationExtensions.OutputWriterKey);
+        var watchingLogs = logStore is not null || outputWriter is not null;
         var loggingResourceIds = new HashSet<string>();
         var logWatchTasks = new List<Task>();
 
         logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", _waitingToStartResources.Count);
 
-        await foreach (var resourceEvent in resourceNotification.WatchAsync())
+        await foreach (var resourceEvent in resourceNotification.WatchAsync().WithCancellation(cancellationToken))
         {
             var resourceName = resourceEvent.Resource.Name;
             var resourceId = resourceEvent.ResourceId;
@@ -76,7 +66,7 @@ internal sealed class ResourceWatcher(
             if (watchingLogs && loggingResourceIds.Add(resourceId))
             {
                 // Start watching the logs for this resource ID
-                logWatchTasks.Add(WatchResourceLogs(logStore, testOutputHelper, resourceEvent.Resource, resourceId));
+                logWatchTasks.Add(WatchResourceLogs(logStore, outputWriter, resourceEvent.Resource, resourceId, cancellationToken));
             }
 
             _resourceState.TryGetValue(resourceName, out var prevState);
@@ -204,18 +194,18 @@ internal sealed class ResourceWatcher(
         await Task.WhenAll(logWatchTasks);
     }
 
-    private async Task WatchResourceLogs(ResourceLogStore? logStore, ITestOutputHelper? testOutputHelper, IResource resource, string resourceId)
+    private async Task WatchResourceLogs(ResourceLogStore? logStore, TextWriter? outputWriter, IResource resource, string resourceId, CancellationToken cancellationToken)
     {
-        if (logStore is not null || testOutputHelper is not null)
+        if (logStore is not null || outputWriter is not null)
         {
-            await foreach (var logEvent in resourceLoggerService.WatchAsync(resourceId))
+            await foreach (var logEvent in resourceLoggerService.WatchAsync(resourceId).WithCancellation(cancellationToken))
             {
                 logStore?.Add(resource, logEvent);
 
                 foreach (var line in logEvent)
                 {
                     var kind = line.IsErrorMessage ? "error" : "log";
-                    testOutputHelper?.WriteLine("{0} Resource '{1}' {2}: {3}", DateTime.Now.ToString("O"), resource.Name, kind, line.Content);
+                    outputWriter?.WriteLine("{0} Resource '{1}' {2}: {3}", DateTime.Now.ToString("O"), resource.Name, kind, line.Content);
                 }
             }
         }
