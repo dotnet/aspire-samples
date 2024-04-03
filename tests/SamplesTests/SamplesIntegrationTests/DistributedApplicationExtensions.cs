@@ -1,9 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,21 +10,37 @@ using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
-public static class DistributedApplicationExtensions
+public static partial class DistributedApplicationExtensions
 {
+    /// <summary>
+    /// Adds a background service to watch resource status changes and optionally logs.
+    /// </summary>
+    public static IServiceCollection AddResourceWatching(this IServiceCollection services)
+    {
+        // Add background service to watch resource status changes and optionally logs
+        services.AddSingleton<ResourceWatcher>();
+        services.AddHostedService(sp => sp.GetRequiredService<ResourceWatcher>());
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the builder to write logs to xunit's output and store for optional assertion later.
+    /// </summary>
     public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, ITestOutputHelper testOutputHelper)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
+        builder.Services.AddResourceWatching();
+
+        // Add a resource log store to capture logs from resources
+        builder.Services.AddSingleton<ResourceLogStore>();
+
         // Configure the builder's logger to redirect it to xunit's output & store for assertion later
         builder.Services.AddLogging(logging => logging.ClearProviders());
         builder.Services.AddSingleton(testOutputHelper);
         builder.Services.AddSingleton<ILoggerProvider, XUnitLoggerProvider>();
         builder.Services.AddSingleton<LoggerLogStore>();
         builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
-
-        // Add background service to watch resource logs, store them for assertion later, and write them to xunit's output
-        builder.Services.AddSingleton<ResourceLogWatcher>();
-        builder.Services.AddHostedService(sp => sp.GetRequiredService<ResourceLogWatcher>());
 
         return builder;
     }
@@ -137,18 +151,34 @@ public static class DistributedApplicationExtensions
     /// <inheritdoc cref = "IHost.StartAsync" />
     public static async Task StartAsync(this DistributedApplication app, bool waitForResourcesToStart, CancellationToken cancellationToken = default)
     {
-        await app.StartAsync(cancellationToken);
+        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
+        var resourcesStartingTask = waitForResourcesToStart ? resourceWatcher.WaitForResourcesToStart() : Task.CompletedTask;
 
-        if (waitForResourcesToStart)
-        {
-            await WaitForResourcesToStartAsync(app, cancellationToken);
-        }
+        await app.StartAsync(cancellationToken);
+        await resourcesStartingTask;
     }
 
-    public static IReadOnlyDictionary<string, IList<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> GetAppHostLogs(this DistributedApplication app)
+    /// <inheritdoc cref = "IHost.StopAsync" />
+    public static async Task StopAsync(this DistributedApplication app, bool waitForResourcesToStop, TimeSpan? waitForResourcesTimeout = null, CancellationToken cancellationToken = default)
     {
-        var logStore = app.Services.GetRequiredService<LoggerLogStore>();
-        return logStore.GetLogs();
+        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
+        var resourcesStoppingTask = waitForResourcesToStop ? resourceWatcher.WaitForResourcesToStop() : Task.CompletedTask;
+
+        await app.StopAsync(cancellationToken);
+
+        waitForResourcesTimeout ??= TimeSpan.FromSeconds(60);
+        var stopTimeoutCts = new CancellationTokenSource(waitForResourcesTimeout.Value);
+        var stopTimeoutTcs = new TaskCompletionSource();
+        stopTimeoutCts.Token.Register(() => stopTimeoutTcs.TrySetException(new DistributedApplicationException($"Resources did not stop within the configured timeout {waitForResourcesTimeout}")));
+        
+        await (await Task.WhenAny(resourcesStoppingTask, stopTimeoutTcs.Task));
+    }
+
+    public static LoggerLogStore GetAppHostLogs(this DistributedApplication app)
+    {
+        var logStore = app.Services.GetService<LoggerLogStore>()
+            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get AppHost logs.");
+        return logStore;
     }
 
     /// <summary>
@@ -156,89 +186,11 @@ public static class DistributedApplicationExtensions
     /// </summary>
     /// <param name="app"></param>
     /// <returns></returns>
-    public static IReadOnlyDictionary<IResource, IReadOnlyList<LogLine>> GetResourceLogs(this DistributedApplication app)
+    public static ResourceLogStore GetResourceLogs(this DistributedApplication app)
     {
-        var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
-        return logStore.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<LogLine>)entry.Value);
-    }
-
-    /// <summary>
-    /// Gets the logs for the specified resource in the application.
-    /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourceName"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    public static IList<LogLine> GetResourceLogs(this DistributedApplication app, string resourceName)
-    {
-        var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
-        var resource = app.Services.GetRequiredService<DistributedApplicationModel>().Resources.FirstOrDefault(r => string.Equals(r.Name, resourceName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException($"Resource '{resourceName}' not found", nameof(resourceName));
-        var logs = logStore.TryGetValue(resource, out var logLines) ? logLines : [];
-        return logs;
-    }
-
-    /// <summary>
-    /// Ensures no errors were logged for the application's AppHost.
-    /// </summary>
-    /// <param name="app"></param>
-    public static void EnsureNoAppHostErrors(this DistributedApplication app)
-    {
-        var logs = app.GetAppHostLogs();
-
-        var errors = logs.Where(category => category.Value.Any(log => log.Level == LogLevel.Error || log.Level == LogLevel.Critical)).ToList();
-        if (errors.Count > 0)
-        {
-            throw new DistributedApplicationException(
-                $"AppHost '{app.Services.GetRequiredService<IHostEnvironment>().ApplicationName}' logged errors: {Environment.NewLine}" +
-                $"{string.Join(Environment.NewLine, errors.Select(cat => string.Join(Environment.NewLine, cat.Value.Where(log => log.Level == LogLevel.Error || log.Level == LogLevel.Critical).Select(log => $"{log.Level} [{cat.Key}] {log.Message}"))))}");
-        }
-    }
-
-    /// <summary>
-    /// Ensures no errors were logged for the specified resource in the application.
-    /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourceName"></param>
-    public static void EnsureNoResourceErrors(this DistributedApplication app, string resourceName)
-    {
-        app.EnsureNoResourceErrors(r => string.Equals(r.Name, resourceName, StringComparison.OrdinalIgnoreCase));
-    }
-
-    /// <summary>
-    /// Ensures no errors were logged for the specified resources in the application.
-    /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourcePredicate"></param>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="DistributedApplicationException"></exception>
-    public static void EnsureNoResourceErrors(this DistributedApplication app, Func<IResource, bool>? resourcePredicate = null)
-    {
-        var logStore = app.Services.GetRequiredService<ResourceLogWatcher>().LogStore;
-
-        var resourcesMatched = 0;
-        foreach (var (resource, logs) in logStore)
-        {
-            if (resourcePredicate is null || resourcePredicate(resource))
-            {
-                EnsureNoErrors(resource, logs);
-                resourcesMatched++;
-            }
-        }
-
-        if (resourcesMatched == 0 && resourcePredicate is not null)
-        {
-            throw new ArgumentException("No resources matched the predicate.", nameof(resourcePredicate));
-        }
-
-        static void EnsureNoErrors(IResource resource, IEnumerable<LogLine> logs)
-        {
-            var errors = logs.Where(l => l.IsErrorMessage).ToList();
-            if (errors.Count > 0)
-            {
-                throw new DistributedApplicationException($"Resource '{resource.Name}' logged errors: {Environment.NewLine}{string.Join(Environment.NewLine, errors.Select(e => e.Content))}");
-            }
-        }
+        var logStore = app.Services.GetService<ResourceLogStore>()
+            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get resource logs."); ;
+        return logStore;
     }
 
     /// <summary>
@@ -317,249 +269,94 @@ public static class DistributedApplicationExtensions
         return false;
     }
 
-    private static readonly TimeSpan resourceStartDefaultTimeout = TimeSpan.FromSeconds(30);
+    //private static readonly TimeSpan resourceStartDefaultTimeout = TimeSpan.FromSeconds(30);
 
-    private static async Task WaitForResourcesToStartAsync(DistributedApplication app, CancellationToken cancellationToken = default)
-    {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DistributedApplicationExtensions));
-        var resources = GetWaitableResources(app).ToList();
-        var remainingResources = new HashSet<IResource>(resources);
+    //private static async Task WaitForResourcesToStartAsync(DistributedApplication app, CancellationToken cancellationToken = default)
+    //{
+    //    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DistributedApplicationExtensions));
+    //    var resources = GetWaitableResources(app).ToList();
+    //    var remainingResources = new HashSet<IResource>(resources);
 
-        logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", remainingResources.Count);
+    //    logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", remainingResources.Count);
 
-        var notificationService = app.Services.GetRequiredService<ResourceNotificationService>();
-        var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
+    //    var notificationService = app.Services.GetRequiredService<ResourceNotificationService>();
+    //    var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var timeoutCts = new CancellationTokenSource(resourceStartDefaultTimeout);
-        var cts = cancellationToken == default
-            ? timeoutCts
-            : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+    //    var timeoutCts = new CancellationTokenSource(resourceStartDefaultTimeout);
+    //    var cts = cancellationToken == default
+    //        ? timeoutCts
+    //        : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
-        await foreach (var resourceEvent in notificationService.WatchAsync().WithCancellation(cts.Token))
-        {
-            var resourceName = resourceEvent.Resource.Name;
-            if (remainingResources.Contains(resourceEvent.Resource))
-            {
-                // TODO: Handle replicas
-                var snapshot = resourceEvent.Snapshot;
-                if (snapshot.ExitCode is { } exitCode)
-                {
-                    if (exitCode != 0)
-                    {
-                        // Error starting resource
-                        throw new DistributedApplicationException($"Resource '{resourceName}' exited with exit code {exitCode}");
-                    }
+    //    await foreach (var resourceEvent in notificationService.WatchAsync().WithCancellation(cts.Token))
+    //    {
+    //        var resourceName = resourceEvent.Resource.Name;
+    //        if (remainingResources.Contains(resourceEvent.Resource))
+    //        {
+    //            // TODO: Handle replicas
+    //            var snapshot = resourceEvent.Snapshot;
+    //            if (snapshot.ExitCode is { } exitCode)
+    //            {
+    //                if (exitCode != 0)
+    //                {
+    //                    // Error starting resource
+    //                    throw new DistributedApplicationException($"Resource '{resourceName}' exited with exit code {exitCode}");
+    //                }
 
-                    // Resource exited cleanly
-                    HandleResourceStarted(resourceEvent.Resource, " (exited with code 0)");
-                }
-                else if (snapshot.State is { } state)
-                {
-                    if (state.Text.Contains("running", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Resource started
-                        HandleResourceStarted(resourceEvent.Resource);
-                    }
-                    else if (state.Text.Contains("failedtostart", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Resource failed to start
-                        throw new DistributedApplicationException($"Resource '{resourceName}' failed to start: {state.Text}");
-                    }
-                    else if (state.Text.Contains("exited", StringComparison.OrdinalIgnoreCase) && remainingResources.Contains(resourceEvent.Resource))
-                    {
-                        // Resource went straight to exited state
-                        throw new DistributedApplicationException($"Resource '{resourceName}' exited without first running: {state.Text}");
-                    }
-                    else if (state.Text.Contains("starting", StringComparison.OrdinalIgnoreCase)
-                             || state.Text.Contains("hidden", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Resource is still starting
-                        continue;
-                    }
-                    else if (!string.IsNullOrEmpty(state.Text))
-                    {
-                        logger.LogWarning("Unknown resource state encountered: {state}", state.Text);
-                    }
-                }
-            }
+    //                // Resource exited cleanly
+    //                HandleResourceStarted(resourceEvent.Resource, " (exited with code 0)");
+    //            }
+    //            else if (snapshot.State is { } state)
+    //            {
+    //                if (state.Text.Contains("running", StringComparison.OrdinalIgnoreCase))
+    //                {
+    //                    // Resource started
+    //                    HandleResourceStarted(resourceEvent.Resource);
+    //                }
+    //                else if (state.Text.Contains("failedtostart", StringComparison.OrdinalIgnoreCase))
+    //                {
+    //                    // Resource failed to start
+    //                    throw new DistributedApplicationException($"Resource '{resourceName}' failed to start: {state.Text}");
+    //                }
+    //                else if (state.Text.Contains("exited", StringComparison.OrdinalIgnoreCase) && remainingResources.Contains(resourceEvent.Resource))
+    //                {
+    //                    // Resource went straight to exited state
+    //                    throw new DistributedApplicationException($"Resource '{resourceName}' exited without first running: {state.Text}");
+    //                }
+    //                else if (state.Text.Contains("starting", StringComparison.OrdinalIgnoreCase)
+    //                         || state.Text.Contains("hidden", StringComparison.OrdinalIgnoreCase))
+    //                {
+    //                    // Resource is still starting
+    //                    continue;
+    //                }
+    //                else if (!string.IsNullOrEmpty(state.Text))
+    //                {
+    //                    logger.LogWarning("Unknown resource state encountered: {state}", state.Text);
+    //                }
+    //            }
+    //        }
 
-            if (remainingResources.Count == 0)
-            {
-                logger.LogInformation("All resources started successfully");
-                break;
-            }
-        }
+    //        if (remainingResources.Count == 0)
+    //        {
+    //            logger.LogInformation("All resources started successfully");
+    //            break;
+    //        }
+    //    }
 
-        void HandleResourceStarted(IResource resource, string? suffix = null)
-        {
-            remainingResources.Remove(resource);
-            logger.LogInformation($"Resource '{{resourceName}}' started{suffix}", resource.Name);
-            if (remainingResources.Count > 0)
-            {
-                var resourceNames = string.Join(", ", remainingResources.Select(r => r.Name));
-                logger.LogInformation("Still waiting on {resourcesToStartCount} resources to start: {resourcesToStart}", remainingResources.Count, resourceNames);
-            }
-        }
-    }
+    //    void HandleResourceStarted(IResource resource, string? suffix = null)
+    //    {
+    //        remainingResources.Remove(resource);
+    //        logger.LogInformation($"Resource '{{resourceName}}' started{suffix}", resource.Name);
+    //        if (remainingResources.Count > 0)
+    //        {
+    //            var resourceNames = string.Join(", ", remainingResources.Select(r => r.Name));
+    //            logger.LogInformation("Still waiting on {resourcesToStartCount} resources to start: {resourcesToStart}", remainingResources.Count, resourceNames);
+    //        }
+    //    }
+    //}
 
-    private static IEnumerable<IResource> GetWaitableResources(this DistributedApplication app)
-    {
-        var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-        return appModel.Resources.Where(r => r is ContainerResource || r is ExecutableResource || r is ProjectResource || r is AzureConstructResource);
-    }
-
-    private sealed class ResourceLogWatcher(
-        ResourceNotificationService resourceNotification,
-        ResourceLoggerService resourceLoggerService,
-        ITestOutputHelper testOutputHelper)
-        : BackgroundService
-    {
-        public ConcurrentDictionary<IResource, List<LogLine>> LogStore { get; } = [];
-
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            return WatchNotifications(stoppingToken);
-        }
-
-        private async Task WatchNotifications(CancellationToken stoppingToken)
-        {
-            var loggingResourceIds = new HashSet<string>();
-            var logWatchTasks = new List<Task>();
-
-            await foreach (var resourceEvent in resourceNotification.WatchAsync().WithCancellation(stoppingToken))
-            {
-                if (loggingResourceIds.Add(resourceEvent.ResourceId))
-                {
-                    // Start watching the logs for this resource ID
-                    logWatchTasks.Add(WatchLogs(resourceEvent.Resource, resourceEvent.ResourceId, stoppingToken));
-                }
-                if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } state && !string.IsNullOrEmpty(state.Text))
-                {
-                    // Log resource state change
-                    testOutputHelper.WriteLine("Resource '{0}' of type '{1}' -> {2}", resourceEvent.ResourceId, resourceEvent.Resource.GetType().Name, state.Text);
-                }
-                else if (resourceEvent.Snapshot.ExitCode is { } exitCode)
-                {
-                    // Log resource exit code
-                    testOutputHelper.WriteLine("Resource '{0}' exited with code {1}", resourceEvent.ResourceId, exitCode);
-                }
-            }
-
-            await Task.WhenAll(logWatchTasks);
-        }
-
-        private async Task WatchLogs(IResource resource, string resourceId, CancellationToken stoppingToken)
-        {
-            await foreach (var logEvent in resourceLoggerService.WatchAsync(resourceId).WithCancellation(stoppingToken))
-            {
-                foreach (var line in logEvent)
-                {
-                    LogStore.GetOrAdd(resource, _ => []).Add(line);
-                    var kind = line.IsErrorMessage ? "error" : "log";
-                    testOutputHelper.WriteLine("Resource '{0}' {1}: {2}", resource.Name, kind, line.Content);
-                }
-            }
-        }
-    }
-
-    private class XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName) : ILogger
-    {
-        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
-
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => scopeProvider.Push(state);
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-        {
-            var sb = new StringBuilder();
-
-            sb.Append(GetLogLevelString(logLevel))
-              .Append(" [").Append(categoryName).Append("] ")
-              .Append(formatter(state, exception));
-
-            if (exception is not null)
-            {
-                sb.Append('\n').Append(exception);
-            }
-
-            // Append scopes
-            scopeProvider.ForEachScope((scope, state) =>
-            {
-                state.Append("\n => ");
-                state.Append(scope);
-            }, sb);
-
-            testOutputHelper.WriteLine(sb.ToString());
-        }
-
-        private static string GetLogLevelString(LogLevel logLevel)
-        {
-            return logLevel switch
-            {
-                LogLevel.Trace => "trce",
-                LogLevel.Debug => "dbug",
-                LogLevel.Information => "info",
-                LogLevel.Warning => "warn",
-                LogLevel.Error => "fail",
-                LogLevel.Critical => "crit",
-                _ => throw new ArgumentOutOfRangeException(nameof(logLevel))
-            };
-        }
-    }
-
-    private class XUnitLoggerProvider(ITestOutputHelper testOutputHelper) : ILoggerProvider
-    {
-        private readonly LoggerExternalScopeProvider _scopeProvider = new();
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new XUnitLogger(testOutputHelper, _scopeProvider, categoryName);
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    private class StoredLogsLogger(LoggerLogStore logStore, IExternalScopeProvider scopeProvider, string categoryName) : ILogger
-    {
-        public string CategoryName { get; } = categoryName;
-
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull =>  scopeProvider.Push(state);
-
-        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-        {
-            logStore.AddLog(this, logLevel, formatter(state, exception), exception);
-        }
-    }
-
-    private class StoredLogsLoggerProvider(LoggerLogStore logStore) : ILoggerProvider
-    {
-        private readonly LoggerExternalScopeProvider _scopeProvider = new();
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new StoredLogsLogger(logStore, _scopeProvider, categoryName);
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    private class LoggerLogStore
-    {
-        private readonly ConcurrentDictionary<StoredLogsLogger, List<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> _store = [];
-
-        public void AddLog(StoredLogsLogger logger, LogLevel level, string message, Exception? exception)
-        {
-            _store.GetOrAdd(logger, _ => []).Add((DateTimeOffset.Now, level, message, exception));
-        }
-
-        public IReadOnlyDictionary<string, IList<(DateTimeOffset TimeStamp, LogLevel Level, string Message, Exception? Exception)>> GetLogs()
-        {
-            return _store.ToDictionary(entry => entry.Key.CategoryName, entry => (IList<(DateTimeOffset, LogLevel, string, Exception?)>)entry.Value);
-        }
-    }
+    //private static IEnumerable<IResource> GetWaitableResources(this DistributedApplication app)
+    //{
+    //    var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
+    //    return appModel.Resources.Where(r => r is ContainerResource || r is ExecutableResource || r is ProjectResource || r is AzureConstructResource);
+    //}
 }

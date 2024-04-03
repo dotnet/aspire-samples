@@ -12,13 +12,13 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(GetProjectPath(projectFile), testOutput);
         await using var app = await appHost.BuildAsync();
 
+        var appHostLogs = app.GetAppHostLogs();
+        var resourceLogs = app.GetResourceLogs();
+
         await app.StartAsync(waitForResourcesToStart: true);
 
-        // Workaround race in DCP that can result in resources being deleted while they are still starting
-        await Task.Delay(100);
-
-        app.EnsureNoAppHostErrors();
-        app.EnsureNoResourceErrors(resource => resource is ProjectResource or ExecutableResource);
+        appHostLogs.EnsureNoErrors();
+        resourceLogs.EnsureNoErrors(resource => resource is ProjectResource or ExecutableResource);
 
         await app.StopAsync();
     }
@@ -31,10 +31,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
-        await app.StartAsync(waitForResourcesToStart: true);
+        var appHostLogs = app.GetAppHostLogs();
+        var resourceLogs = app.GetResourceLogs();
 
-        // Workaround race in DCP that can result in resources being deleted while they are still starting
-        await Task.Delay(100);
+        await app.StartAsync(waitForResourcesToStart: true);
 
         foreach (var project in projects)
         {
@@ -69,7 +69,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
             Assert.Equal("Healthy", content);
         }
 
-        app.EnsureNoAppHostErrors();
+        appHostLogs.EnsureNoErrors();
+        resourceLogs.EnsureNoErrors(resource => resource is ProjectResource or ExecutableResource);
 
         await app.StopAsync();
     }
