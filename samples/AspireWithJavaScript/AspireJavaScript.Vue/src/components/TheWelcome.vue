@@ -18,7 +18,7 @@ export default {
     }
   },
   mounted() {
-    fetch(`${import.meta.env.VITE_WEATHER_API}/weatherforecast`)
+    fetch(`${import.meta.env.VITE_WEATHER_API_HTTPS || import.meta.env.VITE_WEATHER_API_HTTP}/weatherforecast`)
       .then(response => response.json())
       .then(data => {
         this.forecasts = data
