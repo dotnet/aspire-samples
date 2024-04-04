@@ -41,7 +41,7 @@ public class ResourceLogStore
     /// <summary>
     /// Ensures no errors were logged for the specified resources.
     /// </summary>
-    public void EnsureNoErrors(Func<IResource, bool>? resourcePredicate = null)
+    public void EnsureNoErrors(Func<IResource, bool>? resourcePredicate = null, bool throwIfNoResourcesMatch = false)
     {
         var logStore = GetLogs();
 
@@ -55,7 +55,7 @@ public class ResourceLogStore
             }
         }
 
-        if (resourcesMatched == 0 && resourcePredicate is not null)
+        if (throwIfNoResourcesMatch && resourcesMatched == 0 && resourcePredicate is not null)
         {
             throw new ArgumentException("No resources matched the predicate.", nameof(resourcePredicate));
         }
