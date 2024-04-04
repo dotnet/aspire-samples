@@ -14,7 +14,7 @@ import { credentials } from '@grpc/grpc-js';
 const environment = process.env.NODE_ENV || 'development';
 
 // For troubleshooting, set the log level to DiagLogLevel.DEBUG
-diag.setLogger(new DiagConsoleLogger(), environment === 'development' ? DiagLogLevel.INFO : DiagLogLevel.WARN);
+//diag.setLogger(new DiagConsoleLogger(), environment === 'development' ? DiagLogLevel.INFO : DiagLogLevel.WARN);
 
 const otlpServer = env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
@@ -31,7 +31,7 @@ if (otlpServer) {
     const sdk = new NodeSDK({
         traceExporter: new OTLPTraceExporter(collectorOptions),
         metricReader: new PeriodicExportingMetricReader({
-            exportIntervalMillis: environment === 'development' ? 10000 : 5000,
+            exportIntervalMillis: environment === 'development' ? 5000 : 10000,
             exporter: new OTLPMetricExporter(collectorOptions),
         }),
         logRecordProcessor: new SimpleLogRecordProcessor({
