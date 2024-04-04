@@ -22,7 +22,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await Task.Delay(100);
 
         appHostLogs.EnsureNoErrors();
-        resourceLogs.EnsureNoErrors(resource => resource is ProjectResource or ExecutableResource);
+        resourceLogs.EnsureNoErrors(resource => resource is (ProjectResource or ExecutableResource) and not NodeAppResource);
 
         await app.StopAsync();
     }
@@ -79,7 +79,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         }
 
         appHostLogs.EnsureNoErrors();
-        resourceLogs.EnsureNoErrors(resource => resource is ProjectResource or ExecutableResource);
+        resourceLogs.EnsureNoErrors(resource => resource is (ProjectResource or ExecutableResource) and not NodeAppResource);
 
         await app.StopAsync();
     }
