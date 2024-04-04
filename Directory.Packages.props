@@ -5,22 +5,30 @@
     <AspNetCoreVersion>8.0.3</AspNetCoreVersion>
     <EfCoreVersion>8.0.3</EfCoreVersion>
     <GrpcVersion>2.61.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.4.24156.9</AspireVersion>
+    <AspireVersion>8.0.0-preview.5.24201.12</AspireVersion>
     <OrleansVersion>8.1.0-preview3</OrleansVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
     <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Azure" Version="8.0.0-preview.5.24201.12" />
+    <PackageVersion Include="Aspire.Hosting.Azure.ApplicationInsights" Version="8.0.0-preview.5.24201.12" />
+    <PackageVersion Include="Aspire.Hosting.Azure.CognitiveServices" Version="8.0.0-preview.5.24201.12" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="8.0.0-preview.5.24201.12" />
     <PackageVersion Include="Aspire.Hosting.Dapr" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.HealthChecksUI" Version="1.0.0-preview" />
     <PackageVersion Include="Aspire.Hosting.Orleans" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.MySqlConnector" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Microsoft.Data.SqlClient" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.StackExchange.Redis" Version="$(AspireVersion)" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Abstractions" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(AspireVersion)" />

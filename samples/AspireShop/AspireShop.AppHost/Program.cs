@@ -9,11 +9,12 @@ var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("cat
 var basketService = builder.AddProject<Projects.AspireShop_BasketService>("basketservice")
     .WithReference(basketCache);
 
-builder.AddProject<Projects.AspireShop_Frontend>("frontend")
+var frontend = builder.AddProject<Projects.AspireShop_Frontend>("frontend")
     .WithReference(basketService)
-    .WithReference(catalogService);
+    .WithReference(catalogService)
+    .WithExternalHttpEndpoints();
 
-builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
+var dbmgr = builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
     .WithReference(catalogDb);
 
 builder.Build().Run();

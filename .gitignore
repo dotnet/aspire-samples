@@ -425,3 +425,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/samples/AspireShop/.azure
