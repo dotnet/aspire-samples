@@ -49,4 +49,4 @@ jobs:
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
 
     - name: Test
-      run: ${{ matrix.os == 'ubuntu-latest' && 'dotnet test ./tests/SampleTests/SampleIntegrationTests/SampleIntegrationTests.csproj' || 'dotnet test .\tests\SampleTests\SampleIntegrationTests\SampleIntegrationTests.csproj' }}
+      run: ${{ matrix.os == 'ubuntu-latest' && 'dotnet test ./tests/SamplesTests/SamplesIntegrationTests/SamplesIntegrationTests.csproj' || 'dotnet test .\tests\SamplesTests\SamplesIntegrationTests\SamplesIntegrationTests.csproj' }}
