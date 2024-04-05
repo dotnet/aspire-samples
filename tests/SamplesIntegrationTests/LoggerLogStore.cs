@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace SamplesIntegrationTests;
 
+/// <summary>
+/// Stores logs from <see cref="ILogger"/> instances created from <see cref="StoredLogsLoggerProvider"/>.
+/// </summary>
 public class LoggerLogStore(IHostEnvironment hostEnvironment)
 {
     private readonly ConcurrentDictionary<string, List<(DateTimeOffset TimeStamp, string Category, LogLevel Level, string Message, Exception? Exception)>> _store = [];

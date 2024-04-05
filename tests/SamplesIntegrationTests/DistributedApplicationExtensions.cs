@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -48,9 +51,6 @@ public static partial class DistributedApplicationExtensions
     /// <summary>
     /// Ensures all parameters in the application configuration have values set.
     /// </summary>
-    /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder"></param>
-    /// <returns></returns>
     public static TBuilder WithRandomParameterValues<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
@@ -68,55 +68,40 @@ public static partial class DistributedApplicationExtensions
     /// <summary>
     /// Replaces all named volumes with anonymous volumes so they're isolated across test runs and from the volume the app uses during development.
     /// </summary>
-    /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder"></param>
-    /// <returns></returns>
-    public static TBuilder WithAnonymousVolumeNames<TBuilder>(this TBuilder builder)
+    /// <remarks>
+    /// Note that if multiple resources share a volume, the volume will instead be given a random name so that it's still shared across those resources in the test run.
+    /// </remarks>
+    public static TBuilder WithRandomVolumeNames<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
-        // Need to ensure volumes with the same name across resources keep having the same name after randomization
-        var volumeMap = new Dictionary<string, List<string>>();
-        foreach (var resource in builder.Resources)
+        // Named volumes that aren't shared across resources should be replaced with anonymous volumes.
+        // Named volumes shared by mulitple resources need to have their name randomized but kept shared across those resources.
+        
+        // Find all shared volumes and make a map of their original name to a new randomized name
+        var allResourceNamedVolumes = builder.Resources.SelectMany(r => r.Annotations
+            .OfType<ContainerMountAnnotation>()
+            .Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source))
+            .Select(m => (Resource: r, Volume: m)));
+        var seenVolumes = new HashSet<string>();
+        var renamedVolumes = new Dictionary<string, string>();
+        foreach (var resourceVolume in allResourceNamedVolumes)
         {
-            if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
+            var name = resourceVolume.Volume.Source!;
+            if (!seenVolumes.Add(name) && !renamedVolumes.ContainsKey(name))
             {
-                var mountsList = mounts.ToList();
-
-                foreach (var volume in mountsList.Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source)))
-                {
-                    if (volumeMap.TryGetValue(volume.Source!, out var resources))
-                    {
-                        resources.Add(resource.Name);
-                    }
-                    else
-                    {
-                        volumeMap[volume.Source!] = [resource.Name];
-                    }
-                }
+                renamedVolumes[name] = $"{name}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}";
             }
         }
 
-        // Ignore volumes only used by one resource
-        var newSharedVolumeNames = volumeMap.Where(kvp => kvp.Value.Count > 1)
-                                            .Select(kvp => kvp.Key)
-                                            .ToDictionary(name => name, name => $"{name}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}");
-
-        // Replace named volumes with randomly named or anonymous volumes
-        foreach (var resource in builder.Resources)
+        // Replace all named volumes with randomly named or anonymous volumes
+        foreach (var resourceVolume in allResourceNamedVolumes)
         {
-            if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
-            {
-                var mountsList = mounts.ToList();
-
-                foreach (var volume in mountsList.Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source)))
-                {
-                    //var newVolumeName = string.IsNullOrEmpty(mount.Source) ? null : newSharedVolumeNames[mount.Source];
-                    newSharedVolumeNames.TryGetValue(volume.Source!, out var newVolumeName);
-                    var newMount = new ContainerMountAnnotation(newVolumeName, volume.Target, volume.Type, volume.IsReadOnly);
-                    resource.Annotations.Remove(volume);
-                    resource.Annotations.Add(newMount);
-                }
-            }
+            var resource = resourceVolume.Resource;
+            var volume = resourceVolume.Volume;
+            var newName = renamedVolumes.TryGetValue(volume.Source!, out var randomName) ? randomName : null;
+            var newMount = new ContainerMountAnnotation(newName, volume.Target, ContainerMountType.Volume, volume.IsReadOnly);
+            resource.Annotations.Remove(volume);
+            resource.Annotations.Add(newMount);
         }
 
         return builder;
@@ -125,21 +110,12 @@ public static partial class DistributedApplicationExtensions
     /// <summary>
     /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
     /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourceName"></param>
-    /// <param name="useHttpClientFactory"></param>
-    /// <returns></returns>
     public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, bool useHttpClientFactory)
         => app.CreateHttpClient(resourceName, null, useHttpClientFactory);
 
     /// <summary>
     /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
     /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourceName"></param>
-    /// <param name="endpointName"></param>
-    /// <param name="useHttpClientFactory"></param>
-    /// <returns></returns>
     public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, bool useHttpClientFactory)
     {
         if (useHttpClientFactory)
@@ -193,8 +169,6 @@ public static partial class DistributedApplicationExtensions
     /// <summary>
     /// Gets the logs for all resources in the application.
     /// </summary>
-    /// <param name="app"></param>
-    /// <returns></returns>
     public static ResourceLogStore GetResourceLogs(this DistributedApplication app)
     {
         var logStore = app.Services.GetService<ResourceLogStore>()
@@ -205,10 +179,6 @@ public static partial class DistributedApplicationExtensions
     /// <summary>
     /// Attempts to apply EF migrations for the specified project by sending a request to the migrations endpoint <c>/ApplyDatabaseMigrations</c>.
     /// </summary>
-    /// <param name="app"></param>
-    /// <param name="project"></param>
-    /// <returns></returns>
-    /// <exception cref="UnreachableException"></exception>
     public static async Task<bool> TryApplyEfMigrationsAsync(this DistributedApplication app, ProjectResource project)
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(TryApplyEfMigrationsAsync));
@@ -277,95 +247,4 @@ public static partial class DistributedApplicationExtensions
 
         return false;
     }
-
-    //private static readonly TimeSpan resourceStartDefaultTimeout = TimeSpan.FromSeconds(30);
-
-    //private static async Task WaitForResourcesToStartAsync(DistributedApplication app, CancellationToken cancellationToken = default)
-    //{
-    //    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DistributedApplicationExtensions));
-    //    var resources = GetWaitableResources(app).ToList();
-    //    var remainingResources = new HashSet<IResource>(resources);
-
-    //    logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", remainingResources.Count);
-
-    //    var notificationService = app.Services.GetRequiredService<ResourceNotificationService>();
-    //    var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-
-    //    var timeoutCts = new CancellationTokenSource(resourceStartDefaultTimeout);
-    //    var cts = cancellationToken == default
-    //        ? timeoutCts
-    //        : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-
-    //    await foreach (var resourceEvent in notificationService.WatchAsync().WithCancellation(cts.Token))
-    //    {
-    //        var resourceName = resourceEvent.Resource.Name;
-    //        if (remainingResources.Contains(resourceEvent.Resource))
-    //        {
-    //            // TODO: Handle replicas
-    //            var snapshot = resourceEvent.Snapshot;
-    //            if (snapshot.ExitCode is { } exitCode)
-    //            {
-    //                if (exitCode != 0)
-    //                {
-    //                    // Error starting resource
-    //                    throw new DistributedApplicationException($"Resource '{resourceName}' exited with exit code {exitCode}");
-    //                }
-
-    //                // Resource exited cleanly
-    //                HandleResourceStarted(resourceEvent.Resource, " (exited with code 0)");
-    //            }
-    //            else if (snapshot.State is { } state)
-    //            {
-    //                if (state.Text.Contains("running", StringComparison.OrdinalIgnoreCase))
-    //                {
-    //                    // Resource started
-    //                    HandleResourceStarted(resourceEvent.Resource);
-    //                }
-    //                else if (state.Text.Contains("failedtostart", StringComparison.OrdinalIgnoreCase))
-    //                {
-    //                    // Resource failed to start
-    //                    throw new DistributedApplicationException($"Resource '{resourceName}' failed to start: {state.Text}");
-    //                }
-    //                else if (state.Text.Contains("exited", StringComparison.OrdinalIgnoreCase) && remainingResources.Contains(resourceEvent.Resource))
-    //                {
-    //                    // Resource went straight to exited state
-    //                    throw new DistributedApplicationException($"Resource '{resourceName}' exited without first running: {state.Text}");
-    //                }
-    //                else if (state.Text.Contains("starting", StringComparison.OrdinalIgnoreCase)
-    //                         || state.Text.Contains("hidden", StringComparison.OrdinalIgnoreCase))
-    //                {
-    //                    // Resource is still starting
-    //                    continue;
-    //                }
-    //                else if (!string.IsNullOrEmpty(state.Text))
-    //                {
-    //                    logger.LogWarning("Unknown resource state encountered: {state}", state.Text);
-    //                }
-    //            }
-    //        }
-
-    //        if (remainingResources.Count == 0)
-    //        {
-    //            logger.LogInformation("All resources started successfully");
-    //            break;
-    //        }
-    //    }
-
-    //    void HandleResourceStarted(IResource resource, string? suffix = null)
-    //    {
-    //        remainingResources.Remove(resource);
-    //        logger.LogInformation($"Resource '{{resourceName}}' started{suffix}", resource.Name);
-    //        if (remainingResources.Count > 0)
-    //        {
-    //            var resourceNames = string.Join(", ", remainingResources.Select(r => r.Name));
-    //            logger.LogInformation("Still waiting on {resourcesToStartCount} resources to start: {resourcesToStart}", remainingResources.Count, resourceNames);
-    //        }
-    //    }
-    //}
-
-    //private static IEnumerable<IResource> GetWaitableResources(this DistributedApplication app)
-    //{
-    //    var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-    //    return appModel.Resources.Where(r => r is ContainerResource || r is ExecutableResource || r is ProjectResource || r is AzureConstructResource);
-    //}
 }

@@ -1,9 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace SamplesIntegrationTests;
 
+/// <summary>
+/// A background service that watches for resource start/stop notifications and logs resource state changes.
+/// </summary>
 internal sealed class ResourceWatcher(
     DistributedApplicationModel appModel,
     ResourceNotificationService resourceNotification,
@@ -167,7 +173,9 @@ internal sealed class ResourceWatcher(
         {
             if (_waitingToStartResources.Remove(resource.Name) && _startedResources.Add(resource.Name))
             {
+#pragma warning disable CA2254 // Template should be a static expression: suffix is not log data
                 logger.LogInformation($"Resource '{{resourceName}}' started{suffix}", resource.Name);
+#pragma warning restore CA2254
             }
 
             if (_waitingToStartResources.Count > 0)
@@ -181,7 +189,9 @@ internal sealed class ResourceWatcher(
         {
             if (_waitingToStopResources.Remove(resource.Name) && _stoppedResources.Add(resource.Name))
             {
+#pragma warning disable CA2254 // Template should be a static expression: suffix is not log data
                 logger.LogInformation($"Resource '{{resourceName}}' stopped{suffix}", resource.Name);
+#pragma warning restore CA2254
             }
 
             if (_waitingToStopResources.Count > 0)

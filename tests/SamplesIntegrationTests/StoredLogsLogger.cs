@@ -1,7 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.Extensions.Logging;
 
 namespace SamplesIntegrationTests;
 
+/// <summary>
+/// A logger that stores logs in a <see cref="LoggerLogStore"/>.
+/// </summary>
+/// <param name="logStore"></param>
+/// <param name="scopeProvider"></param>
+/// <param name="categoryName"></param>
 internal class StoredLogsLogger(LoggerLogStore logStore, LoggerExternalScopeProvider scopeProvider, string categoryName) : ILogger
 {
     public string CategoryName { get; } = categoryName;

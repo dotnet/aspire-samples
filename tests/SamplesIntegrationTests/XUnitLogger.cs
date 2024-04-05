@@ -1,9 +1,15 @@
-﻿using System.Text;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
+/// <summary>
+/// An <see cref="ILogger"/> that writes log messages to an <see cref="ITestOutputHelper"/>.
+/// </summary>
 internal class XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName) : ILogger
 {
     public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;

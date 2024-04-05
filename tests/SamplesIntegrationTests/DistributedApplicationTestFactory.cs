@@ -1,10 +1,16 @@
-﻿using System.Diagnostics;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Diagnostics;
 using System.Reflection;
 
 namespace SamplesIntegrationTests;
 
 internal static partial class DistributedApplicationTestFactory
 {
+    /// <summary>
+    /// Creates an <see cref="IDistributedApplicationTestingBuilder"/> for the specified app host assembly.
+    /// </summary>
     public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostAssemblyPath, TextWriter? outputWriter)
     {
         var appHostProjectName = Path.GetFileNameWithoutExtension(appHostAssemblyPath) ?? throw new InvalidOperationException("AppHost assembly was not found.");
@@ -25,7 +31,7 @@ internal static partial class DistributedApplicationTestFactory
         var builder = await testBuilderTask;
 
         builder.WithRandomParameterValues();
-        builder.WithAnonymousVolumeNames();
+        builder.WithRandomVolumeNames();
         if (outputWriter is not null)
         {
             builder.WriteOutputTo(outputWriter);
