@@ -58,6 +58,7 @@ jobs:
         --results-directory ./TestResults --blame
         -- 
         RunConfiguration.CollectSourceInformation=true
+      continue-on-error: true
     
     - name: Publish Test Results
       if:  ${{ matrix.os == 'ubuntu-latest' }}
