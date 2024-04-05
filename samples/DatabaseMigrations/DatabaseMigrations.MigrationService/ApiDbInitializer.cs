@@ -1,12 +1,16 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using System.Diagnostics;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
+using Polly;
+using Polly.Retry;
 
 namespace DatabaseMigrations.MigrationService;
 
@@ -45,12 +49,25 @@ public class ApiDbInitializer(
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            // Create the database if it does not exist.
-            // Do this first so there is then a database to start a transaction against.
-            if (!await dbCreator.ExistsAsync(cancellationToken))
+            // Workround for https://github.com/dotnet/aspire/issues/1023
+            var retry = new ResiliencePipelineBuilder()
+                .AddRetry(new RetryStrategyOptions
+                    {
+                        ShouldHandle = new PredicateBuilder().Handle<SqlException>(ex =>
+                            ex.Number is 203 && ex.InnerException is Win32Exception),
+                    })
+                .AddTimeout(TimeSpan.FromSeconds(120))
+                .Build();
+
+            await retry.ExecuteAsync(static async (db, token) =>
             {
-                await dbCreator.CreateAsync(cancellationToken);
-            }
+                // Create the database if it does not exist.
+                // Do this first so there is then a database to start a transaction against.
+                if (!await db.ExistsAsync(token))
+                {
+                    await db.CreateAsync(token);
+                }
+            }, dbCreator, cancellationToken);
         });
     }
 
