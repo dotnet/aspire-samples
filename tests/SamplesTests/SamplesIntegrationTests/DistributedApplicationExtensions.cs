@@ -74,22 +74,47 @@ public static partial class DistributedApplicationExtensions
     public static TBuilder WithAnonymousVolumeNames<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
-        // BUG: Need to update this to ensure volumes with the same name keep having the same name after randomization
+        // Need to ensure volumes with the same name across resources keep having the same name after randomization
+        var volumeMap = new Dictionary<string, List<string>>();
         foreach (var resource in builder.Resources)
         {
             if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
             {
                 var mountsList = mounts.ToList();
 
-                for (var i = 0; i < mountsList.Count; i++)
+                foreach (var volume in mountsList.Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source)))
                 {
-                    var mount = mountsList[i];
-                    if (mount.Type == ContainerMountType.Volume)
+                    if (volumeMap.TryGetValue(volume.Source!, out var resources))
                     {
-                        var newMount = new ContainerMountAnnotation(null, mount.Target, mount.Type, mount.IsReadOnly);
-                        resource.Annotations.Remove(mount);
-                        resource.Annotations.Add(newMount);
+                        resources.Add(resource.Name);
                     }
+                    else
+                    {
+                        volumeMap[volume.Source!] = [resource.Name];
+                    }
+                }
+            }
+        }
+
+        // Ignore volumes only used by one resource
+        var newSharedVolumeNames = volumeMap.Where(kvp => kvp.Value.Count > 1)
+                                            .Select(kvp => kvp.Key)
+                                            .ToDictionary(name => name, name => $"{name}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}");
+
+        // Replace named volumes with randomly named or anonymous volumes
+        foreach (var resource in builder.Resources)
+        {
+            if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
+            {
+                var mountsList = mounts.ToList();
+
+                foreach (var volume in mountsList.Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source)))
+                {
+                    //var newVolumeName = string.IsNullOrEmpty(mount.Source) ? null : newSharedVolumeNames[mount.Source];
+                    newSharedVolumeNames.TryGetValue(volume.Source, out var newVolumeName);
+                    var newMount = new ContainerMountAnnotation(newVolumeName, volume.Target, volume.Type, volume.IsReadOnly);
+                    resource.Annotations.Remove(volume);
+                    resource.Annotations.Add(newMount);
                 }
             }
         }
