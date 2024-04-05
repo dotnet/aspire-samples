@@ -3,15 +3,12 @@
 // Using a persistent volume mount requires a stable password rather than the default generated one.
 
 // To have a persistent volume across container instances, it must be named.
-var sqlPassword = builder.AddParameter("sqlpassword", true);
-var sqlDatabase = builder.AddSqlServer("sqlserver", sqlPassword)
+var sqlDatabase = builder.AddSqlServer("sqlserver", password: ParameterExtensions.CreateStablePassword(builder, "sqlpassword", minLower: 1, minUpper: 1, minNumeric: 1))
     .WithDataVolume()
-    //.WithVolume($"sqlserver-data", "/var/opt/mssql")
     .AddDatabase("sqldb");
 
 // Postgres must also have a stable password and a named volume
-var postgresPassword = builder.AddParameter("postgrespassword", true);
-var postgresDatabase = builder.AddPostgres("postgresserver", password: postgresPassword)
+var postgresDatabase = builder.AddPostgres("postgresserver", password: ParameterExtensions.CreateStablePassword(builder, "postgrespassword"))
     .WithDataVolume()
     .AddDatabase("postgres");
 
