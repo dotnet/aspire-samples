@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -29,8 +30,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     [Theory]
     [MemberData(nameof(TestEndpoints))]
-    public async Task TestEndpointsReturnOk(string appHostName, Dictionary<string, string[]> testEndpoints)
+    public async Task TestEndpointsReturnOk(TestEndpoints testEndpoints)
     {
+        var appHostName = testEndpoints.AppHost!;
+        var resourceEndpoints = testEndpoints.ResourceEndpoints!;
+
         var appHostPath = $"{appHostName}.dll";
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
@@ -44,11 +48,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
         // Workaround race in DCP that can result in resources being deleted while they are still starting
         await Task.Delay(100);
 
-        foreach (var resource in testEndpoints.Keys)
+        foreach (var resource in resourceEndpoints.Keys)
         {
-            var endpoints = testEndpoints[resource];
+            var endpoints = resourceEndpoints[resource];
 
-            if (endpoints.Length == 0)
+            if (endpoints.Count == 0)
             {
                 // No test endpoints so ignore this resource
                 continue;
@@ -104,42 +108,42 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static object[][] TestEndpoints() =>
         [
-            ["AspireShop.AppHost", new Dictionary<string, string[]> {
+            [new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
                 // Can't send non-gRPC requests over non-TLS connection to the BasketService unless client is manually configured to use HTTP/2
                 //{ "basketservice", ["/alive", "/health"] },
                 { "frontend", ["/alive", "/health", "/"] }
-            }],
-            ["AspireJavaScript.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("AspireJavaScript.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
-            }],
-            ["AspireWithNode.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("AspireWithNode.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "frontend", ["/alive", "/health", "/"] }
-            }],
-            ["ClientAppsIntegration.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
-            }],
-            ["DatabaseContainers.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("DatabaseContainers.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
-            }],
-            ["DatabaseMigrations.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("DatabaseMigrations.AppHost", new() {
                 { "api", ["/alive", "/health", "/"] }
-            }],
-            ["MetricsApp.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("MetricsApp.AppHost", new() {
                 { "app", ["/alive", "/health"] },
                 { "grafana", ["/"] }
-            }],
-            ["OrleansVoting.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("OrleansVoting.AppHost", new() {
                 { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
-            }],
-            ["VolumeMount.AppHost", new Dictionary<string, string[]> {
+            })],
+            [new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            }]
+            })]
         ];
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
@@ -150,4 +154,34 @@ public class AppHostTests(ITestOutputHelper testOutput)
                                // Known issue in preview.5 with Dapr and randomization of resource names that occurs in integration testing
                                && !fileName.EndsWith("AspireWithDapr.AppHost.dll", StringComparison.OrdinalIgnoreCase));
     }
+}
+
+public class TestEndpoints : IXunitSerializable
+{
+    // Required for deserialization
+    public TestEndpoints() { }
+
+    public TestEndpoints(string appHost, Dictionary<string, List<string>> resourceEndpoints)
+    {
+        AppHost = appHost;
+        ResourceEndpoints = resourceEndpoints;
+    }
+
+    public string? AppHost { get; set; }
+
+    public Dictionary<string, List<string>>? ResourceEndpoints { get; set; }
+
+    public void Deserialize(IXunitSerializationInfo info)
+    {
+        AppHost = info.GetValue<string>(nameof(AppHost));
+        ResourceEndpoints = JsonSerializer.Deserialize< Dictionary<string, List<string>>>(info.GetValue<string>(nameof(ResourceEndpoints)));
+    }
+
+    public void Serialize(IXunitSerializationInfo info)
+    {
+        info.AddValue(nameof(AppHost), AppHost);
+        info.AddValue(nameof(ResourceEndpoints), JsonSerializer.Serialize(ResourceEndpoints));
+    }
+
+    public override string? ToString() => $"{AppHost} ({ResourceEndpoints?.Count ?? 0} resources)";
 }
