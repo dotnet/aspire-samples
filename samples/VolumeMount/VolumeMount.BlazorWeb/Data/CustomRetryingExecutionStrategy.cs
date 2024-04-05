@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.ComponentModel;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -17,6 +18,11 @@ public class CustomRetryingExecutionStrategy(ExecutionStrategyDependencies depen
                 {
                     // Don't retry on login failures associated with default database not existing due to EF migrations not running yet
                     return false;
+                }
+                // Workaround for https://github.com/dotnet/aspire/issues/1023
+                else if (error.Number == 203 && sqlException.InnerException is Win32Exception)
+                {
+                    return true;
                 }
             }
         }
