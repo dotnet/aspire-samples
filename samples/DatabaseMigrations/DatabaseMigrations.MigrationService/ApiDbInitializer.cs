@@ -54,7 +54,7 @@ public class ApiDbInitializer(
                 .AddRetry(new RetryStrategyOptions
                     {
                         ShouldHandle = new PredicateBuilder().Handle<SqlException>(ex =>
-                            ex.Number is 203 && ex.InnerException is Win32Exception),
+                            ex.Number is 0 || (ex.Number is 203 && ex.InnerException is Win32Exception)),
                     })
                 .AddTimeout(TimeSpan.FromSeconds(120))
                 .Build();
