@@ -81,7 +81,8 @@ public static partial class DistributedApplicationExtensions
         var allResourceNamedVolumes = builder.Resources.SelectMany(r => r.Annotations
             .OfType<ContainerMountAnnotation>()
             .Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source))
-            .Select(m => (Resource: r, Volume: m)));
+            .Select(m => (Resource: r, Volume: m)))
+            .ToList();
         var seenVolumes = new HashSet<string>();
         var renamedVolumes = new Dictionary<string, string>();
         foreach (var resourceVolume in allResourceNamedVolumes)
