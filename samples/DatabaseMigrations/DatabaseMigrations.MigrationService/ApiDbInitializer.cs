@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
-using Polly;
-using Polly.Retry;
 
 namespace DatabaseMigrations.MigrationService;
 
@@ -49,25 +47,12 @@ public class ApiDbInitializer(
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            // Workround for https://github.com/dotnet/aspire/issues/1023
-            var retry = new ResiliencePipelineBuilder()
-                .AddRetry(new RetryStrategyOptions
-                    {
-                        ShouldHandle = new PredicateBuilder().Handle<SqlException>(ex =>
-                            ex.Number is 0 || (ex.Number is 203 && ex.InnerException is Win32Exception)),
-                    })
-                .AddTimeout(TimeSpan.FromSeconds(120))
-                .Build();
-
-            await retry.ExecuteAsync(static async (db, token) =>
+            // Create the database if it does not exist.
+            // Do this first so there is then a database to start a transaction against.
+            if (!await dbCreator.ExistsAsync(cancellationToken))
             {
-                // Create the database if it does not exist.
-                // Do this first so there is then a database to start a transaction against.
-                if (!await db.ExistsAsync(token))
-                {
-                    await db.CreateAsync(token);
-                }
-            }, dbCreator, cancellationToken);
+                await dbCreator.CreateAsync(cancellationToken);
+            }
         });
     }
 

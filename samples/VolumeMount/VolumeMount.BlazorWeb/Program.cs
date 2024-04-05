@@ -16,7 +16,7 @@ builder.AddNpgsqlDbContext<PostgresDbContext>("postgres");
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sqldb"), sqlOptions =>
     {
-        sqlOptions.ExecutionStrategy(c => new CustomRetryingExecutionStrategy(c));
+        sqlOptions.ExecutionStrategy(c => new RetryingSqlServerRetryingExecutionStrategy(c));
     }));
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
     // Disable Aspire default retries as we're using a custom execution strategy

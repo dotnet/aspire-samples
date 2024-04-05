@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\Shared\RetryingSqlServerRetryingExecutionStrategy.cs" Link="RetryingSqlServerRetryingExecutionStrategy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
 
     <ProjectReference Include="..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj" />
