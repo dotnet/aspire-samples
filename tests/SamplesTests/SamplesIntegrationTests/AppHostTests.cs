@@ -81,11 +81,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 try
                 {
                     response = await client.GetAsync(path);
-                    Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{path}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
+                    Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
                 }
                 catch (Exception ex)
                 {
-                    Assert.Fail($"Error when calling endpoint '{path} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}': {ex.Message}");
+                    Assert.Fail($"Error when calling endpoint '{client.BaseAddress}{path} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}': {ex.Message}");
                 }
             }
         }
