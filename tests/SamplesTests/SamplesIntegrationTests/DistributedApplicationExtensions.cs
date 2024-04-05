@@ -111,7 +111,7 @@ public static partial class DistributedApplicationExtensions
                 foreach (var volume in mountsList.Where(m => m.Type == ContainerMountType.Volume && !string.IsNullOrEmpty(m.Source)))
                 {
                     //var newVolumeName = string.IsNullOrEmpty(mount.Source) ? null : newSharedVolumeNames[mount.Source];
-                    newSharedVolumeNames.TryGetValue(volume.Source, out var newVolumeName);
+                    newSharedVolumeNames.TryGetValue(volume.Source!, out var newVolumeName);
                     var newMount = new ContainerMountAnnotation(newVolumeName, volume.Target, volume.Type, volume.IsReadOnly);
                     resource.Annotations.Remove(volume);
                     resource.Annotations.Add(newMount);
