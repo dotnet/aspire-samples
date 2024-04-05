@@ -3,10 +3,10 @@
 var grafana = builder.AddContainer("grafana", "grafana/grafana")
                      .WithBindMount(GetFullPath("../grafana/config"), "/etc/grafana", isReadOnly: true)
                      .WithBindMount(GetFullPath("../grafana/dashboards"), "/var/lib/grafana/dashboards", isReadOnly: true)
-                     .WithEndpoint(targetPort: 3000, name: "grafana-http", scheme: "http");
+                     .WithHttpEndpoint(targetPort: 3000, name: "http");
 
 builder.AddProject<Projects.MetricsApp>("app")
-       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("grafana-http"));
+       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
 
 builder.AddContainer("prometheus", "prom/prometheus")
        .WithBindMount(GetFullPath("../prometheus"), "/etc/prometheus", isReadOnly: true)

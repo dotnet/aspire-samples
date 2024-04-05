@@ -54,24 +54,12 @@ const server = createServer(app)
 
 async function healthCheck() {
     const errors = [];
-    return Promise.all([
-        async () => {
-            const apiServerHealthAddress = `${apiAddress}/health`;
-            console.log(`Fetching ${apiServerHealthAddress}`);
-            var response = await fetch(apiServerHealthAddress);
-            if (!response.ok) {
-                throw new Error(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
-            }
-        }
-    ].map(p => p.catch((error) => {
-        // silently collecting all the errors
-        errors.push(error)
-        return undefined;
-    }))).then(() => {
-        if (errors.length) {
-            throw new HealthCheckError('healthcheck failed', errors);
-        }
-    });
+    const apiServerHealthAddress = `${apiServer}/health`;
+    console.log(`Fetching ${apiServerHealthAddress}`);
+    var response = await fetch(apiServerHealthAddress);
+    if (!response.ok) {
+        throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
+    }
 }
 
 createTerminus(server, {
