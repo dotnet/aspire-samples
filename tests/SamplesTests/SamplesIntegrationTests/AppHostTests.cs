@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
@@ -55,7 +56,18 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
             HttpResponseMessage? response = null;
 
-            using var client = app.CreateHttpClient(resource);
+            using var client = app.CreateHttpClient(resource, null, clientBuilder =>
+            {
+                clientBuilder
+                    .ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan)
+                    .AddStandardResilienceHandler(resilience =>
+                    {
+                        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(300);
+                        resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
+                        resilience.Retry.MaxRetryAttempts = 5;
+                        resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(300);
+                    });
+            });
 
             foreach (var path in endpoints)
             {

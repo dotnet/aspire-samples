@@ -74,6 +74,7 @@ public static partial class DistributedApplicationExtensions
     public static TBuilder WithAnonymousVolumeNames<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
+        // BUG: Need to update this to ensure volumes with the same name keep having the same name after randomization
         foreach (var resource in builder.Resources)
         {
             if (resource.TryGetAnnotationsOfType<ContainerMountAnnotation>(out var mounts))
@@ -131,18 +132,17 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
-    /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
+    /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource with custom configuration.
     /// </summary>
-    /// <param name="app"></param>
-    /// <param name="resourceName"></param>
-    /// <param name="endpointName"></param>
-    /// <param name="httpClientName"></param>
-    /// <returns></returns>
-    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, string? httpClientName)
+    public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, string? endpointName, Action<IHttpClientBuilder> configure)
     {
-        var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
+        var services = new ServiceCollection()
+            .AddHttpClient()
+            .ConfigureHttpClientDefaults(configure)
+            .BuildServiceProvider();
+        var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
         
-        var httpClient = !string.IsNullOrEmpty(httpClientName) ? httpClientFactory.CreateClient(httpClientName) : httpClientFactory.CreateClient();
+        var httpClient = httpClientFactory.CreateClient();
         httpClient.BaseAddress = app.GetEndpoint(resourceName, endpointName);
 
         return httpClient;
