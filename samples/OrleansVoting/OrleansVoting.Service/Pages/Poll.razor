@@ -1,9 +1,12 @@
 @page "/p/{PollId}"
+
 @using Orleans.Runtime
 @using OrleansVoting.Data
 @using Orleans
 @using OrleansVoting
+
 @implements IAsyncDisposable
+
 @inject PollService PollService
 @inject DemoService DemoService
 
