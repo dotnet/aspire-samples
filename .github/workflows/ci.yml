@@ -51,4 +51,17 @@ jobs:
 
     - name: Test
       if:  ${{ matrix.os == 'ubuntu-latest' }}
-      run: 'dotnet test ./tests/SamplesTests/SamplesIntegrationTests/SamplesIntegrationTests.csproj'
+      # Note that the space after the last double dash (--) is intentional
+      run: >
+        dotnet test ./tests/SamplesTests.sln
+        --logger console --logger trx --logger html --logger GitHubActions
+        --results-directory ./TestResults --blame
+        -- 
+        RunConfiguration.CollectSourceInformation=true
+    
+    - name: Publish Test Results
+      if:  ${{ matrix.os == 'ubuntu-latest' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: TestResults
+        path: ./TestResults
