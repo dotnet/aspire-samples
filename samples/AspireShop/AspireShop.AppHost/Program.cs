@@ -1,6 +1,6 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogDb = builder.AddPostgres("catalog", password: ParameterExtensions.CreateStablePassword(builder, "catalog-password"))
+var catalogDb = builder.AddPostgres("catalog", password: builder.CreateStablePassword("catalog-password"))
     .WithDataVolume()
     .AddDatabase("catalogdb");
 

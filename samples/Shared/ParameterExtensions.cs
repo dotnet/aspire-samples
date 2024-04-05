@@ -15,8 +15,7 @@ internal static class ParameterExtensions
     /// <remarks>
     /// The password is only stable when in the development environment and the application is running. In all other cases, the password is generated each time.
     /// </remarks>
-    public static IResourceBuilder<ParameterResource> CreateStablePassword(
-        IDistributedApplicationBuilder builder, string name,
+    public static IResourceBuilder<ParameterResource> CreateStablePassword(this IDistributedApplicationBuilder builder, string name,
         bool lower = true, bool upper = true, bool numeric = true, bool special = true,
         int minLower = 0, int minUpper = 0, int minNumeric = 0, int minSpecial = 0)
     {
