@@ -6,10 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>1d56e163-c575-42ac-a0a7-c6484d1729d9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" />
+    <Compile Include="..\..\Shared\ParameterExtensions.cs" Link="ParameterExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
     <ProjectReference Include="..\AspireShop.BasketService\AspireShop.BasketService.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogService\AspireShop.CatalogService.csproj" />

@@ -71,7 +71,9 @@ public static class ServiceReferenceExtensions
                 new Uri(uri, healthRelativePath),
                 healthCheckName ?? $"{typeof(TClient).Name}-health",
                 failureStatus,
-                configurePrimaryHttpMessageHandler: s => s.GetRequiredService<IHttpMessageHandlerFactory>().CreateHandler());
+                //configureClient: (s, c) => s.GetRequiredService<IHttpClientFactory>().CreateClient
+                configurePrimaryHttpMessageHandler: s => s.GetRequiredService<IHttpMessageHandlerFactory>().CreateHandler()
+                );
 
         return builder;
     }

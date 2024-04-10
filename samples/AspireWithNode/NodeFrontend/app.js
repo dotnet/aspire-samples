@@ -5,11 +5,12 @@ import express from 'express';
 import { createTerminus, HealthCheckError } from '@godaddy/terminus';
 import { createClient } from 'redis';
 
+const environment = process.env.NODE_ENV || 'development';
 const app = express();
 const port = env.PORT ?? 8080;
 
 const cacheAddress = env['ConnectionStrings__cache'];
-const apiServer = env['services__weatherapi__1'];
+const apiServer = env['services__weatherapi__https__0'] ?? env['services__weatherapi__http__0'];
 const passwordPrefix = ",password=";
 
 var cacheConfig = {
@@ -25,6 +26,7 @@ if (cachePasswordIndex > 0) {
     }
 }
 
+console.log(`environment: ${environment}`);
 console.log(`cacheAddress: ${cacheAddress}`);
 console.log(`apiServer: ${apiServer}`);
 
@@ -52,24 +54,12 @@ const server = createServer(app)
 
 async function healthCheck() {
     const errors = [];
-    return Promise.all([
-        async () => {
-            const apiServerHealthAddress = `${apiAddress}/health`;
-            console.log(`Fetching ${apiServerHealthAddress}`);
-            var response = await fetch(apiServerHealthAddress);
-            if (!response.ok) {
-                throw new Error(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
-            }
-        }
-    ].map(p => p.catch((error) => {
-        // silently collecting all the errors
-        errors.push(error)
-        return undefined;
-    }))).then(() => {
-        if (errors.length) {
-            throw new HealthCheckError('healthcheck failed', errors);
-        }
-    });
+    const apiServerHealthAddress = `${apiServer}/health`;
+    console.log(`Fetching ${apiServerHealthAddress}`);
+    var response = await fetch(apiServerHealthAddress);
+    if (!response.ok) {
+        throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
+    }
 }
 
 createTerminus(server, {

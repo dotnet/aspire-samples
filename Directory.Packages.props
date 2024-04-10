@@ -5,16 +5,26 @@
     <AspNetCoreVersion>8.0.3</AspNetCoreVersion>
     <EfCoreVersion>8.0.3</EfCoreVersion>
     <GrpcVersion>2.61.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.4.24156.9</AspireVersion>
+    <AspireVersion>8.0.0-preview.5.24201.12</AspireVersion>
     <OrleansVersion>8.1.0-preview3</OrleansVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
     <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Dapr" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.MySql" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Orleans" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.MySqlConnector" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(AspireVersion)" />
@@ -47,6 +57,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <!-- gRPC -->
     <PackageVersion Include="Grpc.AspNetCore" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.AspNetCore.HealthChecks" Version="$(GrpcVersion)" />
@@ -60,7 +71,6 @@
     <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.7.0-rc.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.EventCounters" Version="1.5.1-alpha.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.7.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.7.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
@@ -70,12 +80,16 @@
     <PackageVersion Include="Microsoft.Orleans.Reminders" Version="$(OrleansVersion)" />
     <PackageVersion Include="Microsoft.Orleans.Server" Version="$(OrleansVersion)" />
     <!-- VS Test -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0-preview-24080-01" />
     <!-- Miscellaneous -->
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.0" />
     <PackageVersion Include="Dapr.AspNetCore" Version="1.13.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
     <PackageVersion Include="Dapper" Version="2.1.35" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="xunit" Version="2.5.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="2.3.3" />
   </ItemGroup>
 </Project>

@@ -9,14 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.AddAzureBlobService("BlobConnection");
-builder.AddNpgsqlDbContext<PostgresDbContext>("postgresdb");
+builder.AddAzureBlobClient("BlobConnection");
+builder.AddNpgsqlDbContext<PostgresDbContext>("postgres");
 
 // Add services to the container.
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sqldb"), sqlOptions =>
     {
-        sqlOptions.ExecutionStrategy(c => new CustomRetryingExecutionStrategy(c));
+        sqlOptions.ExecutionStrategy(c => new RetryingSqlServerRetryingExecutionStrategy(c));
     }));
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
     // Disable Aspire default retries as we're using a custom execution strategy

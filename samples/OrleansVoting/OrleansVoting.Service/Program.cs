@@ -2,8 +2,10 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddKeyedRedis("voting-redis");
 builder.AddServiceDefaults();
+
+builder.AddKeyedRedisClient("voting-redis");
+
 builder.UseOrleans(orleansBuilder =>
 {
     if (builder.Environment.IsDevelopment())
@@ -20,19 +22,12 @@ builder.Services.AddScoped<DemoService>();
 
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapDefaultEndpoints();
+
 app.Run();

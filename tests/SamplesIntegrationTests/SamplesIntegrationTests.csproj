@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RestoreMyself Condition=" '$(RestoreMyself)' == '' And '$(BuildingInsideVisualStudio)' == 'True' ">True</RestoreMyself>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Azure" />
+    <PackageReference Include="Aspire.Hosting.Testing" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="GitHubActionsTestLogger" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Aspire.Hosting.Testing" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
+    <ThisProject Include="$(MSBuildThisFileFullPath)" />
+  </ItemGroup>
+
+  <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' "
+          Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
+    <Message Importance="High" Text="Forcing a command-line restore of $(MSBuildThisFile)" />
+    <MSBuild Targets="Restore" Projects="@(ThisProject)" Properties="RestoreMyself='false'" />
+  </Target>
+
+</Project>

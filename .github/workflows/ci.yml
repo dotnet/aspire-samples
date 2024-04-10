@@ -28,18 +28,41 @@ jobs:
       DOTNET_NOLOGO: true
       DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
+      ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
     steps:
     - uses: actions/checkout@v3
 
     - name: Dapr tool installer
       uses: dapr/setup-dapr@v1
       with:
-        version: '1.12.0'
+        version: '1.13.0'
 
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+
+    - name: Test
+      if:  ${{ matrix.os == 'ubuntu-latest' }}
+      # Note that the space after the last double dash (--) is intentional
+      run: >
+        dotnet test ./tests/SamplesTests.sln
+        --logger console --logger trx --logger html --logger GitHubActions
+        --results-directory ./TestResults --blame
+        -- 
+        RunConfiguration.CollectSourceInformation=true
+      continue-on-error: true
+    
+    - name: Publish Test Results
+      if:  ${{ matrix.os == 'ubuntu-latest' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: TestResults
+        path: ./TestResults

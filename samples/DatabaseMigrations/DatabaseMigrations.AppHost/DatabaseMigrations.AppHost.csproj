@@ -9,8 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
 
+  <ItemGroup>
     <ProjectReference Include="..\DatabaseMigrations.ApiService\DatabaseMigrations.ApiService.csproj" />
     <ProjectReference Include="..\DatabaseMigrations.MigrationService\DatabaseMigrations.MigrationService.csproj" />
   </ItemGroup>

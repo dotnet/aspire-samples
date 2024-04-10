@@ -10,12 +10,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClientAppsIntegration.ApiService\ClientAppsIntegration.ApiService.csproj" />
-    <ProjectReference Include="..\ClientAppsIntegration.WinForms\ClientAppsIntegration.WinForms.csproj" SkipGetTargetFrameworkProperties="true" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\ClientAppsIntegration.WPF\ClientAppsIntegration.WPF.csproj" SkipGetTargetFrameworkProperties="true" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ClientAppsIntegration.WinForms\ClientAppsIntegration.WinForms.csproj" />
+    <ProjectReference Include="..\ClientAppsIntegration.WPF\ClientAppsIntegration.WPF.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
   </ItemGroup>
 
 </Project>

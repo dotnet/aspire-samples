@@ -52,7 +52,7 @@ function App({ weatherApi }) {
               ]
             ).map((w) => {
               return (
-                <tr>
+                <tr key={w.date}>
                   <td>{w.date}</td>
                   <td>{w.temperatureC}</td>
                   <td>{w.temperatureF}</td>
