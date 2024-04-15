@@ -45,8 +45,13 @@ The docker command:
 
 * Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard` image.
 * The container has two ports:
-  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
+  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/). 
   * Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
+
+> [!NOTE]
+> The dashboard currently only supports the [OTLP/gRPC protocol](https://opentelemetry.io/docs/specs/otlp/#otlpgrpc) protocol. Apps sending telemetry to it must be configured using the `grpc` protocol. There are a couple of options for configuration:
+> - Configure the OpenTelemetry SDK inside the app to use the gRPC OTLP protocol, or
+> - Start the app with the [`OTEL_EXPORTER_OTLP_PROTOCOL` environment variable](https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options) with a value of `grpc`.
 
 ## Building the sample
 
