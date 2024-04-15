@@ -45,7 +45,7 @@ The docker command:
 
 * Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard` image.
 * The container has two ports:
-  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/). 
+  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
   * Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
 
 > [!NOTE]
