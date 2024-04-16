@@ -9,6 +9,6 @@ updates:
     registries:
       - public-nuget
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 15
 
