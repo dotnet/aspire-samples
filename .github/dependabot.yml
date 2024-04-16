@@ -5,7 +5,7 @@ registries:
     url: https://api.nuget.org/v3/index.json
 updates:
   - package-ecosystem: nuget
-    directory: "/"
+    directory: "/.github" # where the dummy sln is
     registries:
       - public-nuget
     schedule:
@@ -42,7 +42,31 @@ updates:
       - area-codeflow
 
   - package-ecosystem: npm
-    directory: "/"
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.Angular"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.React"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.Vue"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithNode/NodeFrontend"
     schedule:
       interval: daily
     open-pull-requests-limit: 15
