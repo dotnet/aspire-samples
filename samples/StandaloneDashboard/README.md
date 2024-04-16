@@ -50,6 +50,7 @@ The docker command:
 
 > [!NOTE]
 > The dashboard currently only supports the [OTLP/gRPC protocol](https://opentelemetry.io/docs/specs/otlp/#otlpgrpc). Apps sending telemetry to the dashboard must be configured to use the `grpc` protocol. There are a couple of options for configuring apps:
+>
 > - Configure the OpenTelemetry SDK inside the app to use the gRPC OTLP protocol, or
 > - Start the app with the [`OTEL_EXPORTER_OTLP_PROTOCOL` environment variable](https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options) with a value of `grpc`.
 
