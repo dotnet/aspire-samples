@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
     <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.62.0" />
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.5.24201.12" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.6.24214.1" />
   </ItemGroup>
 
   <ItemGroup>
