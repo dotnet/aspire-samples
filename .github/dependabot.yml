@@ -1,0 +1,98 @@
+version: 2
+registries:
+  public-nuget:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    registries:
+      - public-nuget
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+    groups:
+      Aspire:
+        patterns:
+          - "Aspire.*"
+          - "Microsoft.Extensions.ServiceDiscovery.*"
+      AspNetCore:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+      EntityFrameworkCore:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+      MicrosoftExtensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+          - "Microsoft.Bcl.*"
+      Grpc:
+        patterns:
+          - "Grpc.*"
+      OpenTelemetry:
+        patterns:
+          - "OpenTelemetry.*"
+      MicrosoftTest:
+        patterns:
+          - "Microsoft.NET.Test.*"
+      xunit:
+        patterns:
+          - "xunit*"
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.Angular"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.React"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithJavaScript/AspireJavaScript.Vue"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: npm
+    directory: "samples/AspireWithNode/NodeFrontend"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - area-codeflow
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+    labels:
+      - area-infrastructure

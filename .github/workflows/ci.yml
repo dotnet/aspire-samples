@@ -38,7 +38,7 @@ jobs:
         version: '1.13.0'
 
     - name: Install .NET SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
     
@@ -62,7 +62,7 @@ jobs:
     
     - name: Publish Test Results
       if:  ${{ matrix.os == 'ubuntu-latest' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: TestResults
         path: ./TestResults
