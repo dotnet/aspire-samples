@@ -1,0 +1,18 @@
+{
+  "extends": "@repo/typescript-config/remix.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "paths": {
+      "~/*": ["./app/*"]
+    }
+  },
+  "include": [
+    "remix.env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "server.js",
+    "remix.config.js"
+  ],
+  "exclude": ["node_modules", "build"]
+}

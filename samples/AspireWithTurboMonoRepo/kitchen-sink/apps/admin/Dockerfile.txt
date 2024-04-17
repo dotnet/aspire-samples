@@ -1,0 +1,14 @@
+FROM node:20.7
+
+WORKDIR /app
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+RUN pnpm i
+
+COPY . .
+
+EXPOSE 3001
+
+CMD [ "pnpm", "dev" ]
