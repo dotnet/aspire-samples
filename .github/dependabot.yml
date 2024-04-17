@@ -39,7 +39,7 @@ updates:
         patterns:
           - "xunit*"
     labels:
-      - area-codeflow
+      - area-engineering-systems
 
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.Angular"
@@ -51,7 +51,7 @@ updates:
         patterns:
           - "*"
     labels:
-      - area-codeflow
+      - area-engineering-systems
 
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.React"
@@ -63,7 +63,7 @@ updates:
         patterns:
           - "*"
     labels:
-      - area-codeflow
+      - area-engineering-systems
 
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.Vue"
@@ -75,7 +75,7 @@ updates:
         patterns:
           - "*"
     labels:
-      - area-codeflow
+      - area-engineering-systems
 
   - package-ecosystem: npm
     directory: "samples/AspireWithNode/NodeFrontend"
@@ -87,7 +87,7 @@ updates:
         patterns:
           - "*"
     labels:
-      - area-codeflow
+      - area-engineering-systems
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -95,4 +95,4 @@ updates:
       interval: daily
     open-pull-requests-limit: 15
     labels:
-      - area-infrastructure
+      - area-engineering-systems
