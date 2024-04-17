@@ -1,9 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <AspNetCoreVersion>8.0.4</AspNetCoreVersion>
-    <EfCoreVersion>8.0.4</EfCoreVersion>
-    <GrpcVersion>2.62.0</GrpcVersion>
-    <AspireVersion>8.0.0-preview.5.24201.12</AspireVersion>
-    <OrleansVersion>8.1.0</OrleansVersion>
-  </PropertyGroup>
-</Project>
