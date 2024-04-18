@@ -5,6 +5,7 @@ var weatherApi =
 
 // Angular: npm run start
 builder.AddNpmApp("angular", "../AspireJavaScript.Angular")
+    .WithReference(weatherApi)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
