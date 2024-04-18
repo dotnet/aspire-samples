@@ -21,6 +21,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+        sdk: [baseline, global-json]
+        exclude:
+          - os: windows-latest
+            sdk: baseline
     runs-on: ${{ matrix.os }}
     name: Build Samples
     env:
@@ -37,7 +41,14 @@ jobs:
       with:
         version: '1.13.0'
 
-    - name: Install .NET SDK
+    - name: Install .NET SDK (baseline 8.0.1xx)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.sdk == 'baseline' }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.1xx
+
+    - name: Install .NET SDK (global.json)
+      if: ${{ matrix.sdk == 'global-json' }}
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
