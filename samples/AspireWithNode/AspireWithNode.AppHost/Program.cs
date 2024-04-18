@@ -10,6 +10,7 @@ var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
     .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
 if (builder.Environment.IsDevelopment() && builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https")
