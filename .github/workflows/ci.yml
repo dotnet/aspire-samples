@@ -34,22 +34,23 @@ jobs:
       DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
       ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
+      DAPR_VERSION: '1.13.0'
     steps:
     - uses: actions/checkout@v4
 
     - name: Dapr tool installer
       uses: dapr/setup-dapr@v1
       with:
-        version: '1.13.0'
+        version: ${{ env.DAPR_VERSION }}
       id: install-dapr
 
     - name: Initialize Dapr (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --log-as-json
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --runtime-version ${{ env.DAPR_VERSION }}
 
     - name: Initialize Dapr (Windows)
       if: matrix.os == 'windows-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --log-as-json
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --runtime-version ${{ env.DAPR_VERSION }}
 
     - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
       if: matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline'
