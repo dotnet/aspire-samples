@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\Shared\RetryingSqlServerRetryingExecutionStrategy.cs" Link="RetryingSqlServerRetryingExecutionStrategy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="8.0.0-preview.6.24214.1" />
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-preview.6.24214.1" />
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-preview.6.24214.1" />
