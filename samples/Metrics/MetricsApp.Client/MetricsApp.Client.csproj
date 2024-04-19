@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Disable conversion of assembly .dlls to Webcil to mitigate https://github.com/dotnet/runtime/issues/101154 -->
+    <WasmEnableWebcil>false</WasmEnableWebcil>
   </PropertyGroup>
 
   <ItemGroup>
