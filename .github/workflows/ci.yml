@@ -41,6 +41,7 @@ jobs:
       uses: dapr/setup-dapr@v1
       with:
         version: '1.13.0'
+      id: install-dapr
 
     - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline' }}
@@ -60,6 +61,8 @@ jobs:
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+      env:
+        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
 
     - name: Test
       if:  ${{ matrix.os == 'ubuntu-latest' }}
@@ -71,6 +74,8 @@ jobs:
         -- 
         RunConfiguration.CollectSourceInformation=true
       continue-on-error: true
+      env:
+        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
     
     - name: Publish Test Results
       if:  ${{ matrix.os == 'ubuntu-latest' }}
