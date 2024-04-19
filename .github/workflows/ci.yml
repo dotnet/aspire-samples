@@ -21,13 +21,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        sdk: [baseline, global-json]
+        sdk: [sdk-baseline, sdk-global-json]
         exclude:
           - os: windows-latest
-            sdk: baseline
+            sdk: sdk-baseline
     runs-on: ${{ matrix.os }}
-    name: Build Samples
+    name: Build & Test Samples
     env:
+      DOTNET_BASELINE_SDK_VERSION: '8.0.1xx'
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       DOTNET_NOLOGO: true
       DOTNET_MULTILEVEL_LOOKUP: false
@@ -41,14 +42,14 @@ jobs:
       with:
         version: '1.13.0'
 
-    - name: Install .NET SDK (baseline 8.0.1xx)
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.sdk == 'baseline' }}
+    - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline' }}
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.1xx
+        dotnet-version: ${{ env.DOTNET_BASELINE_SDK_VERSION }}
 
-    - name: Install .NET SDK (global.json)
-      if: ${{ matrix.sdk == 'global-json' }}
+    - name: "Install .NET SDK (global.json)"
+      if: ${{ matrix.sdk == 'sdk-global-json' }}
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
@@ -75,5 +76,5 @@ jobs:
       if:  ${{ matrix.os == 'ubuntu-latest' }}
       uses: actions/upload-artifact@v4
       with:
-        name: TestResults
+        name: TestResults_${{ matrix.os }}_${{ matrix.sdk }}
         path: ./TestResults
