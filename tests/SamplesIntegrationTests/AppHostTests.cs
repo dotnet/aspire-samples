@@ -103,51 +103,55 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await app.StopAsync();
     }
 
-    public static object[][] AppHostAssemblies()
+    public static TheoryData<string> AppHostAssemblies()
     {
         var appHostAssemblies = GetSamplesAppHostAssemblyPaths();
-        return appHostAssemblies.Select(p => new object[] { Path.GetRelativePath(AppContext.BaseDirectory, p) }).ToArray();
+        return new(appHostAssemblies.Select(p => Path.GetRelativePath(AppContext.BaseDirectory, p)));
     }
 
-    public static object[][] TestEndpoints() =>
-        [
-            [new TestEndpoints("AspireShop.AppHost", new() {
+    public static TheoryData<TestEndpoints> TestEndpoints() =>
+        new([
+            new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
                 // Can't send non-gRPC requests over non-TLS connection to the BasketService unless client is manually configured to use HTTP/2
                 //{ "basketservice", ["/alive", "/health"] },
                 { "frontend", ["/alive", "/health", "/"] }
-            })],
-            [new TestEndpoints("AspireJavaScript.AppHost", new() {
+            }),
+            new TestEndpoints("AspireWithDapr.AppHost", new() {
+                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
+                { "webfrontend", ["/alive", "/health", "/", "/weather"] }
+            }),
+            new TestEndpoints("AspireJavaScript.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
-            })],
-            [new TestEndpoints("AspireWithNode.AppHost", new() {
+            }),
+            new TestEndpoints("AspireWithNode.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "frontend", ["/alive", "/health", "/"] }
-            })],
-            [new TestEndpoints("ClientAppsIntegration.AppHost", new() {
+            }),
+            new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
-            })],
-            [new TestEndpoints("DatabaseContainers.AppHost", new() {
+            }),
+            new TestEndpoints("DatabaseContainers.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
-            })],
-            [new TestEndpoints("DatabaseMigrations.AppHost", new() {
+            }),
+            new TestEndpoints("DatabaseMigrations.AppHost", new() {
                 { "api", ["/alive", "/health", "/"] }
-            })],
-            [new TestEndpoints("MetricsApp.AppHost", new() {
+            }),
+            new TestEndpoints("MetricsApp.AppHost", new() {
                 { "app", ["/alive", "/health"] },
                 { "grafana", ["/"] }
-            })],
-            [new TestEndpoints("OrleansVoting.AppHost", new() {
+            }),
+            new TestEndpoints("OrleansVoting.AppHost", new() {
                 { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
-            })],
-            [new TestEndpoints("VolumeMount.AppHost", new() {
+            }),
+            new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            })]
-        ];
+            })
+        ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
     {
@@ -155,7 +159,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
         return Directory.GetFiles(AppContext.BaseDirectory, "*.AppHost.dll")
             .Where(fileName => !fileName.EndsWith("Aspire.Hosting.AppHost.dll", StringComparison.OrdinalIgnoreCase)
                                // Known issue in preview.5 with Dapr and randomization of resource names that occurs in integration testing
-                               && !fileName.EndsWith("AspireWithDapr.AppHost.dll", StringComparison.OrdinalIgnoreCase));
+                               //&& !fileName.EndsWith("AspireWithDapr.AppHost.dll", StringComparison.OrdinalIgnoreCase)
+                               );
     }
 }
 
