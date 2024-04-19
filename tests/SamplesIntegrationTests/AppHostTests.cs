@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Text.Json;
+using Aspire.Hosting.Dapr;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await Task.Delay(100);
 
         appHostLogs.EnsureNoErrors();
-        resourceLogs.EnsureNoErrors(resource => resource is (ProjectResource or ExecutableResource) and not NodeAppResource);
+        resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
     }
@@ -98,14 +99,27 @@ public class AppHostTests(ITestOutputHelper testOutput)
         }
 
         appHostLogs.EnsureNoErrors();
-        resourceLogs.EnsureNoErrors(resource => resource is (ProjectResource or ExecutableResource) and not NodeAppResource);
+        resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
+    }
+
+    private static bool ShouldAssertErrorsForResource(IResource resource)
+    {
+        return resource
+            is
+                // Container resources tend to write to stderr for various reasons so only assert projects and executables
+                (ProjectResource or ExecutableResource)
+                // Node resources tend to have npm modules that write to stderr so ignore them
+                and not NodeAppResource
+            // Dapr resources write to stderr about deprecated --components-path flag
+            && !resource.Name.EndsWith("-dapr-cli");
     }
 
     public static TheoryData<string> AppHostAssemblies()
     {
         var appHostAssemblies = GetSamplesAppHostAssemblyPaths();
+        var theoryData = new TheoryData<string, bool>();
         return new(appHostAssemblies.Select(p => Path.GetRelativePath(AppContext.BaseDirectory, p)));
     }
 
