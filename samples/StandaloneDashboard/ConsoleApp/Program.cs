@@ -1,5 +1,5 @@
 ﻿using ConsoleApp;
-using OpenTelemetry.Logs;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -30,12 +30,6 @@ static IHostApplicationBuilder ConfigureOpenTelemetry(IHostApplicationBuilder bu
         })
         .WithTracing(tracing =>
         {
-            if (builder.Environment.IsDevelopment())
-            {
-                // We want to view all traces in development
-                tracing.SetSampler(new AlwaysOnSampler());
-            }
-
             tracing.AddHttpClientInstrumentation();
             tracing.AddSource(PokemonDownloader.ActivitySourceName);
         });
@@ -44,9 +38,7 @@ static IHostApplicationBuilder ConfigureOpenTelemetry(IHostApplicationBuilder bu
     var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
     if (useOtlpExporter)
     {
-        builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
-        builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
-        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+        builder.Services.AddOpenTelemetry().UseOtlpExporter();
     }
 
     return builder;
