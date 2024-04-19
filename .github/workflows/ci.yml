@@ -45,11 +45,11 @@ jobs:
 
     - name: Initialize Dapr (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }}/dapr init --slim --log-as-json
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --log-as-json
 
     - name: Initialize Dapr (Windows)
       if: matrix.os == 'windows-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }}\dapr init --slim --log-as-json
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim --log-as-json
 
     - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
       if: matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline'
