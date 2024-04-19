@@ -23,9 +23,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
-        // Workaround race in DCP that can result in resources being deleted while they are still starting
-        await Task.Delay(100);
-
         appHostLogs.EnsureNoErrors();
         resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
@@ -48,9 +45,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var resourceLogs = app.GetResourceLogs();
 
         await app.StartAsync(waitForResourcesToStart: true);
-
-        // Workaround race in DCP that can result in resources being deleted while they are still starting
-        await Task.Delay(100);
 
         foreach (var resource in resourceEndpoints.Keys)
         {
