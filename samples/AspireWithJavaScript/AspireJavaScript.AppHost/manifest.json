@@ -48,8 +48,8 @@
       "context": "../AspireJavaScript.React",
       "env": {
         "NODE_ENV": "production",
-        "services__weatherapi__http__0": "{weatherapi.bindings.http.url}",
-        "services__weatherapi__https__0": "{weatherapi.bindings.https.url}",
+        "REACT_APP_WEATHER_API_HTTP": "{weatherapi.bindings.http.url}",
+        "REACT_APP_WEATHER_API_HTTPS": "{weatherapi.bindings.https.url}",
         "PORT": "{react.bindings.http.targetPort}"
       },
       "bindings": {
