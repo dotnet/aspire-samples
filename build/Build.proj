@@ -26,7 +26,7 @@
         <Message Text="Publishing @(SampleSln->Count()) samples" Importance="High" />
 
         <MSBuild Projects="@(SampleSln)" Targets="Restore" />
-        <MSBuild Projects="@(SampleSln)" Targets="Publish" BuildInParallel="True" />
+        <MSBuild Projects="@(SampleSln)" Targets="Publish" BuildInParallel="False" />
 
         <Message Text="@(SampleSln->Count()) samples successfully published" Importance="High" />
     </Target>
