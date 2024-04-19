@@ -1,7 +1,7 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var weatherApi =
-    builder.AddProject<Projects.AspireJavaScript_MinimalApi>("weatherapi");
+var weatherApi = builder.AddProject<Projects.AspireJavaScript_MinimalApi>("weatherapi")
+    .WithExternalHttpEndpoints();
 
 // Angular: npm run start
 builder.AddNpmApp("angular", "../AspireJavaScript.Angular")
