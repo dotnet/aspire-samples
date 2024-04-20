@@ -27,7 +27,7 @@
     },
     "manifest": {
       "commandName": "Project",
-      "commandLineArgs": "--publisher manifest --output-path manifest.json",
+      "commandLineArgs": "--publisher manifest --output-path aspire-manifest.json",
       "dotnetRunMessages": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production",
