@@ -30,7 +30,7 @@ If using the .NET CLI, run `dotnet run` from the `AspireWithMasstransit.AppHost`
 
 Once the app is running, the .NET Aspire dashboard will launch in your browser:
 
-Navigate to http://localhost:5421 in the browser to publish some messages.
+Navigate to https://localhost:7442 in the browser to publish some messages.
 
 After that check the log. Consumer should received and consume the messages.
 
