@@ -13,7 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("messaging")
 
 builder.Services.AddMassTransit(s =>
 {
-    s.AddConsumers(Assembly.GetExecutingAssembly());
+    s.AddConsumers(typeof(Program).Assembly);
     s.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(new Uri(connectionString));
