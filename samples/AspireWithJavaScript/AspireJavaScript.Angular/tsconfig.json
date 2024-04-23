@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
-    "experimentalDecorators": true,
+    "experimentalDecorators": false,
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",

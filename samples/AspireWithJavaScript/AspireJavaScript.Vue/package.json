@@ -7,7 +7,7 @@
     "node": ">=20.7"
   },
   "scripts": {
-    "dev": "vite",
+    "start": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -16,12 +16,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.3.11"
+    "vue": "^3.4.24"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",
-    "@tsconfig/node18": "^18.2.2",
-    "@types/node": "^18.19.3",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.12.2",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vue/eslint-config-prettier": "^8.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
