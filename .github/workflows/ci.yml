@@ -21,9 +21,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+        sdk: [sdk-baseline, sdk-global-json]
+        exclude:
+          - os: windows-latest
+            sdk: sdk-baseline
     runs-on: ${{ matrix.os }}
-    name: Build Samples
+    name: Build & Test Samples
     env:
+      DOTNET_BASELINE_SDK_VERSION: '8.0.1xx'
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       DOTNET_NOLOGO: true
       DOTNET_MULTILEVEL_LOOKUP: false
@@ -36,8 +41,24 @@ jobs:
       uses: dapr/setup-dapr@v1
       with:
         version: '1.13.0'
+      id: install-dapr
 
-    - name: Install .NET SDK
+    - name: Initialize Dapr (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
+
+    - name: Initialize Dapr (Windows)
+      if: matrix.os == 'windows-latest'
+      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
+
+    - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
+      if: matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_BASELINE_SDK_VERSION }}
+
+    - name: "Install .NET SDK (global.json)"
+      if: matrix.sdk == 'sdk-global-json'
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
@@ -48,9 +69,12 @@ jobs:
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+      env:
+        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
 
     - name: Test
-      if:  ${{ matrix.os == 'ubuntu-latest' }}
+      id: test
+      if: matrix.os == 'ubuntu-latest'
       # Note that the space after the last double dash (--) is intentional
       run: >
         dotnet test ./tests/SamplesTests.sln
@@ -58,11 +82,12 @@ jobs:
         --results-directory ./TestResults --blame
         -- 
         RunConfiguration.CollectSourceInformation=true
-      continue-on-error: true
+      env:
+        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
     
     - name: Publish Test Results
-      if:  ${{ matrix.os == 'ubuntu-latest' }}
+      if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: TestResults
+        name: TestResults_${{ matrix.os }}_${{ matrix.sdk }}
         path: ./TestResults

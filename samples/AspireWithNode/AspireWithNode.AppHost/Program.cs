@@ -9,7 +9,8 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
 var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
-    .WithHttpEndpoint(targetPort: 3000, env: "PORT")
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
 if (builder.Environment.IsDevelopment() && builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https")
