@@ -12,8 +12,6 @@ builder.AddContainer("prometheus", "prom/prometheus")
        .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
        .WithHttpEndpoint(/* This port is fixed as it's referenced from the Grafana config */ port: 9090, targetPort: 9090);
 
-builder.AddExecutable("dotnet-version", "dotnet", Path.GetDirectoryName(Projects.MetricsApp_AppHost.ProjectPath)!, "--version");
-
 using var app = builder.Build();
 
 await app.RunAsync();
