@@ -27,16 +27,6 @@ module.exports = (env) => {
         template: "./src/index.html",
         favicon: "./src/favicon.ico",
       }),
-      // new webpack.DefinePlugin({
-      //   "variables": {
-      //     "REACT_APP_WEATHER_API_HTTPS": JSON.stringify(
-      //       process.env.REACT_APP_WEATHER_API_HTTPS
-      //     ),
-      //     "REACT_APP_WEATHER_API_HTTP": JSON.stringify(
-      //       process.env.REACT_APP_WEATHER_API_HTTP
-      //     ),
-      //   }
-      // }),
     ],
     module: {
       rules: [
