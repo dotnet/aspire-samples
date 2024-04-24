@@ -7,8 +7,8 @@
   "scripts": {
     "ng": "ng",
     "start": "run-script-os",
-    "start:win32": "ng serve --port %PORT%",
-    "start:default": "ng serve --port $PORT",
+    "start:win32": "ng serve --port %PORT% --host 0.0.0.0",
+    "start:default": "ng serve --port $PORT --host 0.0.0.0",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
