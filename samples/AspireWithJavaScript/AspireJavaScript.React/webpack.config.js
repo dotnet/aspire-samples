@@ -7,6 +7,16 @@ module.exports = (env) => {
     devServer: {
       port: env.PORT || 4001,
       allowedHosts: "all",
+      proxy: [
+        {
+          context: ["/api"],
+          target:
+            process.env.services__weatherapi__https__0 ||
+            process.env.services__weatherapi__http__0,
+          pathRewrite: { "^/api": "" },
+          secure: false,
+        },
+      ],
     },
     output: {
       path: `${__dirname}/dist`,
@@ -17,16 +27,16 @@ module.exports = (env) => {
         template: "./src/index.html",
         favicon: "./src/favicon.ico",
       }),
-      new webpack.DefinePlugin({
-        "variables": {
-          "REACT_APP_WEATHER_API_HTTPS": JSON.stringify(
-            process.env.REACT_APP_WEATHER_API_HTTPS
-          ),
-          "REACT_APP_WEATHER_API_HTTP": JSON.stringify(
-            process.env.REACT_APP_WEATHER_API_HTTP
-          ),
-        }
-      }),
+      // new webpack.DefinePlugin({
+      //   "variables": {
+      //     "REACT_APP_WEATHER_API_HTTPS": JSON.stringify(
+      //       process.env.REACT_APP_WEATHER_API_HTTPS
+      //     ),
+      //     "REACT_APP_WEATHER_API_HTTP": JSON.stringify(
+      //       process.env.REACT_APP_WEATHER_API_HTTP
+      //     ),
+      //   }
+      // }),
     ],
     module: {
       rules: [

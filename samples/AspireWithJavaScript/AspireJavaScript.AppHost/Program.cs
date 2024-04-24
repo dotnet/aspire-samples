@@ -3,36 +3,29 @@
 var weatherApi = builder.AddProject<Projects.AspireJavaScript_MinimalApi>("weatherapi")
     .WithExternalHttpEndpoints();
 
-var weatherApiHttp = weatherApi.GetEndpoint("http");
-var weatherApiHttps = weatherApi.GetEndpoint("https");
+var buildArgs = new DockerBuildArg[]
+{
+    new("services__weatherapi__http__0"),
+    new("services__weatherapi__https__0"),
+};
 
 builder.AddNpmApp("angular", "../AspireJavaScript.Angular")
     .WithReference(weatherApi)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
+    .PublishAsDockerFile(buildArgs);
 
-var react = builder.AddNpmApp("react", "../AspireJavaScript.React")
+builder.AddNpmApp("react", "../AspireJavaScript.React")
+    .WithReference(weatherApi)
     .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
-    .WithEnvironment("REACT_APP_WEATHER_API_HTTP", weatherApiHttp)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
+    .PublishAsDockerFile(buildArgs);
 
-if (weatherApiHttps.Exists)
-{
-    react.WithEnvironment("REACT_APP_WEATHER_API_HTTPS", weatherApiHttps);
-}
-
-var vue = builder.AddNpmApp("vue", "../AspireJavaScript.Vue")
-    .WithEnvironment("VITE_WEATHER_API_HTTP", weatherApiHttp)
+builder.AddNpmApp("vue", "../AspireJavaScript.Vue")
+    .WithReference(weatherApi)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
-
-if (weatherApiHttps.Exists)
-{
-    vue.WithEnvironment("VITE_WEATHER_API_HTTPS", weatherApiHttps);
-}
+    .PublishAsDockerFile(buildArgs);
 
 builder.Build().Run();
