@@ -6,8 +6,8 @@ import App from "./components/App";
 const container = document.getElementById("root");
 const root = createRoot(container);
 const apiserver =
-  process.env.REACT_APP_WEATHER_API_HTTPS ||
-  process.env.REACT_APP_WEATHER_API_HTTP;
+  variables.REACT_APP_WEATHER_API_HTTPS ||
+  variables.REACT_APP_WEATHER_API_HTTP;
 root.render(
   <React.StrictMode>
     <App weatherApi={`${apiserver}/weatherforecast`} />

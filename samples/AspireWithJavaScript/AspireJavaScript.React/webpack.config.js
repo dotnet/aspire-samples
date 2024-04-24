@@ -18,7 +18,7 @@ module.exports = (env) => {
         favicon: "./src/favicon.ico",
       }),
       new webpack.DefinePlugin({
-        "process.env": {
+        "variables": {
           "REACT_APP_WEATHER_API_HTTPS": JSON.stringify(
             process.env.REACT_APP_WEATHER_API_HTTPS
           ),
