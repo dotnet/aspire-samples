@@ -425,3 +425,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# azd
+**/*/.azure
+**/*/azure.yaml
+**/*/next-steps.md
+
