@@ -165,10 +165,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
     {
         // All the AppHost projects are referenced by this project so we can find them by looking for all their assemblies in the base directory
         return Directory.GetFiles(AppContext.BaseDirectory, "*.AppHost.dll")
-            .Where(fileName => !fileName.EndsWith("Aspire.Hosting.AppHost.dll", StringComparison.OrdinalIgnoreCase)
-                               // Known issue in preview.5 with Dapr and randomization of resource names that occurs in integration testing
-                               //&& !fileName.EndsWith("AspireWithDapr.AppHost.dll", StringComparison.OrdinalIgnoreCase)
-                               );
+            .Where(fileName => !fileName.EndsWith("Aspire.Hosting.AppHost.dll", StringComparison.OrdinalIgnoreCase));
     }
 }
 
