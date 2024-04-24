@@ -44,7 +44,7 @@ updates:
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.Angular"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 1
     groups:
       all-dependencies:
@@ -56,7 +56,7 @@ updates:
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.React"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 1
     groups:
       all-dependencies:
@@ -68,7 +68,7 @@ updates:
   - package-ecosystem: npm
     directory: "samples/AspireWithJavaScript/AspireJavaScript.Vue"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 1
     groups:
       all-dependencies:
@@ -80,7 +80,7 @@ updates:
   - package-ecosystem: npm
     directory: "samples/AspireWithNode/NodeFrontend"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 1
     groups:
       all-dependencies:
