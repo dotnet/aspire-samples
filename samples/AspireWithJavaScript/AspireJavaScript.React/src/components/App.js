@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
-
 import "./App.css";
 
-function App({ weatherApi }) {
+function App() {
   const [forecasts, setForecasts] = useState([]);
 
-  console.log(weatherApi);
-
-  const fetchData = async (weatherApi) => {
-    const weather = await fetch(weatherApi);
+  const requestWeather = async () => {
+    const weather = await fetch("api/weatherforecast");
     console.log(weather);
 
     const weatherJson = await weather.json();
@@ -18,8 +15,8 @@ function App({ weatherApi }) {
   };
 
   useEffect(() => {
-    fetchData(weatherApi);
-  }, [weatherApi]);
+    requestWeather();
+  }, []);
 
   return (
     <div className="App">
