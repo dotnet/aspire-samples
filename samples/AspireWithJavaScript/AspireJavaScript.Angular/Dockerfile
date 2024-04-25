@@ -1,6 +1,4 @@
 FROM node:20.12 as build
-ARG services__weatherapi__https__0
-ENV services__weatherapi__https__0=$services__weatherapi__https__0
 
 WORKDIR /app
 
