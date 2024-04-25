@@ -1,5 +1,4 @@
 const HTMLWebpackPlugin = require("html-webpack-plugin");
-const webpack = require("webpack");
 
 module.exports = (env) => {
   return {
