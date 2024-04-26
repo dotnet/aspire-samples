@@ -14,7 +14,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+<<<<<<< HEAD
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0-preview.1.24257.2" />
+=======
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0-*" />
+>>>>>>> cbf208a (Update to 8.1.0-*)
   </ItemGroup>
 
   <ItemGroup>
