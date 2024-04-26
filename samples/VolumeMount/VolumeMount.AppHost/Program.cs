@@ -7,8 +7,6 @@ var sqlPassword = builder.AddParameter("sqlpassword", secret: true);
 // To have a persistent volume across container instances, it must be named.
 var sqlDatabase = builder.AddSqlServer("sqlserver", password: sqlPassword)
     .WithDataVolume()
-    .WithDataBindMount("a")
-    //.WithBindMount("VolumeMount.sqlserver.data", "/var/opt/mssql")
     .AddDatabase("sqldb");
 
 var postgresPassword = builder.AddParameter("postgrespassword", secret: true);
