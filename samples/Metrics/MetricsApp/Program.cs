@@ -35,8 +35,7 @@ if (!app.Environment.IsDevelopment())
 else
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseWebAssemblyDebugging();
+    app.UseSwaggerUI(); // UseSwaggerUI Protected by if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
