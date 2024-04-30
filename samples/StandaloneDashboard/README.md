@@ -54,6 +54,16 @@ The docker command:
 > - Configure the OpenTelemetry SDK inside the app to use the gRPC OTLP protocol, or
 > - Start the app with the [`OTEL_EXPORTER_OTLP_PROTOCOL` environment variable](https://opentelemetry.io/docs/specs/otel/protocol/exporter/#configuration-options) with a value of `grpc`.
 
+## Login to the Aspire dashboard
+
+Data displayed in the dashboard can be sensitive. By default, the dashboard is secured with authentication that requires a token to login.
+
+When the dashboard is run from a standalone container the login token is printed to the container logs. After copying the highlighted token into the login page, select the *Login* button.
+
+![Screenshot of the .NET Aspire dashboard container logs](./images/aspire-dashboard-container-log.png)
+
+For more information about logging into the dashboard, see [Dashboard authentication](https://learn.microsoft.com/dotnet/aspire/fundamentals/dashboard/explore#dashboard-authentication).
+
 ## Building the sample
 
 To download and run the sample, follow these steps:
