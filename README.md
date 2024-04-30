@@ -32,7 +32,13 @@ Sample highlights include:
 
 ## License
 
-.NET (including the aspire-samples repo) is licensed under the MIT license.
+.NET (including the aspire-samples repo) is licensed under the [MIT license](./LICENSE).
+
+## Disclaimer
+
+The sample applications provided in this repository are intended to illustrate individual concepts that may be beneficial in understanding the underlying technology and its potential uses. These samples may not illustrate best practices for production environments.
+
+The code is not intended for operational deployment. Users should exercise caution and not rely on the samples as a foundation for any commercial or production use. See [ASP.NET Core security topics](https://learn.microsoft.com/aspnet/core/security/) for more information on security concerns related to hosting ASP.NET Core applications.
 
 ## Contributing
 
