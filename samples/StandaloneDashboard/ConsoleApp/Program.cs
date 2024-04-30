@@ -8,7 +8,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 ConfigureOpenTelemetry(builder);
 
-builder.Services.AddHostedService<PokemonDownloader>();
+builder.Services.AddHostedService<NuGetDownloader>();
 
 var host = builder.Build();
 host.Run();
@@ -31,7 +31,7 @@ static IHostApplicationBuilder ConfigureOpenTelemetry(IHostApplicationBuilder bu
         .WithTracing(tracing =>
         {
             tracing.AddHttpClientInstrumentation();
-            tracing.AddSource(PokemonDownloader.ActivitySourceName);
+            tracing.AddSource(NuGetDownloader.ActivitySourceName);
         });
 
     // Use the OTLP exporter if the endpoint is configured.
