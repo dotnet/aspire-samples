@@ -14,12 +14,9 @@ description: "A sample of using the Aspire dashboard to view telemetry from non-
 
 View telemetry from any app in the Aspire dashboard. The dashboard supports running standalone, and apps configured with an [OpenTelemetry SDK](https://opentelemetry.io/docs/getting-started/dev/) can send it data.
 
-This sample is a .NET console app that downloads data from [PokeAPI](https://pokeapi.co/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
+This sample is a .NET console app that downloads data from [NuGet](https://nuget.org/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
 
 ![Screenshot of the standalone .NET Aspire dashboard](./images/aspire-dashboard-screenshot.png)
-
-> [!NOTE]
-> [PokeAPI](https://pokeapi.co/) is a free, open-source RESTful API that is not owned by Microsoft.
 
 ## Demonstrates
 
@@ -38,7 +35,7 @@ This sample runs the Aspire dashboard from a Docker container. It requires Docke
 The following command starts the Aspire dashboard in a Docker container:
 
 ``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.4
+docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.6
 ```
 
 The docker command:
@@ -83,12 +80,12 @@ Run the .NET app by executing the following at the command prompt (opened to the
 dotnet run --project ConsoleApp
 ```
 
-1. The console app launches, downloads information about all Pokemon and then exits.
+1. The console app launches, downloads information about the top NuGet packages and then exits.
 2. View the Aspire dashboard at http://localhost:18888 to see app telemetry.
-    1. View structured logs to see the list of downloaded Pokemon.
+    1. View structured logs to see the list of top NuGet packages.
     2. View traces to see HTTP requests made.
     3. View metrics to see numeric data about the app such as average HTTP request duration.
 
 ## Configure OpenTelemetry
 
-The telemetry export endpoint is configured with the `OTEL_EXPORTER_OTLP_ENDPOINT` setting. This value is set to `http://localhost:4317` in the sample's appsettings.json file. Removing the `OTEL_EXPORTER_OTLP_ENDPOINT` value disables exporting telemetry.
+The telemetry export endpoint is configured with the `OTEL_EXPORTER_OTLP_ENDPOINT` setting. This value is set to `http://localhost:4317` in the sample's `Properties/launchSettings.json` file. Removing the `OTEL_EXPORTER_OTLP_ENDPOINT` value disables exporting telemetry.
