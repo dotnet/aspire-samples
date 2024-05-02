@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 /// <summary>
 /// An <see cref="ILogger"/> that writes log messages to an <see cref="ITestOutputHelper"/>.

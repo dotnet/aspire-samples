@@ -4,12 +4,12 @@
 using System.Text;
 using Xunit.Abstractions;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 /// <summary>
 /// A <see cref="TextWriter"/> that writes to an <see cref="ITestOutputHelper"/>.
 /// </summary>
-internal class XunitTextWriter(ITestOutputHelper output) : TextWriter
+internal class XUnitTextWriter(ITestOutputHelper output) : TextWriter
 {
     private readonly StringBuilder _sb = new();
 

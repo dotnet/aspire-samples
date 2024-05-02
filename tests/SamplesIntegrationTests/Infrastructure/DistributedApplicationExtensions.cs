@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
-using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SamplesIntegrationTests.Infrastructure;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 public static partial class DistributedApplicationExtensions
 {
@@ -40,7 +40,7 @@ public static partial class DistributedApplicationExtensions
         builder.Services.AddSingleton<ResourceLogStore>();
 
         // Configure the builder's logger to redirect it to xunit's output & store for assertion later
-        builder.Services.AddLogging(logging => logging.ClearProviders());
+        //builder.Services.AddLogging(logging => logging.ClearProviders());
         builder.Services.AddKeyedSingleton(OutputWriterKey, outputWriter);
         builder.Services.AddSingleton<LoggerLogStore>();
         builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
@@ -76,7 +76,7 @@ public static partial class DistributedApplicationExtensions
     {
         // Named volumes that aren't shared across resources should be replaced with anonymous volumes.
         // Named volumes shared by mulitple resources need to have their name randomized but kept shared across those resources.
-        
+
         // Find all shared volumes and make a map of their original name to a new randomized name
         var allResourceNamedVolumes = builder.Resources.SelectMany(r => r.Annotations
             .OfType<ContainerMountAnnotation>()
@@ -143,7 +143,7 @@ public static partial class DistributedApplicationExtensions
             .ConfigureHttpClientDefaults(configure)
             .BuildServiceProvider();
         var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
-        
+
         var httpClient = httpClientFactory.CreateClient();
         httpClient.BaseAddress = app.GetEndpoint(resourceName, endpointName);
 

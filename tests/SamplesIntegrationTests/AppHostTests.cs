@@ -3,8 +3,8 @@
 
 using System.Net;
 using System.Text.Json;
-using Aspire.Hosting.Dapr;
 using Microsoft.Extensions.DependencyInjection;
+using SamplesIntegrationTests.Infrastructure;
 using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
@@ -66,7 +66,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                     {
                         resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(300);
                         resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
-                        resilience.Retry.MaxRetryAttempts = 5;
+                        resilience.Retry.MaxRetryAttempts = 30;
                         resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(300);
                     });
             });
@@ -80,15 +80,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
                     continue;
                 }
 
-                try
-                {
-                    response = await client.GetAsync(path);
-                    Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Error when calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}': {ex.Message}");
-                }
+                testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
+                response = await client.GetAsync(path);
+
+                Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
             }
         }
 
