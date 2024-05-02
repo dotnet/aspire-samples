@@ -26,8 +26,8 @@ internal sealed class ResourceWatcher(
     private readonly HashSet<string> _waitingToStopResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _stoppedResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
-    // [ResourceName] { [DesiredState] { TCS } }
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, List<TaskCompletionSource>>> _resourceStateChangeSubs = new(StringComparer.InvariantCultureIgnoreCase);
+    // For each resource we have a TCS for each state we see it move to or a caller is waiting for it to move to
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, TaskCompletionSource>> _resourcesStateChangeTcses = new(StringComparer.InvariantCultureIgnoreCase);
     private readonly TaskCompletionSource _resourcesStartedTcs = new();
     private readonly TaskCompletionSource _resourcesStoppedTcs = new();
 
@@ -42,8 +42,6 @@ internal sealed class ResourceWatcher(
             _waitingToStopResources.Add(r.Name);
         });
         logger.LogInformation("Watching {resourceCount} resources for start/stop changes", statusWatchableResources.Count);
-
-        StartResourceStateSubscriptionSweepLoop(stoppingToken);
 
         // We need to pass the stopping token in here because the ResourceNotificationService doesn't stop on host shutdown in preview.5
         await WatchNotifications(stoppingToken);
@@ -61,58 +59,13 @@ internal sealed class ResourceWatcher(
 
     public Task WaitForResourcesToStop() => _resourcesStoppedTcs.Task;
 
-    public Task WaitForResource(string resourceName, string state = "Running", CancellationToken cancellationToken = default)
-    {
-        if (_resourceState.TryGetValue(resourceName, out var value) && value.Snapshot is { } snapshot && string.Equals(snapshot.Text, state, StringComparison.OrdinalIgnoreCase))
-        {
-            // Resource already at the desired state
-            return Task.CompletedTask;
-        }
+    public Task WaitForResource(string resourceName, string targetState = "Running", CancellationToken cancellationToken = default)
+        => GetResourceStateChangeTcs(resourceName, targetState).Task.WaitAsync(cancellationToken);
 
-        var tcs = new TaskCompletionSource();
-        var resourceSubs = _resourceStateChangeSubs.GetOrAdd(resourceName, _ => new(StringComparer.InvariantCultureIgnoreCase));
-        var stateSubs = resourceSubs.GetOrAdd(state, []);
-        lock (stateSubs)
-        {
-            stateSubs.Add(tcs);
-        }
-        cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
-        return tcs.Task;
-    }
-
-    private void StartResourceStateSubscriptionSweepLoop(CancellationToken cancellationToken)
-    {
-        Task.Run(async () =>
-        {
-            var period = new PeriodicTimer(TimeSpan.FromSeconds(5));
-            while (await period.WaitForNextTickAsync(cancellationToken))
-            {
-                foreach (var key in _resourceState.Keys)
-                {
-                    if (_resourceState.TryGetValue(key, out var state) && !string.IsNullOrEmpty(state.Snapshot?.Text))
-                    {
-                        NotifySubscribersOfResourceStateChange(key, state.Snapshot.Text);
-                    }
-                }
-            }
-        }, cancellationToken);
-    }
-
-    private void NotifySubscribersOfResourceStateChange(string resourceName, string resourceState)
-    {
-        if (_resourceStateChangeSubs.TryGetValue(resourceName, out var resourceSubs) && resourceSubs.TryGetValue(resourceState, out var stateSubs))
-        {
-            lock (stateSubs)
-            {
-                for (var i = stateSubs.Count - 1; i >= 0; i--)
-                {
-                    var tcs = stateSubs[i];
-                    stateSubs.RemoveAt(i);
-                    tcs.TrySetResult();
-                }
-            }
-        }
-    }
+    private TaskCompletionSource GetResourceStateChangeTcs(string resourceName, string targetState)
+        => _resourcesStateChangeTcses
+            .GetOrAdd(resourceName, _ => new(StringComparer.InvariantCultureIgnoreCase))
+            .GetOrAdd(targetState, _ => new TaskCompletionSource());
 
     private async Task WatchNotifications(CancellationToken cancellationToken)
     {
@@ -140,7 +93,8 @@ internal sealed class ResourceWatcher(
 
             if (resourceEvent.Snapshot.State is not null && !string.IsNullOrEmpty(resourceEvent.Snapshot.State.Text))
             {
-                NotifySubscribersOfResourceStateChange(resourceName, resourceEvent.Snapshot.State.Text);
+                // Notify any subscribers of state change
+                GetResourceStateChangeTcs(resourceName, resourceEvent.Snapshot.State.Text).TrySetResult();
             }
 
             if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } newState && !string.IsNullOrEmpty(newState.Text))
