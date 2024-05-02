@@ -19,6 +19,7 @@ internal sealed class ResourceWatcher(
     ILogger<ResourceWatcher> logger)
     : BackgroundService
 {
+    private CancellationToken _stoppingToken;
     private readonly HashSet<string> _waitingToStartResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _startedResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _waitingToStopResources = new(StringComparer.OrdinalIgnoreCase);
@@ -33,6 +34,7 @@ internal sealed class ResourceWatcher(
     {
         logger.LogInformation("Resource watcher started");
 
+        _stoppingToken = stoppingToken;
         var statusWatchableResources = GetStatusWatchableResources().ToList();
         statusWatchableResources.ForEach(r =>
         {
@@ -58,7 +60,7 @@ internal sealed class ResourceWatcher(
     public Task WaitForResourcesToStop() => _resourcesStoppedTcs.Task;
 
     public Task WaitForResource(string resourceName, string targetState = "Running", CancellationToken cancellationToken = default)
-        => GetResourceStateChangeTcs(resourceName, targetState).Task.WaitAsync(cancellationToken);
+        => GetResourceStateChangeTcs(resourceName, targetState).Task.WaitAsync(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _stoppingToken).Token);
 
     private TaskCompletionSource GetResourceStateChangeTcs(string resourceName, string targetState)
         => _resourcesStateChangeTcses
