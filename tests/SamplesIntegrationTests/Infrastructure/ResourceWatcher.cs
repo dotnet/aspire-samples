@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
+using Aspire.Hosting.ApplicationModel;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.NamedPipes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,7 +25,9 @@ internal sealed class ResourceWatcher(
     private readonly HashSet<string> _startedResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _waitingToStopResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _stoppedResources = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
+    private readonly ConcurrentDictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
+    // [ResourceName] { [DesiredState] { TCS } }
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, List<TaskCompletionSource>>> _resourceStateChangeSubs = new(StringComparer.InvariantCultureIgnoreCase);
     private readonly TaskCompletionSource _resourcesStartedTcs = new();
     private readonly TaskCompletionSource _resourcesStoppedTcs = new();
 
@@ -37,6 +42,8 @@ internal sealed class ResourceWatcher(
             _waitingToStopResources.Add(r.Name);
         });
         logger.LogInformation("Watching {resourceCount} resources for start/stop changes", statusWatchableResources.Count);
+
+        StartResourceStateSubscriptionSweepLoop(stoppingToken);
 
         // We need to pass the stopping token in here because the ResourceNotificationService doesn't stop on host shutdown in preview.5
         await WatchNotifications(stoppingToken);
@@ -54,6 +61,59 @@ internal sealed class ResourceWatcher(
 
     public Task WaitForResourcesToStop() => _resourcesStoppedTcs.Task;
 
+    public Task WaitForResource(string resourceName, string state = "Running", CancellationToken cancellationToken = default)
+    {
+        if (_resourceState.TryGetValue(resourceName, out var value) && value.Snapshot is { } snapshot && string.Equals(snapshot.Text, state, StringComparison.OrdinalIgnoreCase))
+        {
+            // Resource already at the desired state
+            return Task.CompletedTask;
+        }
+
+        var tcs = new TaskCompletionSource();
+        var resourceSubs = _resourceStateChangeSubs.GetOrAdd(resourceName, _ => new(StringComparer.InvariantCultureIgnoreCase));
+        var stateSubs = resourceSubs.GetOrAdd(state, []);
+        lock (stateSubs)
+        {
+            stateSubs.Add(tcs);
+        }
+        cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
+        return tcs.Task;
+    }
+
+    private void StartResourceStateSubscriptionSweepLoop(CancellationToken cancellationToken)
+    {
+        Task.Run(async () =>
+        {
+            var period = new PeriodicTimer(TimeSpan.FromSeconds(5));
+            while (await period.WaitForNextTickAsync(cancellationToken))
+            {
+                foreach (var key in _resourceState.Keys)
+                {
+                    if (_resourceState.TryGetValue(key, out var state) && !string.IsNullOrEmpty(state.Snapshot?.Text))
+                    {
+                        NotifySubscribersOfResourceStateChange(key, state.Snapshot.Text);
+                    }
+                }
+            }
+        }, cancellationToken);
+    }
+
+    private void NotifySubscribersOfResourceStateChange(string resourceName, string resourceState)
+    {
+        if (_resourceStateChangeSubs.TryGetValue(resourceName, out var resourceSubs) && resourceSubs.TryGetValue(resourceState, out var stateSubs))
+        {
+            lock (stateSubs)
+            {
+                for (var i = stateSubs.Count - 1; i >= 0; i--)
+                {
+                    var tcs = stateSubs[i];
+                    stateSubs.RemoveAt(i);
+                    tcs.TrySetResult();
+                }
+            }
+        }
+    }
+
     private async Task WatchNotifications(CancellationToken cancellationToken)
     {
         var logStore = serviceProvider.GetService<ResourceLogStore>();
@@ -64,7 +124,7 @@ internal sealed class ResourceWatcher(
 
         logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", _waitingToStartResources.Count);
 
-        await foreach (var resourceEvent in resourceNotification.WatchAsync().WithCancellation(cancellationToken))
+        await foreach (var resourceEvent in resourceNotification.WatchAsync(cancellationToken).WithCancellation(cancellationToken))
         {
             var resourceName = resourceEvent.Resource.Name;
             var resourceId = resourceEvent.ResourceId;
@@ -77,6 +137,11 @@ internal sealed class ResourceWatcher(
 
             _resourceState.TryGetValue(resourceName, out var prevState);
             _resourceState[resourceName] = (resourceEvent.Snapshot.State, resourceEvent.Snapshot.ExitCode);
+
+            if (resourceEvent.Snapshot.State is not null && !string.IsNullOrEmpty(resourceEvent.Snapshot.State.Text))
+            {
+                NotifySubscribersOfResourceStateChange(resourceName, resourceEvent.Snapshot.State.Text);
+            }
 
             if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } newState && !string.IsNullOrEmpty(newState.Text))
             {

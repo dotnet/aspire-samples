@@ -160,6 +160,12 @@ public static partial class DistributedApplicationExtensions
         await resourcesStartingTask;
     }
 
+    public static async Task WaitForResource(this DistributedApplication app, string resourceName, string state = "Running", CancellationToken cancellationToken = default)
+    {
+        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
+        await resourceWatcher.WaitForResource(resourceName, state, cancellationToken);
+    }
+
     public static LoggerLogStore GetAppHostLogs(this DistributedApplication app)
     {
         var logStore = app.Services.GetService<LoggerLogStore>()

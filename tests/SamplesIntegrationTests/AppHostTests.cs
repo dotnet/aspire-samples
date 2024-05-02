@@ -46,6 +46,16 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
+        if (testEndpoints.WaitForResources?.Count > 0)
+        {
+            // Wait until each resource transitions to the required state
+            var timeout = TimeSpan.FromMinutes(5);
+            foreach (var (ResourceName, TargetState) in testEndpoints.WaitForResources)
+            {
+                await app.WaitForResource(ResourceName, TargetState, new CancellationTokenSource(timeout).Token);
+            }
+        }
+
         foreach (var resource in resourceEndpoints.Keys)
         {
             var endpoints = resourceEndpoints[resource];
@@ -143,7 +153,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("DatabaseMigrations.AppHost", new() {
                 { "api", ["/alive", "/health", "/"] }
-            }),
+            })
+            {
+                WaitForResources = [new("migration", "Finished")]
+            },
             new TestEndpoints("MetricsApp.AppHost", new() {
                 { "app", ["/alive", "/health"] },
                 { "grafana", ["/"] }
@@ -177,19 +190,36 @@ public class TestEndpoints : IXunitSerializable
 
     public string? AppHost { get; set; }
 
+    public List<ResourceWait>? WaitForResources { get; set; }
+
     public Dictionary<string, List<string>>? ResourceEndpoints { get; set; }
 
     public void Deserialize(IXunitSerializationInfo info)
     {
         AppHost = info.GetValue<string>(nameof(AppHost));
-        ResourceEndpoints = JsonSerializer.Deserialize< Dictionary<string, List<string>>>(info.GetValue<string>(nameof(ResourceEndpoints)));
+        WaitForResources = JsonSerializer.Deserialize<List<ResourceWait>>(info.GetValue<string>(nameof(WaitForResources)));
+        ResourceEndpoints = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(info.GetValue<string>(nameof(ResourceEndpoints)));
     }
 
     public void Serialize(IXunitSerializationInfo info)
     {
         info.AddValue(nameof(AppHost), AppHost);
+        info.AddValue(nameof(WaitForResources), JsonSerializer.Serialize(WaitForResources));
         info.AddValue(nameof(ResourceEndpoints), JsonSerializer.Serialize(ResourceEndpoints));
     }
 
     public override string? ToString() => $"{AppHost} ({ResourceEndpoints?.Count ?? 0} resources)";
+
+    public class ResourceWait(string resourceName, string targetState)
+    {
+        public string ResourceName { get; } = resourceName;
+
+        public string TargetState { get; } = targetState;
+
+        public void Deconstruct(out string resourceName, out string targetState)
+        {
+            resourceName = ResourceName;
+            targetState = TargetState;
+        }
+    }
 }
