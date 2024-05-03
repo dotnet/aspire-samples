@@ -2,7 +2,7 @@
   "name": "angular-weather",
   "version": "0.0.0",
   "engines": {
-    "node": ">=20.7"
+    "node": ">=20.12"
   },
   "scripts": {
     "ng": "ng",
