@@ -30,8 +30,7 @@
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 
-  <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' "
-          Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
+  <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' " Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
     <Message Importance="High" Text="Forcing a command-line restore of $(MSBuildThisFile)" />
     <MSBuild Targets="Restore" Projects="@(ThisProject)" Properties="RestoreMyself='false'" />
   </Target>

@@ -1,11 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 /// <summary>
 /// A background service that watches for resource start/stop notifications and logs resource state changes.
@@ -18,11 +19,14 @@ internal sealed class ResourceWatcher(
     ILogger<ResourceWatcher> logger)
     : BackgroundService
 {
+    private CancellationToken _stoppingToken;
     private readonly HashSet<string> _waitingToStartResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _startedResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _waitingToStopResources = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _stoppedResources = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
+    private readonly ConcurrentDictionary<string, (ResourceStateSnapshot? Snapshot, int? ExitCode)> _resourceState = [];
+    // For each resource we have a TCS for each state we see it move to or a caller is waiting for it to move to
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, TaskCompletionSource>> _resourcesStateChangeTcses = new(StringComparer.InvariantCultureIgnoreCase);
     private readonly TaskCompletionSource _resourcesStartedTcs = new();
     private readonly TaskCompletionSource _resourcesStoppedTcs = new();
 
@@ -30,6 +34,7 @@ internal sealed class ResourceWatcher(
     {
         logger.LogInformation("Resource watcher started");
 
+        _stoppingToken = stoppingToken;
         var statusWatchableResources = GetStatusWatchableResources().ToList();
         statusWatchableResources.ForEach(r =>
         {
@@ -54,6 +59,14 @@ internal sealed class ResourceWatcher(
 
     public Task WaitForResourcesToStop() => _resourcesStoppedTcs.Task;
 
+    public Task WaitForResource(string resourceName, string targetState = "Running", CancellationToken cancellationToken = default)
+        => GetResourceStateChangeTcs(resourceName, targetState).Task.WaitAsync(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _stoppingToken).Token);
+
+    private TaskCompletionSource GetResourceStateChangeTcs(string resourceName, string targetState)
+        => _resourcesStateChangeTcses
+            .GetOrAdd(resourceName, _ => new(StringComparer.InvariantCultureIgnoreCase))
+            .GetOrAdd(targetState, _ => new TaskCompletionSource());
+
     private async Task WatchNotifications(CancellationToken cancellationToken)
     {
         var logStore = serviceProvider.GetService<ResourceLogStore>();
@@ -64,7 +77,7 @@ internal sealed class ResourceWatcher(
 
         logger.LogInformation("Waiting on {resourcesToStartCount} resources to start", _waitingToStartResources.Count);
 
-        await foreach (var resourceEvent in resourceNotification.WatchAsync().WithCancellation(cancellationToken))
+        await foreach (var resourceEvent in resourceNotification.WatchAsync(cancellationToken).WithCancellation(cancellationToken))
         {
             var resourceName = resourceEvent.Resource.Name;
             var resourceId = resourceEvent.ResourceId;
@@ -77,6 +90,12 @@ internal sealed class ResourceWatcher(
 
             _resourceState.TryGetValue(resourceName, out var prevState);
             _resourceState[resourceName] = (resourceEvent.Snapshot.State, resourceEvent.Snapshot.ExitCode);
+
+            if (resourceEvent.Snapshot.State is not null && !string.IsNullOrEmpty(resourceEvent.Snapshot.State.Text))
+            {
+                // Notify any subscribers of state change
+                GetResourceStateChangeTcs(resourceName, resourceEvent.Snapshot.State.Text).TrySetResult();
+            }
 
             if (resourceEvent.Snapshot.ExitCode is null && resourceEvent.Snapshot.State is { } newState && !string.IsNullOrEmpty(newState.Text))
             {

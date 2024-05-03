@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
-namespace Aspire.Hosting.Utils;
+namespace SamplesIntegrationTests.Infrastructure;
 
 internal static class PasswordGenerator
 {

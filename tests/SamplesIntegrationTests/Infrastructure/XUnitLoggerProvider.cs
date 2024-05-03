@@ -4,7 +4,7 @@
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 /// <summary>
 /// An <see cref="ILoggerProvider"/> that creates <see cref="ILogger"/> instances that output to the supplied <see cref="ITestOutputHelper"/>.

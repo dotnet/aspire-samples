@@ -3,7 +3,7 @@
 
 using System.Collections.Concurrent;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 public class ResourceLogStore
 {

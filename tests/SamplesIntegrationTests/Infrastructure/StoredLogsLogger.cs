@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace SamplesIntegrationTests;
+namespace SamplesIntegrationTests.Infrastructure;
 
 /// <summary>
 /// A logger that stores logs in a <see cref="LoggerLogStore"/>.
