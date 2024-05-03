@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Reflection;
+using SamplesIntegrationTests.Infrastructure;
 
 namespace SamplesIntegrationTests;
 
