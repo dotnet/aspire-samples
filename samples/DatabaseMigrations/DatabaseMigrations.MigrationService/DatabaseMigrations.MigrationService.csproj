@@ -20,15 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-preview.7.24251.11" />
-=======
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.1.0-preview.1.24257.2" />
->>>>>>> 1c61f4e (Update to 8.0 GA)
-=======
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.1.0-*" />
->>>>>>> cbf208a (Update to 8.1.0-*)
     
     <ProjectReference Include="..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj" />
     <ProjectReference Include="..\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj" />
