@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
 using System.Reflection;
 using SamplesIntegrationTests.Infrastructure;
 
@@ -21,15 +20,7 @@ internal static partial class DistributedApplicationTestFactory
         var appHostType = appHostAssembly.GetTypes().FirstOrDefault(t => t.Name.EndsWith("_AppHost"))
             ?? throw new InvalidOperationException("Generated AppHost type not found.");
 
-        var createAsyncMethod = typeof(DistributedApplicationTestingBuilder).GetMethod(nameof(DistributedApplicationTestingBuilder.CreateAsync))
-            ?? throw new InvalidOperationException("DistributedApplicationTestingBuilder.CreateAsync method not found.");
-
-        var createAsyncConcrete = createAsyncMethod.MakeGenericMethod(appHostType);
-
-        var testBuilderTask = createAsyncConcrete.Invoke(null, [CancellationToken.None]) as Task<IDistributedApplicationTestingBuilder>
-            ?? throw new UnreachableException();
-
-        var builder = await testBuilderTask;
+        var builder = await DistributedApplicationTestingBuilder.CreateAsync(appHostType);
 
         builder.WithRandomParameterValues();
         builder.WithRandomVolumeNames();

@@ -20,7 +20,7 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
     }));
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
     // Disable Aspire default retries as we're using a custom execution strategy
-    settings.Retry = false);
+    settings.DisableRetry = true);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
