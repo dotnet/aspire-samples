@@ -8,26 +8,34 @@ import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { RedisInstrumentation } from '@opentelemetry/instrumentation-redis-4';
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+import { credentials } from '@grpc/grpc-js';
+
+const environment = process.env.NODE_ENV || 'development';
+
+// For troubleshooting, set the log level to DiagLogLevel.DEBUG
+//diag.setLogger(new DiagConsoleLogger(), environment === 'development' ? DiagLogLevel.INFO : DiagLogLevel.WARN);
 
 const otlpServer = env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
 if (otlpServer) {
     console.log(`OTLP endpoint: ${otlpServer}`);
 
+    const isHttps = otlpServer.startsWith('https://');
+    const collectorOptions = {
+        credentials: !isHttps
+            ? credentials.createInsecure()
+            : credentials.createSsl()
+    };
+
     const sdk = new NodeSDK({
-        traceExporter: new OTLPTraceExporter({
-            url: `${otlpServer}/v1/traces`,
-            headers: {},
-        }),
+        traceExporter: new OTLPTraceExporter(collectorOptions),
         metricReader: new PeriodicExportingMetricReader({
-            exporter: new OTLPMetricExporter({
-                url: `${otlpServer}/v1/metrics`
-            }),
+            exportIntervalMillis: environment === 'development' ? 5000 : 10000,
+            exporter: new OTLPMetricExporter(collectorOptions),
         }),
         logRecordProcessor: new SimpleLogRecordProcessor({
-            exporter: new OTLPLogExporter({
-                url: `${otlpServer}/v1/logs`
-            })
+            exporter: new OTLPLogExporter(collectorOptions)
         }),
         instrumentations: [
             new HttpInstrumentation(),

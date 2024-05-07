@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34223.224
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiModel", "DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj", "{07403747-9B1F-4BA6-BED6-0630BFF14E69}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiService", "DatabaseMigrations.ApiService\DatabaseMigrations.ApiService.csproj", "{49FB6776-6EB0-46A4-AB7B-70BBE413332B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.MigrationService", "DatabaseMigrations.MigrationService\DatabaseMigrations.MigrationService.csproj", "{3C707BEA-C6A7-43A6-8B6D-161DE50C0CA2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.AppHost", "DatabaseMigrations.AppHost\DatabaseMigrations.AppHost.csproj", "{3A2B4403-8E23-447F-96CF-643309902199}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ServiceDefaults", "DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj", "{FE33C96F-70D9-4C5B-BE6E-FCEC8CBF8350}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07403747-9B1F-4BA6-BED6-0630BFF14E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07403747-9B1F-4BA6-BED6-0630BFF14E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07403747-9B1F-4BA6-BED6-0630BFF14E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07403747-9B1F-4BA6-BED6-0630BFF14E69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49FB6776-6EB0-46A4-AB7B-70BBE413332B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49FB6776-6EB0-46A4-AB7B-70BBE413332B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49FB6776-6EB0-46A4-AB7B-70BBE413332B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49FB6776-6EB0-46A4-AB7B-70BBE413332B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C707BEA-C6A7-43A6-8B6D-161DE50C0CA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C707BEA-C6A7-43A6-8B6D-161DE50C0CA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C707BEA-C6A7-43A6-8B6D-161DE50C0CA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C707BEA-C6A7-43A6-8B6D-161DE50C0CA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A2B4403-8E23-447F-96CF-643309902199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A2B4403-8E23-447F-96CF-643309902199}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A2B4403-8E23-447F-96CF-643309902199}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A2B4403-8E23-447F-96CF-643309902199}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE33C96F-70D9-4C5B-BE6E-FCEC8CBF8350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE33C96F-70D9-4C5B-BE6E-FCEC8CBF8350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE33C96F-70D9-4C5B-BE6E-FCEC8CBF8350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE33C96F-70D9-4C5B-BE6E-FCEC8CBF8350}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D1799EC-D9D0-4D0C-B5DD-AF824F946FDF}
+	EndGlobalSection
+EndGlobal

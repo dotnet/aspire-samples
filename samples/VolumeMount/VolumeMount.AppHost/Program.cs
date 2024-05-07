@@ -1,24 +1,25 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var builder = DistributedApplication.CreateBuilder(args);
+// Using a persistent volume mount requires a stable password rather than the default generated one.
 
-// Using a persistent volume mount requires a stable password for 'sa' rather than the default generated one.
-var sqlpassword = builder.Configuration["sqlpassword"];
+// To have a persistent volume across container instances, it must be named.
+var sqlDatabase = builder.AddSqlServer("sqlserver", password: builder.CreateStablePassword("sqlpassword", minLower: 1, minUpper: 1, minNumeric: 1))
+    .WithDataVolume()
+    .AddDatabase("sqldb");
 
-if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(sqlpassword))
-{
-    throw new InvalidOperationException("""
-        A password for the local SQL Server container is not configured.
-        Add one to the AppHost project's user secrets with the key 'sqlpassword', e.g. dotnet user-secrets set sqlpassword <password>
-        """);
-}
+// Postgres must also have a stable password and a named volume
+var postgresDatabase = builder.AddPostgres("postgresserver", password: ParameterExtensions.CreateStablePassword(builder, "postgrespassword"))
+    .WithDataVolume()
+    .AddDatabase("postgres");
 
-// To have a persistent volume mount across container instances, it must be named (VolumeMountType.Named).
-var database = builder.AddSqlServerContainer("sqlserver", sqlpassword)
-    .WithVolumeMount("VolumeMount.sqlserver.data", "/var/opt/mssql", VolumeMountType.Named)
-    .AddDatabase("appdb");
+var blobs = builder.AddAzureStorage("Storage")
+    // Use the Azurite storage emulator for local development
+    .RunAsEmulator(emulator => emulator.WithDataVolume())
+    .AddBlobs("BlobConnection");
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
-    .WithReference(database);
+    .WithReference(sqlDatabase)
+    .WithReference(postgresDatabase)
+    .WithReference(blobs);
 
 builder.Build().Run();

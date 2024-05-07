@@ -1,16 +1,16 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var grafana = builder.AddContainer("grafana", "grafana/grafana")
-                     .WithVolumeMount("../grafana/config", "/etc/grafana")
-                     .WithVolumeMount("../grafana/dashboards", "/var/lib/grafana/dashboards")
-                     .WithServiceBinding(containerPort: 3000, hostPort: 3000, name: "grafana-http", scheme: "http");
+                     .WithBindMount("../grafana/config", "/etc/grafana", isReadOnly: true)
+                     .WithBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
+                     .WithHttpEndpoint(targetPort: 3000, name: "http");
 
 builder.AddProject<Projects.MetricsApp>("app")
-       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("grafana-http"));
+       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
 
 builder.AddContainer("prometheus", "prom/prometheus")
-       .WithVolumeMount("../prometheus", "/etc/prometheus")
-       .WithServiceBinding(9090, hostPort: 9090);
+       .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
+       .WithHttpEndpoint(/* This port is fixed as it's referenced from the Grafana config */ port: 9090, targetPort: 9090);
 
 using var app = builder.Build();
 

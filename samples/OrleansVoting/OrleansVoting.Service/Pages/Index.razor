@@ -1,0 +1,10 @@
+@page "/"
+
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        NavigationManager.NavigateTo("/new");
+    }
+}

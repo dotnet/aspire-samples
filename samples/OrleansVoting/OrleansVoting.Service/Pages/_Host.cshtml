@@ -1,0 +1,10 @@
+@page "/"
+@namespace OrleansVoting.Pages
+@using OrleansVoting.Service
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+	Layout = "_Layout";
+	var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+}
+
+<component type="typeof(App)" param-ClientIp="clientIp" render-mode="ServerPrerendered" />

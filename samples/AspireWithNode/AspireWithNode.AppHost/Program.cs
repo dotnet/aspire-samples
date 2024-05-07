@@ -1,13 +1,22 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using Microsoft.Extensions.Hosting;
+
+var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
 var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weatherapi");
 
-builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
+var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithReference(weatherapi)
     .WithReference(cache)
-    .WithServiceBinding(containerPort: 3000, scheme: "http", env: "PORT")
-    .AsDockerfileInManifest();
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
+    .PublishAsDockerFile();
+
+if (builder.Environment.IsDevelopment() && builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https")
+{
+    // Disable TLS certificate validation in development, see https://github.com/dotnet/aspire/issues/3324 for more details.
+    frontend.WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");
+}
 
 builder.Build().Run();
