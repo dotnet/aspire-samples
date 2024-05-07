@@ -9,11 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
     <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.62.0" />
-<<<<<<< HEAD
     <PackageReference Include="Aspire.StackExchange.Redis" Version="8.1.0-preview.1.24257.2" />
-=======
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.1.0-*" />
->>>>>>> cbf208a (Update to 8.1.0-*)
   </ItemGroup>
 
   <ItemGroup>

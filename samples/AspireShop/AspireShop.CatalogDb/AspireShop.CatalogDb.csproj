@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0-preview.1.24257.2" />
-=======
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.1.0-*" />
->>>>>>> cbf208a (Update to 8.1.0-*)
   </ItemGroup>
 
 </Project>
