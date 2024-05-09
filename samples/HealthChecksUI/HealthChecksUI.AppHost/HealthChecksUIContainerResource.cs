@@ -188,19 +188,3 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
         }
     }
 }
-
-internal static class ResourceExtensions
-{
-    //public static bool TryGetEndpoint(this IResource resource, string name, out EndpointAnnotation? endpoint)
-    //{
-    //    if (resource.TryGetEndpoints(out var endpoints)
-    //        && endpoints.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)) is { } foundEndpoint)
-    //    {
-    //        endpoint = foundEndpoint;
-    //        return true;
-    //    }
-
-    //    endpoint = null;
-    //    return false;
-    //}
-}
