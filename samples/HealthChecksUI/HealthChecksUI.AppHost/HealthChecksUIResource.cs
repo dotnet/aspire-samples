@@ -1,4 +1,5 @@
-﻿using Aspire.Hosting.Lifecycle;
+﻿using System.Diagnostics;
+using Aspire.Hosting.Lifecycle;
 
 namespace HealthChecksUI;
 
@@ -84,15 +85,15 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                 var project = monitoredProject.Project;
 
                 // Add the health check endpoint if it doesn't exist
-                if (!project.GetEndpoint(monitoredProject.EndpointName).Exists)
+                var healthChecksEndpoint = project.GetEndpoint(monitoredProject.EndpointName);
+                if (!healthChecksEndpoint.Exists)
                 {
                     // WORKAROUND: https://github.com/dotnet/aspire/issues/3786
                     // Need to set a concrete target port in publish mode
                     int? targetPort = executionContext.IsPublishMode ? DefaultHealthChecksPort : null;
                     project.WithHttpEndpoint(targetPort: targetPort, name: monitoredProject.EndpointName);
+                    Debug.Assert(healthChecksEndpoint.Exists, "The health check endpoint should exist after adding it.");
                 }
-
-                var healthChecksEndpoint = project.GetEndpoint(monitoredProject.EndpointName);
 
                 // Set environment variable to configure the URLs the health check endpoint is accessible from
                 project.WithEnvironment(context =>
