@@ -92,7 +92,7 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                     project.WithHttpEndpoint(targetPort: targetPort, name: monitoredProject.EndpointName);
                 }
 
-                var healthChecksEndpoint = project.Resource.GetEndpoint(monitoredProject.EndpointName);
+                var healthChecksEndpoint = project.GetEndpoint(monitoredProject.EndpointName);
 
                 // Set environment variable to configure the URLs the health check endpoint is accessible from
                 project.WithEnvironment(context =>
