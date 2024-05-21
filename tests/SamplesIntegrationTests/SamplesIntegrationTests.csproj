@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.0-preview.7.24251.11" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="8.0.0-preview.7.24251.11" />
-    <PackageReference Include="Aspire.Hosting.Testing" Version="8.0.0-preview.7.24251.11" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="8.0.0" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="8.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0-release-24177-07" />
     <PackageReference Include="xunit" Version="2.8.0" />
