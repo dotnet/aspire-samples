@@ -18,10 +18,10 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.8.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.8.0-beta.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.8.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.8.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.8.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
-    <PackageReference Include="Grpc.HealthCheck" Version="2.62.0" />
-    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.62.0" />
+    <PackageReference Include="Grpc.HealthCheck" Version="2.63.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.63.0" />
   </ItemGroup>
 
 </Project>
