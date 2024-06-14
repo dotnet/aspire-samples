@@ -12,7 +12,7 @@ description: "A sample todo app demonstrating how .NET Aspire apps can use Azure
 
 # Cosmic Aspirations - .NET Aspire with Cosmos DB
 
-This is a simple app that shows how to use Cosmos DB to store data from a .NET Aspire app. 
+This is a simple app that shows how to use Azure Cosmos DB to store data from a .NET Aspire app. 
 
 ## Demonstrates
 
