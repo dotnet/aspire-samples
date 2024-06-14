@@ -69,9 +69,7 @@ public static class CosmosClientTodoAppExtensions
     public static Container GetAppDataContainer(this CosmosClient cosmosClient)
     {
         var database = cosmosClient.GetDatabase("tododb");
-        var todos = database.GetContainer("todos");
-
-        if(todos == null) throw new ApplicationException("Cosmos DB collection missing.");
+        var todos = database.GetContainer("todos") ?? throw new ApplicationException("Cosmos DB collection missing.");
 
         return todos;
     }
