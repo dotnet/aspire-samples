@@ -37,6 +37,6 @@ public class TodoApiClient(HttpClient httpClient) : ITodoApiClient
 // The Todo service model used for transmitting data
 public record Todo(string Description, string UserId)
 {
-    public string id { get; set; }
+    public required string id { get; set; }
     public bool IsComplete { get; set; }
 }
