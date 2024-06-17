@@ -1,4 +1,6 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using MetricsApp.AppHost.ContainerProxy;
+
+var builder = DistributedApplication.CreateBuilder(args);
 
 var grafana = builder.AddContainer("grafana", "grafana/grafana")
                      .WithBindMount("../grafana/config", "/etc/grafana", isReadOnly: true)
@@ -6,7 +8,8 @@ var grafana = builder.AddContainer("grafana", "grafana/grafana")
                      .WithHttpEndpoint(targetPort: 3000, name: "http");
 
 builder.AddProject<Projects.MetricsApp>("app")
-       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
+       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"))
+       .WithContainerProxy();
 
 builder.AddContainer("prometheus", "prom/prometheus")
        .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
