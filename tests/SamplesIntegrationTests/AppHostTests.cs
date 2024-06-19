@@ -166,6 +166,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
+            }),
+            new TestEndpoints("AspireWithCosmos.AppHost", new() {
+                { "webfrontend", ["/"] }
             })
         ]);
 
