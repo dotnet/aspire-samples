@@ -168,7 +168,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
             }),
             new TestEndpoints("AspireWithCosmos.AppHost", new() {
-                { "webfrontend", ["/"] }
+                { "apiservice", ["/alive", "/health", "/todos"] },
+                { "webfrontend", ["/alive", "/health", "/"] }
             })
         ]);
 

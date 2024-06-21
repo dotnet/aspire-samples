@@ -1,4 +1,4 @@
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +21,7 @@ app.UseExceptionHandler();
 
 // create new todos
 app.MapPost("/todos", async (Todo todo, CosmosClient cosmosClient) =>
-    (await cosmosClient.GetAppDataContainer().CreateItemAsync<Todo>(todo)).Resource
+    (await cosmosClient.GetAppDataContainer().CreateItemAsync(todo)).Resource
 );
 
 // get all the todos
@@ -30,7 +30,7 @@ app.MapGet("/todos", (CosmosClient cosmosClient) =>
 );
 
 app.MapPut("/todos/{id}", async (string id, Todo todo, CosmosClient cosmosClient) =>
-    (await cosmosClient.GetAppDataContainer().ReplaceItemAsync<Todo>(todo, id)).Resource
+    (await cosmosClient.GetAppDataContainer().ReplaceItemAsync(todo, id)).Resource
 );
 
 app.MapDelete("/todos/{userId}/{id}", async (string userId, string id, CosmosClient cosmosClient) =>
@@ -55,9 +55,9 @@ public class DatabaseBootstrapper(CosmosClient cosmosClient) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await cosmosClient.CreateDatabaseIfNotExistsAsync("tododb");
+        await cosmosClient.CreateDatabaseIfNotExistsAsync("tododb", cancellationToken: cancellationToken);
         var database = cosmosClient.GetDatabase("tododb");
-        await database.CreateContainerIfNotExistsAsync(new ContainerProperties("todos", Todo.UserIdPartitionKey));
+        await database.CreateContainerIfNotExistsAsync(new ContainerProperties("todos", Todo.UserIdPartitionKey), cancellationToken: cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
