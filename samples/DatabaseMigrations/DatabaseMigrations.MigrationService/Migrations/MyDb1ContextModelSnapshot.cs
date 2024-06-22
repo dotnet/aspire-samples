@@ -3,19 +3,16 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DatabaseMigrations.ApiModel.Migrations
+namespace DatabaseMigrations.MigrationService.Migrations
 {
     [DbContext(typeof(MyDb1Context))]
-    [Migration("20240216140519_InitialCreate")]
-    partial class InitialCreate
+    partial class MyDb1ContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,7 +29,7 @@ namespace DatabaseMigrations.ApiModel.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Entries");
+                    b.ToTable("Entries", (string)null);
                 });
 #pragma warning restore 612, 618
         }
