@@ -157,6 +157,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
             {
                 WaitForResources = [new("migration", "Finished")]
             },
+            new TestEndpoints("HealthChecksUI.AppHost", new() {
+                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
+                { "webfrontend", ["/alive", "/health", "/", "/weather"] },
+                { "healthchecksui", ["/"] }
+            }),
             new TestEndpoints("MetricsApp.AppHost", new() {
                 { "app", ["/alive", "/health"] },
                 { "grafana", ["/"] }

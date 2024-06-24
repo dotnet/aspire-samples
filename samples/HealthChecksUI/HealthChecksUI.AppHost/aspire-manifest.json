@@ -1,0 +1,103 @@
+{
+  "resources": {
+    "cache": {
+      "type": "container.v0",
+      "connectionString": "{cache.bindings.tcp.host}:{cache.bindings.tcp.port}",
+      "image": "docker.io/library/redis:7.2",
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 6379
+        }
+      }
+    },
+    "apiservice": {
+      "type": "project.v0",
+      "path": "../HealthChecksUI.ApiService/HealthChecksUI.ApiService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "ASPNETCORE_HTTP_PORTS": "8080;{apiservice.bindings.healthchecks.targetPort}",
+        "HEALTHCHECKSUI_URLS": "{apiservice.bindings.healthchecks.url}/healthz"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "healthchecks": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 8081
+        }
+      }
+    },
+    "webfrontend": {
+      "type": "project.v0",
+      "path": "../HealthChecksUI.Web/HealthChecksUI.Web.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "ConnectionStrings__cache": "{cache.connectionString}",
+        "services__apiservice__http__0": "{apiservice.bindings.http.url}",
+        "services__apiservice__https__0": "{apiservice.bindings.https.url}",
+        "services__apiservice__healthchecks__0": "{apiservice.bindings.healthchecks.url}",
+        "ASPNETCORE_HTTP_PORTS": "8080;{webfrontend.bindings.healthchecks.targetPort}",
+        "HEALTHCHECKSUI_URLS": "{webfrontend.bindings.healthchecks.url}/healthz"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "external": true
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http",
+          "external": true
+        },
+        "healthchecks": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 8081
+        }
+      }
+    },
+    "healthchecksui": {
+      "type": "container.v0",
+      "image": "docker.io/xabarilcoding/healthchecksui:5.0.0",
+      "env": {
+        "ui_path": "/",
+        "HealthChecksUI__HealthChecks__0__Name": "apiservice",
+        "HealthChecksUI__HealthChecks__0__Uri": "{apiservice.bindings.healthchecks.url}/healthz",
+        "HealthChecksUI__HealthChecks__1__Name": "webfrontend",
+        "HealthChecksUI__HealthChecks__1__Uri": "{webfrontend.bindings.healthchecks.url}/healthz"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 80,
+          "external": true
+        }
+      }
+    }
+  }
+}
