@@ -16,8 +16,7 @@ public static class HealthChecksUIExtensions
     public static IResourceBuilder<HealthChecksUIResource> AddHealthChecksUI(
         this IDistributedApplicationBuilder builder,
         string name,
-        int? port = null,
-        string? tag = null)
+        int? port = null)
     {
         builder.Services.TryAddLifecycleHook<HealthChecksUILifecycleHook>();
 
@@ -25,7 +24,7 @@ public static class HealthChecksUIExtensions
 
         return builder
             .AddResource(resource)
-            .WithImage(HealthChecksUIDefaults.ContainerImageName, tag ?? "5.0.0")
+            .WithImage(HealthChecksUIDefaults.ContainerImageName, HealthChecksUIDefaults.ContainerImageTag)
             .WithImageRegistry(HealthChecksUIDefaults.ContainerRegistry)
             .WithEnvironment(HealthChecksUIResource.KnownEnvVars.UiPath, "/")
             .WithHttpEndpoint(port: port, targetPort: HealthChecksUIDefaults.ContainerPort);
@@ -72,6 +71,11 @@ public static class HealthChecksUIDefaults
     /// The default container image name to use for the HealthChecksUI container.
     /// </summary>
     public const string ContainerImageName = "xabarilcoding/healthchecksui";
+
+    /// <summary>
+    /// The default container image tag to use for the HealthChecksUI container.
+    /// </summary>
+    public const string ContainerImageTag = "5.0.0";
 
     /// <summary>
     /// The target port the HealthChecksUI container listens on.
