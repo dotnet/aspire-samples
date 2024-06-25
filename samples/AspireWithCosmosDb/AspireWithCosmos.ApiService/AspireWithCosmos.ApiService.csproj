@@ -8,8 +8,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Aspire.Microsoft.Azure.Cosmos" Version="8.0.1" />
-		<PackageReference Include="Azure.Identity" Version="1.12.0" />
-		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.41.0" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
 	</ItemGroup>
