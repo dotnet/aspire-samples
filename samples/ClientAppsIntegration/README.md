@@ -27,7 +27,7 @@ The app is based on the Aspire Starter App template, with the following addition
 
 - A Windows OS supported by .NET 8 (e.g. Windows 10/11)
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Visual Studio 2022 17.9 Preview](https://visualstudio.microsoft.com/vs/preview/)
+- [Visual Studio 2022 17.10](https://visualstudio.microsoft.com/vs/preview/)
 
 ## Running the app
 
