@@ -66,6 +66,12 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: '20.x'
+    
+    - name: Install .NET HTTPS Development Certificate
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        dotnet tool update -g linux-dev-certs
+        dotnet linux-dev-certs install
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}

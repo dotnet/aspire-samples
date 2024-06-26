@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using SamplesIntegrationTests.Infrastructure;
-using Xunit.Sdk;
 
 namespace SamplesIntegrationTests.Infrastructure;
 
@@ -76,6 +75,9 @@ public static partial class DistributedApplicationExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Waits for the specified resource to reach the specified state.
+    /// </summary>
     public static Task WaitForResource(this DistributedApplication app, string resourceName, string? targetState = null, CancellationToken cancellationToken = default)
     {
         targetState ??= KnownResourceStates.Running;
@@ -99,6 +101,9 @@ public static partial class DistributedApplicationExtensions
         return Task.WhenAll(applicationModel.Resources.Select(r => resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)));
     }
 
+    /// <summary>
+    /// Gets the app host and resource logs from the application.
+    /// </summary>
     public static (IReadOnlyList<FakeLogRecord> AppHostLogs, IReadOnlyList<FakeLogRecord> ResourceLogs) GetLogs(this DistributedApplication app)
     {
         var environment = app.Services.GetRequiredService<IHostEnvironment>();
