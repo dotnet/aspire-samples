@@ -1,6 +1,5 @@
 @ECHO OFF
 
-dotnet workload update
-dotnet workload install aspire
-
-dotnet build .\build\Build.proj
+@echo off
+powershell -ExecutionPolicy ByPass -NoProfile -command "& """%~dp0eng\common\Build.ps1""" -restore -build %*"
+exit /b %ErrorLevel%

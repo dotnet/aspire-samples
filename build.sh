@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-dotnet workload update
-dotnet workload install aspire
+source="${BASH_SOURCE[0]}"
 
-dotnet build ./build/Build.proj
+# resolve $SOURCE until the file is no longer a symlink
+while [[ -h $source ]]; do
+  scriptroot="$( cd -P "$( dirname "$source" )" && pwd )"
+  source="$(readlink "$source")"
+
+  # if $source was a relative symlink, we need to resolve it relative to the path where the
+  # symlink file was located
+  [[ $source != /* ]] && source="$scriptroot/$source"
+done
+
+scriptroot="$( cd -P "$( dirname "$source" )" && pwd )"
+"$scriptroot/eng/common/build.sh" --build --restore $@
