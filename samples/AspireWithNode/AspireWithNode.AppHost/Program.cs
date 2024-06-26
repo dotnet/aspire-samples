@@ -13,7 +13,7 @@ var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
-if (builder.Environment.IsDevelopment() && builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https")
+if (builder.Environment.IsDevelopment())
 {
     // Disable TLS certificate validation in development, see https://github.com/dotnet/aspire/issues/3324 for more details.
     frontend.WithEnvironment("NODE_TLS_REJECT_UNAUTHORIZED", "0");

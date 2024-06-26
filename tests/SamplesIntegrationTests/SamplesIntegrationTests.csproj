@@ -18,6 +18,8 @@
     <PackageReference Include="xunit" Version="2.8.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1" />
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="8.6.0" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,10 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Reference all sample AppHost projects in the repo -->
     <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 
+  <!-- This target forces a manual restore of the projects referenced as they're not added to the solution so VS won't do it by default -->
   <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' " Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
     <Message Importance="High" Text="Forcing a command-line restore of $(MSBuildThisFile)" />
     <MSBuild Targets="Restore" Projects="@(ThisProject)" Properties="RestoreMyself='false'" />

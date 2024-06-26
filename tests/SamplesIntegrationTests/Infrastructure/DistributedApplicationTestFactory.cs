@@ -2,16 +2,19 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SamplesIntegrationTests.Infrastructure;
+using Xunit.Abstractions;
 
 namespace SamplesIntegrationTests;
 
-internal static partial class DistributedApplicationTestFactory
+internal static class DistributedApplicationTestFactory
 {
     /// <summary>
     /// Creates an <see cref="IDistributedApplicationTestingBuilder"/> for the specified app host assembly.
     /// </summary>
-    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostAssemblyPath, TextWriter? outputWriter)
+    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(string appHostAssemblyPath, ITestOutputHelper? testOutput)
     {
         var appHostProjectName = Path.GetFileNameWithoutExtension(appHostAssemblyPath) ?? throw new InvalidOperationException("AppHost assembly was not found.");
 
@@ -24,10 +27,20 @@ internal static partial class DistributedApplicationTestFactory
 
         builder.WithRandomParameterValues();
         builder.WithRandomVolumeNames();
-        if (outputWriter is not null)
+
+        builder.Services.AddLogging(logging =>
         {
-            builder.WriteOutputTo(outputWriter);
-        }
+            logging.ClearProviders();
+            logging.AddSimpleConsole();
+            logging.AddFakeLogging();
+            if (testOutput is not null)
+            {
+                logging.AddXUnit(testOutput);
+            }
+            logging.SetMinimumLevel(LogLevel.Trace);
+            logging.AddFilter("Aspire", LogLevel.Trace);
+            logging.AddFilter(builder.Environment.ApplicationName, LogLevel.Trace);
+        });
 
         return builder;
     }
