@@ -34,7 +34,7 @@ stages:
         steps:
         - checkout: self
           clean: true
-        - script: $(Build.SourcesDirectory)/build.ps1 -ci
+        - script: $(Build.SourcesDirectory)\build.cmd -ci
           displayName: Build and Publish
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
