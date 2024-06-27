@@ -15,7 +15,8 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddDbContextPool<MyDb1Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("db1"), sqlOptions =>
     {
-        // Workround for https://github.com/dotnet/aspire/issues/1023
+        sqlOptions.MigrationsAssembly("DatabaseMigrations.MigrationService");
+        // Workaround for https://github.com/dotnet/aspire/issues/1023
         sqlOptions.ExecutionStrategy(c => new RetryingSqlServerRetryingExecutionStrategy(c));
     }));
 builder.EnrichSqlServerDbContext<MyDb1Context>(settings =>
