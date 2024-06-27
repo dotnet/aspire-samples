@@ -5,15 +5,11 @@ variables:
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
     - name: PoolProvider
       value: NetCore1ESPool-Internal
-      
+
 trigger:
 - main
 
-pr:
-  autoCancel: true
-  branches:
-    include:
-    - '*'
+pr: none
 
 # The `resources` specify the location and version of the 1ES PT.
 resources:
@@ -27,11 +23,11 @@ extends:
   # The pipeline extends the 1ES PT which will inject different SDL and compliance tasks.
   # For non-production pipelines, use "Unofficial" as defined below.
   # For productions pipelines, use "Official".  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
-  template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
     pool:
           name: $(PoolProvider)
-          demands: ImageOverride -equals windows.vs2022.amd64.open
+          image: 1es-windows-2022
           os: windows
     sdl:
       sbom:
@@ -49,5 +45,5 @@ extends:
         - checkout: self
           clean: true
         - powershell: |
-              dotnet build ./tests/SamplesTests.sln
-          displayName: dotnet build
+              ./build.cmd
+          displayName: ./build.cmd
