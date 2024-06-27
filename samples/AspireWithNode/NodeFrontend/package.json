@@ -13,21 +13,21 @@
   },
   "dependencies": {
     "@godaddy/terminus": "^4.12.1",
-    "@opentelemetry/api": "^1.8.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.46.0",
-    "@opentelemetry/exporter-logs-otlp-grpc": "^0.51.0",
-    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.51.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.47.1",
+    "@opentelemetry/exporter-logs-otlp-grpc": "^0.52.1",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.52.1",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.51.0",
-    "@opentelemetry/instrumentation-redis-4": "^0.39.0",
+    "@opentelemetry/instrumentation-redis-4": "^0.40.0",
     "@opentelemetry/sdk-logs": "^0.51.0",
     "@opentelemetry/sdk-metrics": "^1.24.0",
     "@opentelemetry/sdk-node": "^0.51.0",
     "express": "^4.19.2",
     "node-fetch": "^3.3.2",
     "pug": "^3.0.3",
-    "redis": "^4.6.13"
+    "redis": "^4.6.14"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.4"
   }
 }
