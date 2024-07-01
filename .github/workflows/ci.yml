@@ -38,7 +38,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Dapr tool installer
-      uses: dapr/setup-dapr@v1
+      uses: dapr/setup-dapr@v2
       with:
         version: '1.13.0'
       id: install-dapr
