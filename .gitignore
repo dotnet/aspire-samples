@@ -431,3 +431,5 @@ FodyWeavers.xsd
 **/*/azure.yaml
 **/*/next-steps.md
 
+/samples/OrchardCore/OrchardCore.Cms/App_Data
+/samples/OrchardCore/OrchardCore.Cms/Localization

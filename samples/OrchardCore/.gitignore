@@ -1,0 +1,12 @@
+# =========================
+# Orchard specifics
+# =========================
+
+App_Data*/
+.vs/
+
+#exclude node modules
+node_modules/
+
+wwwroot
+**/Localization/**/*.po
