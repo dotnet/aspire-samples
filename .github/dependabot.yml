@@ -38,6 +38,9 @@ updates:
       xunit:
         patterns:
           - "xunit*"
+      Orleans:
+        patterns:
+          - "Microsoft.Orleans*"
     labels:
       - area-engineering-systems
 
