@@ -20,8 +20,13 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
+<<<<<<< HEAD
     <PackageReference Include="Grpc.HealthCheck" Version="2.64.0" />
     <PackageReference Include="Grpc.Net.ClientFactory" Version="2.64.0" />
+=======
+    <PackageReference Include="Grpc.HealthCheck" Version="2.63.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.63.0" />
+>>>>>>> e2c4e61 (Over zealous package version changes.)
   </ItemGroup>
 
 </Project>
