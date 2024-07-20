@@ -36,6 +36,8 @@ extends:
       sbom:
        # opting-out of SBOM generation as we don't produce artifacts
         enabled: false
+      tsa:
+        enabled: true        
 
     stages:
     - stage: build
