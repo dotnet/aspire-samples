@@ -33,6 +33,12 @@ extends:
       policheck:
         enabled: true
         exclusionsFile: $(Build.SourcesDirectory)\.config\PoliCheckExclusions.xml
+      eslint:
+        enabled: true
+        enableExclusions: true
+        exclusionPatterns: |
+          **/jquery*.js
+          **/angular*.js
       sbom:
        # opting-out of SBOM generation as we don't produce artifacts
         enabled: false

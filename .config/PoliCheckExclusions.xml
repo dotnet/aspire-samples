@@ -1,3 +1,4 @@
 <PoliCheckExclusions>
-
+  <!-- https://eng.ms/docs/experiences-devices/customer-success-engineering/global/language-as-a-service/validationservices/policheck-for-microsoft/policheckclient/features/features#false-positive-management -->
+  <Exclusion Type="FileName">angular.min.js</Exclusion>
 </PoliCheckExclusions>
