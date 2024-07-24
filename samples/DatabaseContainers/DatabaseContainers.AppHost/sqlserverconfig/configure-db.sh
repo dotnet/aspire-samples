@@ -17,7 +17,7 @@ end_by=$((start_time + 60))
 echo "Starting check for SQL Server start-up at $start_time, will end at $end_by"
 
 while [[ $SECONDS -lt $end_by && ( $errcode -ne 0 || ( -z "$dbstatus" || $dbstatus -ne 0 ) ) ]]; do
-    dbstatus="$(/opt/mssql-tools/bin/sqlcmd -h -1 -t 1 -U sa -P "$MSSQL_SA_PASSWORD" -Q "SET NOCOUNT ON; Select SUM(state) from sys.databases")"
+    dbstatus="$(/opt/mssql-tools18/bin/sqlcmd -h -1 -t 1 -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SET NOCOUNT ON; Select SUM(state) from sys.databases")"
     errcode=$?
     sleep 1
 done
@@ -36,5 +36,5 @@ fi
 for f in /docker-entrypoint-initdb.d/*.sql
 do
     echo "Processing $f file..."
-    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -d master -i "$f"
+    /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -d master -i "$f"
 done
