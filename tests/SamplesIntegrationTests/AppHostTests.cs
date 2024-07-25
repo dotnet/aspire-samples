@@ -91,7 +91,14 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 }
 
                 testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
-                response = await client.GetAsync(path);
+                try
+                {
+                    response = await client.GetAsync(path);
+                }
+                catch(Exception e)
+                {
+                    throw new Xunit.Sdk.XunitException($"Failed calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'", e);
+                }
 
                 Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
             }
