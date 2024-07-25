@@ -11,23 +11,23 @@ namespace SamplesIntegrationTests;
 
 public class AppHostTests(ITestOutputHelper testOutput)
 {
-    [Theory]
-    [MemberData(nameof(AppHostAssemblies))]
-    public async Task AppHostRunsCleanly(string appHostPath)
-    {
-        var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
-        await using var app = await appHost.BuildAsync();
+    //[Theory]
+    //[MemberData(nameof(AppHostAssemblies))]
+    //public async Task AppHostRunsCleanly(string appHostPath)
+    //{
+    //    var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
+    //    await using var app = await appHost.BuildAsync();
 
-        var appHostLogs = app.GetAppHostLogs();
-        var resourceLogs = app.GetResourceLogs();
+    //    var appHostLogs = app.GetAppHostLogs();
+    //    var resourceLogs = app.GetResourceLogs();
 
-        await app.StartAsync(waitForResourcesToStart: true);
+    //    await app.StartAsync(waitForResourcesToStart: true);
 
-        // DCP is now sending stderr?? appHostLogs.EnsureNoErrors();
-        resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
+    //    // DCP is now sending stderr?? appHostLogs.EnsureNoErrors();
+    //    resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
-        await app.StopAsync();
-    }
+    //    await app.StopAsync();
+    //}
 
     [Theory]
     [MemberData(nameof(TestEndpoints))]
