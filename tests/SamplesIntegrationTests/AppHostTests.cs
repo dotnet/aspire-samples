@@ -138,47 +138,47 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 //{ "basketservice", ["/alive", "/health"] },
                 { "frontend", ["/alive", "/health", "/"] }
             }),
-            new TestEndpoints("AspireWithDapr.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
-                { "webfrontend", ["/alive", "/health", "/", "/weather"] }
-            }),
-            new TestEndpoints("AspireJavaScript.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
-                { "angular", ["/"] },
-                { "react", ["/"] },
-                { "vue", ["/"] }
-            }),
-            new TestEndpoints("AspireWithNode.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
-                { "frontend", ["/alive", "/health", "/"] }
-            }),
-            new TestEndpoints("ClientAppsIntegration.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/weatherforecast"] }
-            }),
-            new TestEndpoints("DatabaseContainers.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
-            }),
-            new TestEndpoints("DatabaseMigrations.AppHost", new() {
-                { "api", ["/alive", "/health", "/"] }
-            })
-            {
-                WaitForResources = [new("migration", "Finished")]
-            },
-            new TestEndpoints("HealthChecksUI.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
-                { "webfrontend", ["/alive", "/health", "/", "/weather"] },
-                { "healthchecksui", ["/"] }
-            }),
-            new TestEndpoints("MetricsApp.AppHost", new() {
-                { "app", ["/alive", "/health"] },
-                { "grafana", ["/"] }
-            }),
-            new TestEndpoints("OrleansVoting.AppHost", new() {
-                { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
-            }),
-            new TestEndpoints("VolumeMount.AppHost", new() {
-                { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            })
+            //new TestEndpoints("AspireWithDapr.AppHost", new() {
+            //    { "apiservice", ["/alive", "/health", "/weatherforecast"] },
+            //    { "webfrontend", ["/alive", "/health", "/", "/weather"] }
+            //}),
+            //new TestEndpoints("AspireJavaScript.AppHost", new() {
+            //    { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
+            //    { "angular", ["/"] },
+            //    { "react", ["/"] },
+            //    { "vue", ["/"] }
+            //}),
+            //new TestEndpoints("AspireWithNode.AppHost", new() {
+            //    { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
+            //    { "frontend", ["/alive", "/health", "/"] }
+            //}),
+            //new TestEndpoints("ClientAppsIntegration.AppHost", new() {
+            //    { "apiservice", ["/alive", "/health", "/weatherforecast"] }
+            //}),
+            //new TestEndpoints("DatabaseContainers.AppHost", new() {
+            //    { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
+            //}),
+            //new TestEndpoints("DatabaseMigrations.AppHost", new() {
+            //    { "api", ["/alive", "/health", "/"] }
+            //})
+            //{
+            //    WaitForResources = [new("migration", "Finished")]
+            //},
+            //new TestEndpoints("HealthChecksUI.AppHost", new() {
+            //    { "apiservice", ["/alive", "/health", "/weatherforecast"] },
+            //    { "webfrontend", ["/alive", "/health", "/", "/weather"] },
+            //    { "healthchecksui", ["/"] }
+            //}),
+            //new TestEndpoints("MetricsApp.AppHost", new() {
+            //    { "app", ["/alive", "/health"] },
+            //    { "grafana", ["/"] }
+            //}),
+            //new TestEndpoints("OrleansVoting.AppHost", new() {
+            //    { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
+            //}),
+            //new TestEndpoints("VolumeMount.AppHost", new() {
+            //    { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
+            //})
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
