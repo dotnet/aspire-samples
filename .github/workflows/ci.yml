@@ -67,6 +67,11 @@ jobs:
       with:
         node-version: '20.x'
 
+    - name: Install dev-certs --trust
+      id: install-dev-certs
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet dev-certs https --trust
+
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
       env:
