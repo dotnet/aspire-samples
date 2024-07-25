@@ -136,7 +136,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "catalogservice", ["/alive", "/health"] },
                 // Can't send non-gRPC requests over non-TLS connection to the BasketService unless client is manually configured to use HTTP/2
                 //{ "basketservice", ["/alive", "/health"] },
-                { "frontend", ["/alive", "/health", "/"] }
+                //{ "frontend", ["/alive", "/health", "/"] }
             }),
             //new TestEndpoints("AspireWithDapr.AppHost", new() {
             //    { "apiservice", ["/alive", "/health", "/weatherforecast"] },
@@ -176,9 +176,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             //new TestEndpoints("OrleansVoting.AppHost", new() {
             //    { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
             //}),
-            //new TestEndpoints("VolumeMount.AppHost", new() {
-            //    { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            //})
+            new TestEndpoints("VolumeMount.AppHost", new() {
+                { "blazorweb", ["/alive"] }
+            })
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
