@@ -191,7 +191,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
-                { "blazorweb", ["/alive"] }
+                { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
             })
         ]);
 
