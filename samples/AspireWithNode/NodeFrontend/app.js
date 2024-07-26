@@ -56,9 +56,15 @@ async function healthCheck() {
     const errors = [];
     const apiServerHealthAddress = `${apiServer}/health`;
     console.log(`Fetching ${apiServerHealthAddress}`);
-    var response = await fetch(apiServerHealthAddress);
-    if (!response.ok) {
-        throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
+    try {
+        var response = await fetch(apiServerHealthAddress);
+        if (!response.ok) {
+            console.log(`Failed fetching ${apiServerHealthAddress}. ${response.status}`);
+            throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
+        }
+    } catch (error) {
+        console.log(`Failed fetching ${apiServerHealthAddress}. ${error}`);
+        throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${error}`);
     }
 }
 
