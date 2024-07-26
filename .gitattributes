@@ -3,8 +3,8 @@
 ###############################################################################
 * text=auto
 *.sh text eol=lf
-*.mod binary
-*.sum binary
+*.mod text eol=lf
+*.sum text eol=lf
 
 ###############################################################################
 # Set default behavior for command prompt diff.
