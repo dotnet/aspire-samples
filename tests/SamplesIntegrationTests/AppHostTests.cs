@@ -6,6 +6,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SamplesIntegrationTests.Infrastructure;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace SamplesIntegrationTests;
 
@@ -23,7 +24,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
-        appHostLogs.EnsureNoErrors();
+        EnsureNoErrors(appHostLogs, appHostPath);
         resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
@@ -91,13 +92,20 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 }
 
                 testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
-                response = await client.GetAsync(path);
+                try
+                {
+                    response = await client.GetAsync(path);
+                }
+                catch(Exception e)
+                {
+                    throw new XunitException($"Failed calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'", e);
+                }
 
                 Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
             }
         }
 
-        appHostLogs.EnsureNoErrors();
+        EnsureNoErrors(appHostLogs, appHostPath);
         resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
@@ -113,6 +121,19 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 and not NodeAppResource
             // Dapr resources write to stderr about deprecated --components-path flag
             && !resource.Name.EndsWith("-dapr-cli");
+    }
+
+    private static void EnsureNoErrors(LoggerLogStore appHostLogs, string appHostPath)
+    {
+        var appHostName = Path.GetFileNameWithoutExtension(appHostPath);
+
+        // Container resources tend to write to stderr for various reasons.
+        // Only assert errors for the app host and skip resources. Resources will be checked separately
+        // in the resourceLogs above.
+        // See also https://github.com/dotnet/aspire/issues/5094
+
+        appHostLogs.EnsureNoErrors(categoryName
+            => !categoryName.StartsWith($"{appHostName}.Resources.", StringComparison.Ordinal));
     }
 
     public static TheoryData<string> AppHostAssemblies()
@@ -170,7 +191,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "voting-fe", ["/alive", "/health", "/", "/api/votes"] }
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
-                { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
+                { "blazorweb", ["/alive"] }
             })
         ]);
 

@@ -6,16 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>7f1af01c-67f3-44ee-af56-b1e02e4bfcbd</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj" />
   </ItemGroup>
 
 </Project>
