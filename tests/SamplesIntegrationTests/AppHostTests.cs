@@ -24,7 +24,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         await app.StartAsync(waitForResourcesToStart: true);
 
-        // DCP is now sending stderr?? appHostLogs.EnsureNoErrors();
+        EnsureNoErrors(appHostLogs, appHostPath);
         resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
@@ -105,7 +105,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }
         }
 
-        // DCP is now sending stderr?? appHostLogs.EnsureNoErrors();
+        EnsureNoErrors(appHostLogs, appHostPath);
         resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
 
         await app.StopAsync();
@@ -121,6 +121,19 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 and not NodeAppResource
             // Dapr resources write to stderr about deprecated --components-path flag
             && !resource.Name.EndsWith("-dapr-cli");
+    }
+
+    private static void EnsureNoErrors(LoggerLogStore appHostLogs, string appHostPath)
+    {
+        var appHostName = Path.GetFileNameWithoutExtension(appHostPath);
+
+        // Container resources tend to write to stderr for various reasons.
+        // Only assert errors for the app host and skip resources. Resources will be checked separately
+        // in the resourceLogs above.
+        // See also https://github.com/dotnet/aspire/issues/5094
+
+        appHostLogs.EnsureNoErrors(categoryName
+            => !categoryName.StartsWith($"{appHostName}.Resources.", StringComparison.Ordinal));
     }
 
     public static TheoryData<string> AppHostAssemblies()
