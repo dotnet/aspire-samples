@@ -42,8 +42,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await app.StartAsync();
         await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(30));
 
-        var (appHostLogs, resourceLogs) = app.GetLogs();
-
         if (testEndpoints.WaitForResources?.Count > 0)
         {
             // Wait until each resource transitions to the required state
