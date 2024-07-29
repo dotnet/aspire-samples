@@ -10,15 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Shared\ParameterExtensions.cs" Link="ParameterExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0-preview.1.24325.6" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="8.1.0-preview.1.24325.6" />
-    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="8.1.0-preview.1.24325.6" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.1.0-preview.1.24325.6" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.1.0-preview.1.24325.6" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="8.1.0" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="8.1.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.1.0" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>

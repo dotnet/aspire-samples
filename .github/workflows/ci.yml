@@ -38,7 +38,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Dapr tool installer
-      uses: dapr/setup-dapr@v1
+      uses: dapr/setup-dapr@v2
       with:
         version: '1.13.0'
       id: install-dapr
@@ -72,6 +72,11 @@ jobs:
       run: |
         dotnet tool update -g linux-dev-certs
         dotnet linux-dev-certs install
+
+    - name: Install linux-dev-certs
+      id: install-dev-certs
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet tool update -g linux-dev-certs && dotnet linux-dev-certs install
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}

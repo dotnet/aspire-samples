@@ -6,6 +6,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SamplesIntegrationTests.Infrastructure;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace SamplesIntegrationTests;
 
@@ -88,7 +89,14 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 }
 
                 testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
-                response = await client.GetAsync(path);
+                try
+                {
+                    response = await client.GetAsync(path);
+                }
+                catch(Exception e)
+                {
+                    throw new XunitException($"Failed calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'", e);
+                }
 
                 Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
             }

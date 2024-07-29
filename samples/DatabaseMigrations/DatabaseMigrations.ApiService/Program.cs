@@ -10,8 +10,7 @@ builder.AddServiceDefaults();
 builder.Services.AddDbContextPool<MyDb1Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("db1"), sqlOptions =>
     {
-        sqlOptions.MigrationsAssembly("DatabaseMigrations.ApiModel");
-        // Workround for https://github.com/dotnet/aspire/issues/1023
+        // Workaround for https://github.com/dotnet/aspire/issues/1023
         sqlOptions.ExecutionStrategy(c => new RetryingSqlServerRetryingExecutionStrategy(c));
     }));
 builder.EnrichSqlServerDbContext<MyDb1Context>(settings =>
