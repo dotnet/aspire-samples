@@ -140,6 +140,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
             }),
+            new TestEndpoints("ContainerBuild.AppHost", new() {
+                { "ginapp", ["/"] }
+            }),
             new TestEndpoints("DatabaseContainers.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
             }),
