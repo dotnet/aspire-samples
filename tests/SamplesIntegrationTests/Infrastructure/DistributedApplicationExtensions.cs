@@ -8,45 +8,13 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using SamplesIntegrationTests.Infrastructure;
 
 namespace SamplesIntegrationTests.Infrastructure;
 
 public static partial class DistributedApplicationExtensions
 {
-    internal const string OutputWriterKey = $"{nameof(DistributedApplicationExtensions)}.OutputWriter";
-
-    /// <summary>
-    /// Adds a background service to watch resource status changes and optionally logs.
-    /// </summary>
-    public static IServiceCollection AddResourceWatching(this IServiceCollection services)
-    {
-        // Add background service to watch resource status changes and optionally logs
-        services.AddSingleton<ResourceWatcher>();
-        services.AddHostedService(sp => sp.GetRequiredService<ResourceWatcher>());
-
-        return services;
-    }
-
-    /// <summary>
-    /// Configures the builder to write logs to the supplied <see cref="TextWriter"/> and store for optional assertion later.
-    /// </summary>
-    public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, TextWriter outputWriter)
-        where TBuilder : IDistributedApplicationTestingBuilder
-    {
-        builder.Services.AddResourceWatching();
-
-        // Add a resource log store to capture logs from resources
-        builder.Services.AddSingleton<ResourceLogStore>();
-
-        // Configure the builder's logger to redirect it to xunit's output & store for assertion later
-        builder.Services.AddKeyedSingleton(OutputWriterKey, outputWriter);
-        builder.Services.AddSingleton<LoggerLogStore>();
-        builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
-
-        return builder;
-    }
-
     /// <summary>
     /// Ensures all parameters in the application configuration have values set.
     /// </summary>
@@ -108,6 +76,77 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
+    /// Waits for the specified resource to reach the specified state.
+    /// </summary>
+    public static Task WaitForResource(this DistributedApplication app, string resourceName, string? targetState = null, CancellationToken cancellationToken = default)
+    {
+        targetState ??= KnownResourceStates.Running;
+        var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
+
+        return resourceNotificationService.WaitForResourceAsync(resourceName, targetState, cancellationToken);
+    }
+
+    /// <summary>
+    /// Waits for all resources in the application to reach one of the specified states.
+    /// </summary>
+    /// <remarks>
+    /// If <paramref name="targetStates"/> is null, the default states are <see cref="KnownResourceStates.Running"/> and <see cref="KnownResourceStates.Hidden"/>.
+    /// </remarks>
+    public static Task WaitForResources(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
+    {
+        targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden];
+        var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
+        var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
+
+        return Task.WhenAll(applicationModel.Resources.Select(r => resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)));
+    }
+
+    /// <summary>
+    /// Gets the app host and resource logs from the application.
+    /// </summary>
+    public static (IReadOnlyList<FakeLogRecord> AppHostLogs, IReadOnlyList<FakeLogRecord> ResourceLogs) GetLogs(this DistributedApplication app)
+    {
+        var environment = app.Services.GetRequiredService<IHostEnvironment>();
+        var logCollector = app.Services.GetFakeLogCollector();
+        var logs = logCollector.GetSnapshot();
+        var appHostLogs = logs.Where(l => l.Category?.StartsWith($"{environment.ApplicationName}.Resources") == false).ToList();
+        var resourceLogs = logs.Where(l => l.Category?.StartsWith($"{environment.ApplicationName}.Resources") == true).ToList();
+
+        return (appHostLogs, resourceLogs);
+    }
+
+    /// <summary>
+    /// Asserts that no errors were logged by the application or any of its resources.
+    /// </summary>
+    /// <remarks>
+    /// Some resource types are excluded from this check because they tend to write to stderr for various non-error reasons.
+    /// </remarks>
+    /// <param name="app"></param>
+    public static void EnsureNoErrorsLogged(this DistributedApplication app)
+    {
+        var environment = app.Services.GetRequiredService<IHostEnvironment>();
+        var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
+        var assertableResourceLogNames = applicationModel.Resources.Where(ShouldAssertErrorsForResource).Select(r => $"{environment.ApplicationName}.Resources.{r.Name}").ToList();
+
+        var (appHostlogs, resourceLogs) = app.GetLogs();
+
+        Assert.DoesNotContain(appHostlogs, log => log.Level >= LogLevel.Error);
+        Assert.DoesNotContain(resourceLogs, log => log.Category is { Length: > 0 } category && assertableResourceLogNames.Contains(category) && log.Level >= LogLevel.Error);
+
+        static bool ShouldAssertErrorsForResource(IResource resource)
+        {
+            return resource
+                is
+                    // Container resources tend to write to stderr for various reasons so only assert projects and executables
+                    (ProjectResource or ExecutableResource)
+                    // Node resources tend to have npm modules that write to stderr so ignore them
+                    and not NodeAppResource
+                // Dapr resources write to stderr about deprecated --components-path flag
+                && !resource.Name.EndsWith("-dapr-cli");
+        }
+    }
+
+    /// <summary>
     /// Creates an <see cref="HttpClient"/> configured to communicate with the specified resource.
     /// </summary>
     public static HttpClient CreateHttpClient(this DistributedApplication app, string resourceName, bool useHttpClientFactory)
@@ -147,39 +186,6 @@ public static partial class DistributedApplicationExtensions
         httpClient.BaseAddress = app.GetEndpoint(resourceName, endpointName);
 
         return httpClient;
-    }
-
-    /// <inheritdoc cref = "IHost.StartAsync" />
-    public static async Task StartAsync(this DistributedApplication app, bool waitForResourcesToStart, CancellationToken cancellationToken = default)
-    {
-        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
-        var resourcesStartingTask = waitForResourcesToStart ? resourceWatcher.WaitForResourcesToStart() : Task.CompletedTask;
-
-        await app.StartAsync(cancellationToken);
-        await resourcesStartingTask;
-    }
-
-    public static Task WaitForResource(this DistributedApplication app, string resourceName, string targetState = "Running", CancellationToken cancellationToken = default)
-    {
-        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
-        return resourceWatcher.WaitForResource(resourceName, targetState, cancellationToken);
-    }
-
-    public static LoggerLogStore GetAppHostLogs(this DistributedApplication app)
-    {
-        var logStore = app.Services.GetService<LoggerLogStore>()
-            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get AppHost logs.");
-        return logStore;
-    }
-
-    /// <summary>
-    /// Gets the logs for all resources in the application.
-    /// </summary>
-    public static ResourceLogStore GetResourceLogs(this DistributedApplication app)
-    {
-        var logStore = app.Services.GetService<ResourceLogStore>()
-            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get resource logs."); ;
-        return logStore;
     }
 
     /// <summary>

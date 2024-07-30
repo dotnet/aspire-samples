@@ -19,13 +19,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
-        var appHostLogs = app.GetAppHostLogs();
-        var resourceLogs = app.GetResourceLogs();
+        await app.StartAsync();
+        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(30));
 
-        await app.StartAsync(waitForResourcesToStart: true);
-
-        EnsureNoErrors(appHostLogs, appHostPath);
-        resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
+        app.EnsureNoErrorsLogged();
 
         await app.StopAsync();
     }
@@ -42,10 +39,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
-        var appHostLogs = app.GetAppHostLogs();
-        var resourceLogs = app.GetResourceLogs();
-
-        await app.StartAsync(waitForResourcesToStart: true);
+        await app.StartAsync();
+        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(30));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
@@ -53,7 +48,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
             var timeout = TimeSpan.FromMinutes(5);
             foreach (var (ResourceName, TargetState) in testEndpoints.WaitForResources)
             {
-                await app.WaitForResource(ResourceName, TargetState, new CancellationTokenSource(timeout).Token);
+                await app.WaitForResource(ResourceName, TargetState).WaitAsync(timeout);
             }
         }
 
@@ -75,10 +70,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
                     .ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan)
                     .AddStandardResilienceHandler(resilience =>
                     {
-                        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(300);
+                        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
                         resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
                         resilience.Retry.MaxRetryAttempts = 30;
-                        resilience.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(300);
+                        resilience.CircuitBreaker.SamplingDuration = resilience.AttemptTimeout.Timeout * 2;
                     });
             });
 
@@ -105,35 +100,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }
         }
 
-        EnsureNoErrors(appHostLogs, appHostPath);
-        resourceLogs.EnsureNoErrors(ShouldAssertErrorsForResource);
+        app.EnsureNoErrorsLogged();
 
         await app.StopAsync();
-    }
-
-    private static bool ShouldAssertErrorsForResource(IResource resource)
-    {
-        return resource
-            is
-                // Container resources tend to write to stderr for various reasons so only assert projects and executables
-                (ProjectResource or ExecutableResource)
-                // Node resources tend to have npm modules that write to stderr so ignore them
-                and not NodeAppResource
-            // Dapr resources write to stderr about deprecated --components-path flag
-            && !resource.Name.EndsWith("-dapr-cli");
-    }
-
-    private static void EnsureNoErrors(LoggerLogStore appHostLogs, string appHostPath)
-    {
-        var appHostName = Path.GetFileNameWithoutExtension(appHostPath);
-
-        // Container resources tend to write to stderr for various reasons.
-        // Only assert errors for the app host and skip resources. Resources will be checked separately
-        // in the resourceLogs above.
-        // See also https://github.com/dotnet/aspire/issues/5094
-
-        appHostLogs.EnsureNoErrors(categoryName
-            => !categoryName.StartsWith($"{appHostName}.Resources.", StringComparison.Ordinal));
     }
 
     public static TheoryData<string> AppHostAssemblies()
@@ -169,6 +138,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
             }),
+            new TestEndpoints("ContainerBuild.AppHost", new() {
+                { "ginapp", ["/"] }
+            }),
             new TestEndpoints("DatabaseContainers.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
             }),
@@ -176,7 +148,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "api", ["/alive", "/health", "/"] }
             })
             {
-                WaitForResources = [new("migration", "Finished")]
+                WaitForResources = [new("migration", KnownResourceStates.Finished)]
             },
             new TestEndpoints("HealthChecksUI.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] },

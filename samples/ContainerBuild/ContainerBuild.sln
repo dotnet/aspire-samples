@@ -4,8 +4,6 @@ VisualStudioVersion = 17.8.0.0
 MinimumVisualStudioVersion = 17.8.0.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContainerBuild.AppHost", "ContainerBuild.AppHost\ContainerBuild.AppHost.csproj", "{45D01DF6-369D-4C4F-84B9-D7328885485E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContainerBuild.ServiceDefaults", "ContainerBuild.ServiceDefaults\ContainerBuild.ServiceDefaults.csproj", "{514937E6-47F0-4A2A-9CC3-E75C8EC09456}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ginapp", "ginapp", "{84E36F54-79F1-4438-8D0D-834B36EFAB8D}"
 	ProjectSection(SolutionItems) = preProject
 		ginapp\Dockerfile = ginapp\Dockerfile
@@ -23,10 +21,6 @@ Global
 		{45D01DF6-369D-4C4F-84B9-D7328885485E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45D01DF6-369D-4C4F-84B9-D7328885485E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45D01DF6-369D-4C4F-84B9-D7328885485E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{514937E6-47F0-4A2A-9CC3-E75C8EC09456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{514937E6-47F0-4A2A-9CC3-E75C8EC09456}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{514937E6-47F0-4A2A-9CC3-E75C8EC09456}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{514937E6-47F0-4A2A-9CC3-E75C8EC09456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
