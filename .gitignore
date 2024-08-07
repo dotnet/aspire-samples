@@ -431,3 +431,5 @@ FodyWeavers.xsd
 **/*/azure.yaml
 **/*/next-steps.md
 
+# Python virtual environment files
+**/.venv/*
