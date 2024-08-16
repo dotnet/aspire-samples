@@ -1,0 +1,54 @@
+﻿@page "/login"
+@using Microsoft.AspNetCore.WebUtilities
+
+@attribute [Authorize]
+
+@inject NavigationManager NavigationManager
+
+@code {
+    [CascadingParameter]
+    public required HttpContext HttpContext { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var returnUrl = ReturnUrl ?? "/";
+
+        // Ensure we only redirect to relative URLs (prevent open redirect attacks)
+        var url = new Uri(returnUrl, UriKind.RelativeOrAbsolute);
+        NavigationManager.NavigateTo(url.IsAbsoluteUri ? "/" : returnUrl);
+    }
+
+    private static Uri _placeholderHostUri = new Uri("http://notused");
+
+    public static string Url(NavigationManager nav, string? returnUrl = null, bool preserveQuery = true)
+    {
+        var loginUrl = "login";
+        returnUrl ??= nav.Uri;
+
+        if (Uri.TryCreate(returnUrl, UriKind.Absolute, out var returnUri))
+        {
+            if (!preserveQuery)
+            {
+                // Remove the query string from the return URL
+                returnUrl = returnUri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.SafeUnescaped);
+            }
+            // Make the return URL relative
+            returnUrl = nav.ToBaseRelativePath(returnUrl);
+        }
+        else if (!preserveQuery)
+        {
+            // It's a relative URL so use a placeholder host
+            returnUrl = new Uri(_placeholderHostUri, returnUrl).GetComponents(UriComponents.Path, UriFormat.SafeUnescaped);
+        }
+
+        if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            loginUrl = QueryHelpers.AddQueryString(loginUrl, nameof(ReturnUrl), returnUrl);
+        }
+
+        return loginUrl;
+    }
+}

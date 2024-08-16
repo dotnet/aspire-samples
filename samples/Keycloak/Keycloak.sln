@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.AppHost", "Keycloak.AppHost\Keycloak.AppHost.csproj", "{7A9A1D00-887F-4986-B140-05ACECE92C46}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.ServiceDefaults", "Keycloak.ServiceDefaults\Keycloak.ServiceDefaults.csproj", "{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.ApiService", "Keycloak.ApiService\Keycloak.ApiService.csproj", "{E9D1B969-0EF6-4004-AA62-88997191A728}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Web.BlazorSSR", "Keycloak.Web.BlazorSSR\Keycloak.Web.BlazorSSR.csproj", "{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A9A1D00-887F-4986-B140-05ACECE92C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A9A1D00-887F-4986-B140-05ACECE92C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A9A1D00-887F-4986-B140-05ACECE92C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A9A1D00-887F-4986-B140-05ACECE92C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9D1B969-0EF6-4004-AA62-88997191A728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9D1B969-0EF6-4004-AA62-88997191A728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9D1B969-0EF6-4004-AA62-88997191A728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9D1B969-0EF6-4004-AA62-88997191A728}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A69F2A88-68AC-42BA-9D91-19E7B49E2521}
+	EndGlobalSection
+EndGlobal
