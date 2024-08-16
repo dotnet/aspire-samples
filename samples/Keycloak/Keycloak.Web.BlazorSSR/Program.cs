@@ -60,6 +60,7 @@ builder.Services.AddAuthentication(options =>
         oidc.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         oidc.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         oidc.Scope.Add(OpenIdConnectScope.Email);
+        oidc.Scope.Add(OpenIdConnectScope.Address);
         oidc.SaveTokens = true; // Required to save the id and access tokens returned by Keycloak for later use, including logout.
         oidc.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
         oidc.TokenValidationParameters.NameClaimType = "preferred_username"; // Keycloak uses "preferred_username" as the default name claim type.
@@ -70,7 +71,6 @@ builder.Services.AddAuthorizationBuilder()
     .AddDefaultPolicy("authenticated-users", policy =>
         policy
             .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(OpenIdConnectDefaults.AuthenticationScheme)
     );
 
 // Add Blazor authentication services

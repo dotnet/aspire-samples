@@ -1,0 +1,103 @@
+﻿@page "/auth-required"
+
+@using System.Security.Claims
+@using System.Text.Json
+@using System.Text.Json.Nodes
+
+@attribute [Authorize]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Auth Required</PageTitle>
+
+<h1>Auth Required</h1>
+
+<h2>User Details</h2>
+
+<p>
+    The following user details are supplied by the configured identity provider.
+</p>
+
+<div class="row g-3">
+    <div class="col-md-10">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" value="@currentUser?.Username" readonly />
+    </div>
+    <div class="col-md-6">
+        <label for="firstName" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="firstName" value="@currentUser?.FirstName" readonly />
+    </div>
+    <div class="col-md-6">
+        <label for="lastName" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="lastName" value="@currentUser?.LastName" readonly />
+    </div>
+    <div class="col-md-12">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" value="@currentUser?.Email" readonly />
+    </div>
+    <div class="col-12">
+        <label for="street" class="form-label">Address</label>
+        <input type="text" class="form-control" id="street" value="@currentUser?.AddressStreet" readonly />
+    </div>
+    <div class="col-md-6">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city" value="@currentUser?.AddressCity" readonly />
+    </div>
+    <div class="col-md-4">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" id="state" value="@currentUser?.AddressState" readonly />
+    </div>
+    <div class="col-md-2">
+        <label for="zip" class="form-label">Zip</label>
+        <input type="text" class="form-control" id="zip" value="@currentUser?.AddressZipCode" readonly />
+    </div>
+    <div class="col-md-8">
+        <label for="country" class="form-label">Country</label>
+        <input type="text" class="form-control" id="country" value="@currentUser?.AddressCountry" readonly />
+    </div>
+</div>
+
+@code {
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        currentUser = User.CreateFromClaims(state.User);
+    }
+
+    class User
+    {
+        public required string Username { get; set; }
+        public string? Email { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? AddressStreet { get; set; }
+        public string? AddressCity { get; set; }
+        public string? AddressState { get; set; }
+        public string? AddressZipCode { get; set; }
+        public string? AddressCountry { get; set; }
+
+        public static User CreateFromClaims(ClaimsPrincipal claimsPrincipal)
+        {
+            var addressClaim = claimsPrincipal.Claims.FirstOrDefault(c => string.Equals(c.Type, KeycloakClaimTypes.Address, StringComparison.OrdinalIgnoreCase));
+            JsonNode? addressJson = null;
+            if (addressClaim?.Value is { } claimValue && string.Equals(addressClaim.ValueType, "JSON", StringComparison.OrdinalIgnoreCase))
+            {
+                addressJson = JsonNode.Parse(claimValue);
+            }
+            return new User
+            {
+                Username = claimsPrincipal.Identity?.Name ?? "[unknown]",
+                Email = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.Email),
+                FirstName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.GivenName),
+                LastName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.FamilyName),
+                AddressStreet = addressJson?["street_address"]?.GetValue<string>(),
+                AddressCity = addressJson?["locality"]?.GetValue<string>(),
+                AddressState = addressJson?["region"]?.GetValue<string>(),
+                AddressZipCode = addressJson?["postal_code"]?.GetValue<string>(),
+                AddressCountry = addressJson?["country"]?.GetValue<string>()
+            };
+        }
+    }
+}
