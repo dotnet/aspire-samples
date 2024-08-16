@@ -1,4 +1,5 @@
-﻿using Keycloak.Web.BlazorSSR;
+﻿using System.Security.Claims;
+using Keycloak.Web.BlazorSSR;
 using Keycloak.Web.BlazorSSR.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -27,6 +28,8 @@ builder.Services.AddOutputCache();
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
     {
         client.BaseAddress = new("https+http://apiservice");
+        // TODO: Add auth headers
+
     });
 
 // Add authentication services (to authenticate this app to downstream APIs)
@@ -55,10 +58,11 @@ builder.Services.AddAuthentication(options =>
         oidc.ClientSecret = idpClientSecret;
         oidc.ResponseType = OpenIdConnectResponseType.Code; // Ensure we're configured to use the authorization code flow
         oidc.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        oidc.SaveTokens = true; // Required to save the id and access tokens returned by Keycloak for later use, including logout.
-        oidc.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
         oidc.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         oidc.Scope.Add(OpenIdConnectScope.Email);
+        oidc.SaveTokens = true; // Required to save the id and access tokens returned by Keycloak for later use, including logout.
+        oidc.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
+        oidc.TokenValidationParameters.NameClaimType = "preferred_username"; // Keycloak uses "preferred_username" as the default name claim type.
     });
 
 // Add authorization services

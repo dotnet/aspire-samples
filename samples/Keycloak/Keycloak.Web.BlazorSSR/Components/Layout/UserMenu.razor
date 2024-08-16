@@ -6,7 +6,7 @@
 
 <AuthorizeView>
     <Authorized>
-        <span>@context.User.Identity?.Name</span>
+        <div>Logged in as <strong>@context.User.Identity?.Name</strong></div>
         <div>
             <form method="post" action="logout" @formname="logout" @onsubmit="OnLogoutAsync">
                 <AntiforgeryToken />
