@@ -68,12 +68,10 @@ builder.Services.AddAuthentication(options =>
         // to the Keycloak login page when an authentication challenge occurs.
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
-    .AddCookie(options =>
-    {
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    })
+    .AddCookie()
     .AddKeycloakOpenIdConnect("idp", idpRealmName, oidc =>
     {
+        // TODO: Consider moving some of this to the configuration file and have it be automatically bound from there
         oidc.ClientId = idpClientId;
         oidc.ClientSecret = idpClientSecret;
         oidc.ResponseType = OpenIdConnectResponseType.Code; // Ensure we're configured to use the authorization code flow

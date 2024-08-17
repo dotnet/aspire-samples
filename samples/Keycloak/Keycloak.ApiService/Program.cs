@@ -11,6 +11,7 @@ builder.AddServiceDefaults();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddKeycloakJwtBearer("idp", idpRealmName, jwtBearer =>
     {
+        // TODO: Consider moving this to the configuration file and have it be automatically bound from there
         jwtBearer.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         jwtBearer.Audience = idpClientName;
     });
