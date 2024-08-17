@@ -8,7 +8,10 @@ var idpRealmName = builder.Configuration.GetRequiredValue("idpRealmName");
 builder.AddServiceDefaults();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddKeycloakJwtBearer("idp", idpRealmName);
+    .AddKeycloakJwtBearer("idp", idpRealmName, jwtBearer =>
+    {
+        jwtBearer.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    });
 
 builder.Services.AddAuthorizationBuilder()
     .AddDefaultPolicy("api-callers", policy =>

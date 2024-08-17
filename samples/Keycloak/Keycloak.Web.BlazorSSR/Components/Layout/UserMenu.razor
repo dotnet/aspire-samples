@@ -2,11 +2,12 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Authentication.OpenIdConnect
 
+@inject KeycloakUrls KeycloakUrls
 @inject NavigationManager NavigationManager
 
 <AuthorizeView>
     <Authorized>
-        <div>Logged in as <strong>@context.User.Identity?.Name</strong></div>
+        <div class="top-row-item">Logged in as <a href="@userProfileManagementUrl" target="_blank" title="Manage user profile">@context.User.Identity?.Name</a></div>
         <div>
             <form method="post" action="logout" @formname="logout" @onsubmit="OnLogoutAsync">
                 <AntiforgeryToken />
@@ -24,13 +25,15 @@
 
 @code {
     private string? currentUrl;
+    private string? userProfileManagementUrl;
 
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        userProfileManagementUrl = await KeycloakUrls.GetAccountConsoleUrlAsync("idp");
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 

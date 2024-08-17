@@ -7,6 +7,7 @@
 @attribute [Authorize]
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject KeycloakUrls KeycloakUrls
 
 <PageTitle>Auth Required</PageTitle>
 
@@ -16,6 +17,7 @@
 
 <p>
     The following user details are supplied by the configured identity provider.
+    Visit the <a href="@userProfileManagementUrl" target="_blank" title="Manage user profile">Account Console</a> to change these details.
 </p>
 
 <div class="row g-3">
@@ -59,10 +61,12 @@
 
 @code {
     private User? currentUser;
+    private string? userProfileManagementUrl;
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userProfileManagementUrl = await KeycloakUrls.GetAccountConsoleUrlAsync("idp");
         currentUser = User.CreateFromClaims(state.User);
     }
 
@@ -92,11 +96,11 @@
                 Email = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.Email),
                 FirstName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.GivenName),
                 LastName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.FamilyName),
-                AddressStreet = addressJson?["street_address"]?.GetValue<string>(),
-                AddressCity = addressJson?["locality"]?.GetValue<string>(),
-                AddressState = addressJson?["region"]?.GetValue<string>(),
-                AddressZipCode = addressJson?["postal_code"]?.GetValue<string>(),
-                AddressCountry = addressJson?["country"]?.GetValue<string>()
+                AddressStreet = addressJson?[KeycloakClaimTypes.StreetAddress]?.GetValue<string>(),
+                AddressCity = addressJson?[KeycloakClaimTypes.Locality]?.GetValue<string>(),
+                AddressState = addressJson?[KeycloakClaimTypes.Region]?.GetValue<string>(),
+                AddressZipCode = addressJson?[KeycloakClaimTypes.PostalCode]?.GetValue<string>(),
+                AddressCountry = addressJson?[KeycloakClaimTypes.Country]?.GetValue<string>()
             };
         }
     }

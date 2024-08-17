@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+﻿using Keycloak;
 using Keycloak.Web.BlazorSSR;
 using Keycloak.Web.BlazorSSR.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,7 +14,7 @@ var idpServiceName = "idp";
 var idpClientId = builder.Configuration.GetRequiredValue("idpClientId");
 var idpClientSecret = builder.Configuration.GetRequiredValue("idpClientSecret");
 var idpRealmName = builder.Configuration.GetRequiredValue("idpRealmName");
-var idpAuthority = $"https+http://{idpServiceName}/realms/{idpRealmName}";
+var idpAuthority = $"http://{idpServiceName}/realms/{idpRealmName}";
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -25,20 +25,21 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        client.BaseAddress = new("https+http://apiservice");
-        // TODO: Add auth headers
-
-    });
-
 // Add authentication services (to authenticate this app to downstream APIs)
+builder.Services.AddSingleton<IMsalHttpClientFactory, MsalHttpClientFactory>();
 builder.Services.AddSingleton(sp =>
     ConfidentialClientApplicationBuilder.Create(idpClientId)
+        .WithExperimentalFeatures(true)
         .WithClientSecret(idpClientSecret)
-        .WithAuthority(new Uri(idpAuthority))
+        .WithHttpClientFactory(sp.GetRequiredService<IMsalHttpClientFactory>())
+        .WithOidcAuthority(idpAuthority)
         .Build()
 );
+
+builder.Services.AddScoped<AppAuthenticationMessageHandler>();
+
+builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new("https+http://apiservice"))
+    .AddHttpMessageHandler<AppAuthenticationMessageHandler>();
 
 // Add authentication services (to authenticate end users)
 builder.Services.AddAuthentication(options =>
@@ -72,6 +73,9 @@ builder.Services.AddAuthorizationBuilder()
         policy
             .RequireAuthenticatedUser()
     );
+
+// Add Keycloak URLs service
+builder.Services.AddSingleton<KeycloakUrls>();
 
 // Add Blazor authentication services
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
