@@ -9,7 +9,7 @@ public class AppAuthenticationMessageHandler(IConfidentialClientApplication conf
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var accessToken = await confidentialClientApplication.AcquireTokenForClient(["api-callers"])
+        var accessToken = await confidentialClientApplication.AcquireTokenForClient(["roles"])
             .ExecuteAsync(cancellationToken);
 
         request.Headers.Authorization = new("Bearer", accessToken.AccessToken);

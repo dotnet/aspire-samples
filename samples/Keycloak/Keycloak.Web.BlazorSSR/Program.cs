@@ -1,4 +1,5 @@
-﻿using Keycloak;
+﻿using System.Security.Claims;
+using Keycloak;
 using Keycloak.Web.BlazorSSR;
 using Keycloak.Web.BlazorSSR.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -10,11 +11,10 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var idpServiceName = "idp";
 var idpClientId = builder.Configuration.GetRequiredValue("idpClientId");
 var idpClientSecret = builder.Configuration.GetRequiredValue("idpClientSecret");
 var idpRealmName = builder.Configuration.GetRequiredValue("idpRealmName");
-var idpAuthority = $"http://{idpServiceName}/realms/{idpRealmName}";
+var idpAuthority = $"http://idp/realms/{idpRealmName}";
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -26,13 +26,18 @@ builder.Services.AddRazorComponents()
 builder.Services.AddOutputCache();
 
 // Add authentication services (to authenticate this app to downstream APIs)
+builder.Services.AddScoped<ForceHttpMessageHandler>();
+builder.Services.AddHttpClient("Msal", client => client.BaseAddress = new(idpAuthority))
+    .AddHttpMessageHandler<ForceHttpMessageHandler>()
+    .AddServiceDiscovery();
 builder.Services.AddSingleton<IMsalHttpClientFactory, MsalHttpClientFactory>();
 builder.Services.AddSingleton(sp =>
     ConfidentialClientApplicationBuilder.Create(idpClientId)
         .WithExperimentalFeatures(true)
         .WithClientSecret(idpClientSecret)
         .WithHttpClientFactory(sp.GetRequiredService<IMsalHttpClientFactory>())
-        .WithOidcAuthority(idpAuthority)
+        // MSAL doesn't allow non-HTTPS authority URLs so we say it's HTTPS here and then force it to HTTP with the ForceHttpMessageHandler
+        .WithOidcAuthority($"https://idp/realms/{idpRealmName}")
         .Build()
 );
 
@@ -64,7 +69,7 @@ builder.Services.AddAuthentication(options =>
         oidc.Scope.Add(OpenIdConnectScope.Address);
         oidc.SaveTokens = true; // Required to save the id and access tokens returned by Keycloak for later use, including logout.
         oidc.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
-        oidc.TokenValidationParameters.NameClaimType = "preferred_username"; // Keycloak uses "preferred_username" as the default name claim type.
+        oidc.TokenValidationParameters.NameClaimType = KeycloakClaimTypes.PreferredUsername; // Keycloak uses "preferred_username" as the default name claim type.
     });
 
 // Add authorization services

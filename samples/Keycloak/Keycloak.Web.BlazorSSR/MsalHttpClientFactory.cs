@@ -4,5 +4,5 @@ namespace Keycloak.Web.BlazorSSR;
 
 public class MsalHttpClientFactory(IHttpClientFactory httpClientFactory) : IMsalHttpClientFactory
 {
-    public HttpClient GetHttpClient() => httpClientFactory.CreateClient();
+    public HttpClient GetHttpClient() => httpClientFactory.CreateClient("Msal");
 }
