@@ -28,7 +28,7 @@ builder.Services.AddOutputCache();
 // Add authentication services (to authenticate this app to downstream APIs)
 builder.Services.AddScoped<ForceHttpMessageHandler>();
 builder.Services.AddHttpClient(MsalHttpClientFactory.HttpClientName, client => client.BaseAddress = new(idpAuthority))
-    // We haven't configured Keycloak to support HTTPS so we have to force it to HTTP here & then add
+    // We haven't configured Keycloak to support HTTPS so we have to force it to HTTP here & then call
     // AddServiceDiscovery() again *after* we've forced HTTP so that service discovery finds the configured HTTP addresses.
     // We could alternatively try to configure Keycloak to support HTTPS or add a YARP gateway in front of it to handle HTTPS during dev.
     .AddHttpMessageHandler<ForceHttpMessageHandler>() 
