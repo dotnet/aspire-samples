@@ -82,26 +82,24 @@
         public string? AddressZipCode { get; set; }
         public string? AddressCountry { get; set; }
 
-        public static User CreateFromClaims(ClaimsPrincipal claimsPrincipal)
+        public static User? CreateFromClaims(ClaimsPrincipal claimsPrincipal)
         {
-            var addressClaim = claimsPrincipal.Claims.FirstOrDefault(c => string.Equals(c.Type, KeycloakClaimTypes.Address, StringComparison.OrdinalIgnoreCase));
-            JsonNode? addressJson = null;
-            if (addressClaim?.Value is { } claimValue && string.Equals(addressClaim.ValueType, "JSON", StringComparison.OrdinalIgnoreCase))
-            {
-                addressJson = JsonNode.Parse(claimValue);
-            }
-            return new User
+            var user = new User
             {
                 Username = claimsPrincipal.Identity?.Name ?? "[unknown]",
                 Email = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.Email),
                 FirstName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.GivenName),
-                LastName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.FamilyName),
-                AddressStreet = addressJson?[KeycloakClaimTypes.StreetAddress]?.GetValue<string>(),
-                AddressCity = addressJson?[KeycloakClaimTypes.Locality]?.GetValue<string>(),
-                AddressState = addressJson?[KeycloakClaimTypes.Region]?.GetValue<string>(),
-                AddressZipCode = addressJson?[KeycloakClaimTypes.PostalCode]?.GetValue<string>(),
-                AddressCountry = addressJson?[KeycloakClaimTypes.Country]?.GetValue<string>()
+                LastName = claimsPrincipal.GetClaimValue(KeycloakClaimTypes.FamilyName)
             };
+            if (claimsPrincipal.TryGetJsonClaim(KeycloakClaimTypes.Address, out var addressJson))
+            {
+                user.AddressStreet = addressJson[KeycloakClaimTypes.StreetAddress]?.GetValue<string>();
+                user.AddressCity = addressJson[KeycloakClaimTypes.Locality]?.GetValue<string>();
+                user.AddressState = addressJson[KeycloakClaimTypes.Region]?.GetValue<string>();
+                user.AddressZipCode = addressJson[KeycloakClaimTypes.PostalCode]?.GetValue<string>();
+                user.AddressCountry = addressJson[KeycloakClaimTypes.Country]?.GetValue<string>();
+            }
+            return user;
         }
     }
 }
