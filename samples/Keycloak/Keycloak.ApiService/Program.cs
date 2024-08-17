@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,35 +15,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         jwtBearer.Audience = idpClientName;
     });
 
+builder.Services.AddKeycloakClaimsTransformation(idpClientName);
 builder.Services.AddAuthorizationBuilder()
+    // The default authorization policy will apply to all endpoints that are marked as requiring authorization
+    // and don't specify a specific policy.
     .AddDefaultPolicy("api-callers", policy =>
         policy
             .RequireAuthenticatedUser()
-            //.RequireRole("api-callers")
-            .RequireAssertion(context =>
-            {
-                var resourceAcecss = context.User.FindFirst("resource_access");
-                if (resourceAcecss is { } resourceAccessClaim && string.Equals(resourceAccessClaim.ValueType, "JSON", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Payload example: {"resource-name":{"roles":["role-name"]},"account":{"roles":["manage-account","manage-account-links","view-profile"]}}
-                    var resourceAccessJson = JsonNode.Parse(resourceAccessClaim.Value);
-                    if (resourceAccessJson is { } && resourceAccessJson[idpClientName] is JsonObject resourceNode
-                        && resourceNode["roles"] is JsonArray resourceRoles)
-                    {
-                        var hasRole = resourceRoles.GetValues<string>().Contains("api-callers");
-                        if (hasRole)
-                        {
-                            foreach (var req in context.Requirements)
-                            {
-                                context.Succeed(req);
-                            }
-                            return true;
-                        }
-                    }
-                }
-                context.Fail();
-                return false;
-            })
+            .RequireRole("api-callers")
             .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
     );
 

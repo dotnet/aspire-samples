@@ -27,18 +27,32 @@ builder.Services.AddOutputCache();
 
 // Add authentication services (to authenticate this app to downstream APIs)
 builder.Services.AddScoped<ForceHttpMessageHandler>();
-builder.Services.AddHttpClient("Msal", client => client.BaseAddress = new(idpAuthority))
-    .AddHttpMessageHandler<ForceHttpMessageHandler>()
+builder.Services.AddHttpClient(MsalHttpClientFactory.HttpClientName, client => client.BaseAddress = new(idpAuthority))
+    // We haven't configured Keycloak to support HTTPS so we have to force it to HTTP here & then add
+    // AddServiceDiscovery() again *after* we've forced HTTP so that service discovery finds the configured HTTP addresses.
+    // We could alternatively try to configure Keycloak to support HTTPS or add a YARP gateway in front of it to handle HTTPS during dev.
+    .AddHttpMessageHandler<ForceHttpMessageHandler>() 
     .AddServiceDiscovery();
 builder.Services.AddSingleton<IMsalHttpClientFactory, MsalHttpClientFactory>();
 builder.Services.AddSingleton(sp =>
-    ConfidentialClientApplicationBuilder.Create(idpClientId)
-        .WithExperimentalFeatures(true)
-        .WithClientSecret(idpClientSecret)
-        .WithHttpClientFactory(sp.GetRequiredService<IMsalHttpClientFactory>())
-        // MSAL doesn't allow non-HTTPS authority URLs so we say it's HTTPS here and then force it to HTTP with the ForceHttpMessageHandler
-        .WithOidcAuthority($"https://idp/realms/{idpRealmName}")
-        .Build()
+    {
+        // TODO: Need to investigate using Microsoft.Identity.Web instead of MSAL.NET directly.
+        //       Additionally should consider using a distributed cache for the token cache, e.g. Redis, so tokens are cached across multiple
+        //       app instances as per documented recommendations at https://learn.microsoft.com/entra/msal/dotnet/how-to/token-cache-serialization?tabs=msal#distributed-caches
+        var app = ConfidentialClientApplicationBuilder.Create(idpClientId)
+            .WithClientSecret(idpClientSecret)
+            // MSAL doesn't allow non-HTTPS authority URLs so we say it's HTTPS here and then force it to HTTP with the ForceHttpMessageHandler
+            .WithOidcAuthority(idpAuthority.Replace("http://", "https://"))
+            .WithInstanceDiscovery(false)
+            // Configure MSAL token caching as per https://learn.microsoft.com/entra/msal/dotnet/how-to/token-cache-serialization?tabs=msal#memory-cache-without-eviction/
+            // BUG: I don't think this is working as expected as access tokens are not being cached.
+            .WithLegacyCacheCompatibility(false)
+            .WithCacheOptions(CacheOptions.EnableSharedCacheOptions)
+            // Configure MSAL to use IHttpClientFactory via our custom IMsalHttpClientFactory implementation
+            .WithHttpClientFactory(sp.GetRequiredService<IMsalHttpClientFactory>())
+            .Build();
+        return app;
+    }
 );
 
 builder.Services.AddScoped<AppAuthenticationMessageHandler>();
