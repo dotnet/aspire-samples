@@ -1,6 +1,4 @@
-﻿using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
-
-namespace Aspire.Hosting;
+﻿namespace Aspire.Hosting;
 
 public static class KeycloakExtensions
 {
