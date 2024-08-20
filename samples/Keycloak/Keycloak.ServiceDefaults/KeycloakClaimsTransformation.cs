@@ -10,7 +10,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// Transforms Keycloak resource roles claims into regular role claims.
 /// </summary>
 /// <remarks>
-/// Learn more about claims transformation in ASP.NET Core at https://learn.microsoft.com/aspnet/core/security/authentication/claims#extend-or-add-custom-claims-using-iclaimstransformation
+/// Learn more about claims transformation in ASP.NET Core at
+/// <see href="https://learn.microsoft.com/aspnet/core/security/authentication/claims#extend-or-add-custom-claims-using-iclaimstransformation">
+/// https://learn.microsoft.com/aspnet/core/security/authentication/claims#extend-or-add-custom-claims-using-iclaimstransformation
+/// </see>
 /// </remarks>
 /// <param name="configuration"></param>
 public class KeycloakRolesClaimsTransformation(IHostEnvironment hostEnvironment, IOptions<KeycloakClaimsTransformationOptions> options) : IClaimsTransformation

@@ -12,23 +12,37 @@ public class KeycloakUrls(IConfiguration configuration, ServiceEndpointResolver 
     private readonly ServiceEndpointResolver _serviceEndpointResolver = serviceEndpointResolver;
 
     /// <summary>
-    /// Gets the URL for the Keycloak Account Console that allows end users to manage their own profile information.
+    /// Returns the URL for the Keycloak realm with the given service name and scheme.<br />
+    /// The realm name is read from configuration using the key <c>"idpRealmName"</c>.
     /// </summary>
     /// <remarks>
-    /// See https://www.keycloak.org/docs/25.0.2/server_admin/#_account-service for more information on the Keycloak Account Console.
+    /// Note the URL is <strong>not</strong> resolved to real addresses via service discovery.
+    /// </remarks>
+    public string GetRealmUrl(string serviceName, string scheme = "https")
+    {
+        return $"{scheme}://{serviceName}/realms/{_realmName}";
+    }
+
+    /// <summary>
+    /// Gets the URL for the Keycloak Account Console that allows end users to manage their own profile information.<br/>
+    /// This URL will be rendered in the browser so users can click on it so is resolved to real addresses via service discovery.
+    /// </summary>
+    /// <remarks>
+    /// See <see href="https://www.keycloak.org/docs/25.0.2/server_admin/#_account-service">https://www.keycloak.org/docs/25.0.2/server_admin/#_account-service</see>
+    /// for more information on the Keycloak Account Console.
     /// </remarks>
     public async Task<string> GetAccountConsoleUrlAsync(string serviceName, CancellationToken cancellationToken = default)
     {
-        return await GetUrlAsync(serviceName, "account", false, cancellationToken);
+        return await GetRealmUrlAsync(serviceName, "account", cancellationToken);
     }
 
     /// <summary>
     /// Gets the URL for the Keycloak server with the given service name.
     /// </summary>
-    public async Task<string> GetUrlAsync(string serviceName, string? path = null, bool forServiceDiscovery = false, CancellationToken cancellationToken = default)
+    public async Task<string> GetRealmUrlAsync(string serviceName, string? path = null, CancellationToken cancellationToken = default)
     {
         // $"https+http://{idpServiceName}/realms/{idpRealmName}";
-        var serviceLookupName = "http://" + serviceName;
+        var serviceLookupName = "https+http://" + serviceName;
         var serviceAddresses = (await _serviceEndpointResolver.GetEndpointsAsync(serviceLookupName, cancellationToken))
             .Endpoints
             .Select(e => e.EndPoint.ToString())
@@ -39,18 +53,13 @@ public class KeycloakUrls(IConfiguration configuration, ServiceEndpointResolver 
 
         if (endpointUrl is null)
         {
-            throw new InvalidOperationException($"No HTTP endpoints found for service '{serviceName}'.");
+            throw new InvalidOperationException($"No HTTP(S) endpoints found for service '{serviceName}'.");
         }
 
         var uriBuilder = new UriBuilder(endpointUrl)
         {
             Path = $"/realms/{_realmName}"
         };
-
-        if (forServiceDiscovery)
-        {
-            uriBuilder.Scheme = "https+http";
-        }
 
         if (!string.IsNullOrWhiteSpace(path))
         {

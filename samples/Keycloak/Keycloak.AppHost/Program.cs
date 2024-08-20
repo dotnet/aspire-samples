@@ -3,8 +3,10 @@
 var idpRealmName = "AspireKeycloakSample";
 
 var idp = builder.AddKeycloak("idp")
-    .WithDataVolume();
-    //.WithRealmImport("realms", isReadOnly: true);
+    .WithDataVolume()
+    .WithHttpsDevCertificate()
+    //.WithRealmImport("realms", isReadOnly: true)
+    ;
 
 var apiService = builder.AddProject<Projects.Keycloak_ApiService>("apiservice")
     .WithReference(idp)
