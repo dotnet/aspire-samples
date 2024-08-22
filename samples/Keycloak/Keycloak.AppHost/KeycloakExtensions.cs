@@ -21,14 +21,6 @@ public static class KeycloakExtensions
                 // https://github.com/keycloak/keycloak/issues/13933
                 // https://github.com/quarkusio/quarkus/issues/33692
                 .WithEnvironment("QUARKUS_HTTP_HTTP2", "false");
-
-            // Remove the HTTP endpoint as Keycloak is redirecting to HTTPS on the wrong port.
-            // See https://github.com/keycloak/keycloak/discussions/32319
-            var httpEndpoint = builder.Resource.Annotations.OfType<EndpointAnnotation>().FirstOrDefault(a => a.Name == "http");
-            if (httpEndpoint is not null)
-            {
-                builder.Resource.Annotations.Remove(httpEndpoint);
-            }
         }
 
         return builder;
