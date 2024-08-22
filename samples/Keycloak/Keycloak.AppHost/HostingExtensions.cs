@@ -7,6 +7,20 @@ namespace Aspire.Hosting;
 public static class HostingExtensions
 {
     /// <summary>
+    /// Adds a parameter resource that represents a client secret. A default value is generated that is stored in user secrets during local development.
+    /// </summary>
+    public static IResourceBuilder<ParameterResource> AddClientSecretParameter(this IDistributedApplicationBuilder builder, string name)
+    {
+        var generatedSecret = new GenerateParameterDefault
+        {
+            MinLength = 32,
+            Special = false
+        };
+        var parameter = ParameterResourceBuilderExtensions.CreateGeneratedParameter(builder, name, secret: true, generatedSecret);
+        return builder.AddResource(parameter);
+    }
+
+    /// <summary>
     /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables.<br/>
     /// If the resource is a <see cref="ContainerResource"/>, the certificate files will be bind mounted into the container.
     /// </summary>
