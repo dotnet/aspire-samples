@@ -21,13 +21,14 @@ public static class HostingExtensions
     }
 
     /// <summary>
-    /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables.<br/>
+    /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables when
+    /// <paramref name="builder"/><c>.ExecutionContext.IsRunMode == true</c>.<br/>
     /// If the resource is a <see cref="ContainerResource"/>, the certificate files will be bind mounted into the container.
     /// </summary>
     /// <remarks>
     /// This method <strong>does not</strong> configure an HTTPS endpoint on the resource. Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
     /// </remarks>
-    public static IResourceBuilder<TResource> WithHttpsDevCertificate<TResource>(this IResourceBuilder<TResource> builder, string certFileEnv, string certKeyFileEnv)
+    public static IResourceBuilder<TResource> RunWithHttpsDevCertificate<TResource>(this IResourceBuilder<TResource> builder, string certFileEnv, string certKeyFileEnv)
         where TResource : IResourceWithEnvironment
     {
         const string DEV_CERT_DIR = "/dev-certs";

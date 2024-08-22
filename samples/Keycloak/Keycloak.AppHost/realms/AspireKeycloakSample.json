@@ -1461,7 +1461,7 @@
     "xFrameOptions": "SAMEORIGIN",
     "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
     "xXSSProtection": "1; mode=block",
-    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+    "strictTransportSecurity": "${REALM_HSTS}"
   },
   "smtpServer": {},
   "eventsEnabled": false,
