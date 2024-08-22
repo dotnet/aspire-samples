@@ -10,10 +10,6 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var idpClientId = builder.Configuration.GetRequiredValue("idpClientId");
-var idpClientSecret = builder.Configuration.GetRequiredValue("idpClientSecret");
-var idpRealmName = builder.Configuration.GetRequiredValue("idpRealmName");
-
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
@@ -23,11 +19,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-// Add Keycloak URLs service
+// Add Keycloak URLs service.
 builder.Services.AddSingleton<KeycloakUrls>();
 
-
-builder.Services.AddWeatherApiClient(new("https+http://apiservice"), "idp", idpClientId, idpClientSecret);
+// Add the weather API client.
+builder.Services.AddWeatherApiClient(new("https+http://api-weather"), "keycloak");
 
 // Add authentication services (to authenticate end users)
 builder.Services.AddAuthentication(options =>
@@ -38,12 +34,10 @@ builder.Services.AddAuthentication(options =>
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
     .AddCookie()
-    .AddKeycloakOpenIdConnect("idp", idpRealmName, oidc =>
+    .AddKeycloakOpenIdConnect("keycloak", builder.Configuration.GetRequiredValue("Authentication:Keycloak:Realm"), oidc =>
     {
-        // TODO: Consider moving some of this to the configuration file and have it be automatically bound from there
-        oidc.ClientId = idpClientId;
-        oidc.ClientSecret = idpClientSecret;
-        oidc.ResponseType = OpenIdConnectResponseType.Code; // Ensure we're configured to use the authorization code flow
+        // ClientId and ClientSecret are set via configuration.
+        oidc.ResponseType = OpenIdConnectResponseType.Code; // Ensure we're configured to use the authorization code flow.
         oidc.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         oidc.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         oidc.Scope.Add(OpenIdConnectScope.Email);

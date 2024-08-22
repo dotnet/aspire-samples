@@ -14,6 +14,7 @@ public static class KeycloakExtensions
             builder
                 .WithHttpsDevCertificate("KC_HTTPS_CERTIFICATE_FILE", "KC_HTTPS_CERTIFICATE_KEY_FILE")
                 .WithHttpsEndpoint(env: "KC_HTTPS_PORT", targetPort: targetPort)
+                .WithEnvironment("KC_HOSTNAME", "localhost")
                 // Without disabling HTTP/2 you can hit HTTP 431 Header too large errors in Keycloak.
                 // Related issues:
                 // https://github.com/keycloak/keycloak/discussions/10236

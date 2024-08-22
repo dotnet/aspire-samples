@@ -22,7 +22,7 @@ public static class HostingExtensions
         {
             // Export the ASP.NET Core HTTPS devlopment certificate & private key to PEM files, bind mount them into the container
             // and configure it to use them via the specified environment variables.
-            var (certPath, keyPath) = ExportDevCertificate(builder.ApplicationBuilder);
+            var (certPath, _) = ExportDevCertificate(builder.ApplicationBuilder);
             var bindSource = Path.GetDirectoryName(certPath) ?? throw new UnreachableException();
 
             if (builder.Resource is ContainerResource containerResource)

@@ -1,4 +1,6 @@
-﻿using Microsoft.Identity.Client;
+﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 
 namespace Keycloak.Web.BlazorSSR;
 
@@ -32,25 +34,26 @@ public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 public static class WeatherApiClientExtensions
 {
-    public static IServiceCollection AddWeatherApiClient(this IServiceCollection services, Uri weatherApiBaseAddress, string idpServiceName, string clientId, string clientSecret)
+    public static IServiceCollection AddWeatherApiClient(this IServiceCollection services, Uri weatherApiBaseAddress, string keycloakServiceName)
     {
         // Register HttpClient that MSAL will use to acquire tokens from Keycloak
         services.AddHttpClient(MsalHttpClientFactory.HttpClientName, (sp, client)
-            => client.BaseAddress = new(sp.GetRequiredService<KeycloakUrls>().GetRealmUrl(idpServiceName)));
+            => client.BaseAddress = new(sp.GetRequiredService<KeycloakUrls>().GetRealmUrl(keycloakServiceName)));
 
         services.AddSingleton<IMsalHttpClientFactory, MsalHttpClientFactory>();
         
         services.AddSingleton(sp =>
             {
+                var oidcOptions = sp.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OpenIdConnectDefaults.AuthenticationScheme);
                 // TODO: Need to investigate using Microsoft.Identity.Web instead of MSAL.NET directly.
                 //       Additionally should consider using a distributed cache for the token cache, e.g. Redis, so tokens are cached
                 //       across multiple app instances as per documented recommendations at
                 //       https://learn.microsoft.com/entra/msal/dotnet/how-to/token-cache-serialization?tabs=msal#distributed-caches
-                var app = ConfidentialClientApplicationBuilder.Create(clientId)
-                    .WithClientSecret(clientSecret)
+                var app = ConfidentialClientApplicationBuilder.Create(oidcOptions.ClientId)
+                    .WithClientSecret(oidcOptions.ClientSecret)
                     // NOTE: MSAL doesn't allow non-HTTPS authority URLs so this sample ensures Keycloak is configured to use HTTPS by
                     //       using the ASP.NET Core HTTPS development certificate.
-                    .WithOidcAuthority(sp.GetRequiredService<KeycloakUrls>().GetRealmUrl(idpServiceName))
+                    .WithOidcAuthority(sp.GetRequiredService<KeycloakUrls>().GetRealmUrl(keycloakServiceName))
                     .WithInstanceDiscovery(false)
                     // Configure MSAL token caching as per
                     // https://learn.microsoft.com/entra/msal/dotnet/how-to/token-cache-serialization?tabs=msal#memory-cache-without-eviction/

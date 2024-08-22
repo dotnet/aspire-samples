@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -15,12 +15,14 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// https://learn.microsoft.com/aspnet/core/security/authentication/claims#extend-or-add-custom-claims-using-iclaimstransformation
 /// </see>
 /// </remarks>
-/// <param name="configuration"></param>
-public class KeycloakRolesClaimsTransformation(IHostEnvironment hostEnvironment, IOptions<KeycloakClaimsTransformationOptions> options) : IClaimsTransformation
+public class KeycloakRolesClaimsTransformation(IOptionsSnapshot<JwtBearerOptions> jwtBearerOptions) : IClaimsTransformation
 {
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        var clientName = options.Value.ClientName ?? hostEnvironment.ApplicationName;
+        var options = jwtBearerOptions.Get(JwtBearerDefaults.AuthenticationScheme);
+        var clientId = options.TokenValidationParameters.ValidAudience
+            ?? options.TokenValidationParameters.ValidAudiences.FirstOrDefault()
+            ?? throw new InvalidOperationException("Audience is not set on JwtBearerOptions");
 
         if (principal.TryGetJsonClaim("resource_access", out var resourceAccess))
         {
@@ -34,7 +36,7 @@ public class KeycloakRolesClaimsTransformation(IHostEnvironment hostEnvironment,
             //   }
             // }
 
-            if (resourceAccess[clientName] is JsonObject resourceNode && resourceNode["roles"] is JsonArray resourceRoles)
+            if (resourceAccess[clientId] is JsonObject resourceNode && resourceNode["roles"] is JsonArray resourceRoles)
             {
                 // Convert resource roles to regular roles.
                 var claimsIdentity = new ClaimsIdentity();
@@ -53,29 +55,13 @@ public class KeycloakRolesClaimsTransformation(IHostEnvironment hostEnvironment,
     }
 }
 
-public class KeycloakClaimsTransformationOptions
-{
-    /// <summary>
-    /// The client name of this application in Keycloak.
-    /// </summary>
-    public string? ClientName { get; set; }
-}
-
 public static class KeycloakClaimsTransformationExtensions
 {
     /// <summary>
     /// Adds an <see cref="IClaimsTransformation" /> that transforms Keycloak resource access roles claims into regular role claims.
     /// </summary>
-    public static IServiceCollection AddKeycloakClaimsTransformation(this IServiceCollection services, string clientName, Action<KeycloakClaimsTransformationOptions>? configure = null)
+    public static IServiceCollection AddKeycloakClaimsTransformation(this IServiceCollection services)
     {
-        services.Configure<KeycloakClaimsTransformationOptions>(o =>
-        {
-            o.ClientName = clientName;
-        });
-        if (configure is not null)
-        {
-            services.Configure(configure);
-        }
         return services.AddTransient<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
     }
 }

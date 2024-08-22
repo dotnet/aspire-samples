@@ -8,12 +8,12 @@ namespace Keycloak;
 /// </summary>
 public class KeycloakUrls(IConfiguration configuration, ServiceEndpointResolver serviceEndpointResolver)
 {
-    private readonly string _realmName = configuration.GetRequiredValue("idpRealmName");
+    private readonly string _realmName = configuration.GetRequiredValue("Authentication:Keycloak:Realm");
     private readonly ServiceEndpointResolver _serviceEndpointResolver = serviceEndpointResolver;
 
     /// <summary>
     /// Returns the URL for the Keycloak realm with the given service name and scheme.<br />
-    /// The realm name is read from configuration using the key <c>"idpRealmName"</c>.
+    /// The realm name is read from configuration using the key <c>Authentication:Keycloak:Realm</c>.
     /// </summary>
     /// <remarks>
     /// Note the URL is <strong>not</strong> resolved to real addresses via service discovery.
@@ -41,7 +41,7 @@ public class KeycloakUrls(IConfiguration configuration, ServiceEndpointResolver 
     /// </summary>
     public async Task<string> GetRealmUrlAsync(string serviceName, string? path = null, CancellationToken cancellationToken = default)
     {
-        // $"https+http://{idpServiceName}/realms/{idpRealmName}";
+        // $"https+http://{serviceName}/realms/{realmName}";
         var serviceLookupName = "https+http://" + serviceName;
         var serviceAddresses = (await _serviceEndpointResolver.GetEndpointsAsync(serviceLookupName, cancellationToken))
             .Endpoints

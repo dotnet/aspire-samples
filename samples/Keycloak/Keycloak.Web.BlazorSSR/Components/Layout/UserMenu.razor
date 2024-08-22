@@ -33,7 +33,7 @@
     protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        userProfileManagementUrl = await KeycloakUrls.GetAccountConsoleUrlAsync("idp");
+        userProfileManagementUrl = await KeycloakUrls.GetAccountConsoleUrlAsync("keycloak");
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 

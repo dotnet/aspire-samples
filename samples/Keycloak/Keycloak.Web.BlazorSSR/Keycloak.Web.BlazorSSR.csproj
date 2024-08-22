@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Keycloak.Authentication" Version="8.1.0-preview.1.24373.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.63.0" />
   </ItemGroup>
 

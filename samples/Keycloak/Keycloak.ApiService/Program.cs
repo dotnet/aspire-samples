@@ -2,21 +2,14 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-var idpRealmName = builder.Configuration.GetRequiredValue("idpRealmName");
-var idpClientName = "keycloak.apiservice";
-
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddKeycloakJwtBearer("idp", idpRealmName, jwtBearer =>
-    {
-        // TODO: Consider moving this to the configuration file and have it be automatically bound from there
-        jwtBearer.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        jwtBearer.Audience = idpClientName;
-    });
+    // Settings for the JwtBearerOptions are bound from configuration.
+    .AddKeycloakJwtBearer("keycloak", builder.Configuration.GetRequiredValue("Authentication:Keycloak:Realm"));
 
-builder.Services.AddKeycloakClaimsTransformation(idpClientName);
+builder.Services.AddKeycloakClaimsTransformation();
 builder.Services.AddAuthorizationBuilder()
     // The default authorization policy will apply to all endpoints that are marked as requiring authorization
     // and don't specify a specific policy.
