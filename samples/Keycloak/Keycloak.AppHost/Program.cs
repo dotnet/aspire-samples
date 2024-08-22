@@ -15,7 +15,8 @@ var apiWeatherClientSecret = builder.AddResource(
     ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, "api-weather-client-secret"));
 
 var keycloak = builder.AddKeycloak("keycloak")
-    //.WithDataVolume()
+    .WithImageTag("25.0")
+    .WithDataVolume()
     .WithHttpsDevCertificate()
     // Import the realms & inject the the values the realms import file requires via environment variables.
     .WithRealmImport("realms", isReadOnly: true)
