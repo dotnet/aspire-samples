@@ -28,7 +28,7 @@
     private string? userProfileManagementUrl;
 
     [SupplyParameterFromForm]
-    public string? ReturnUrl { get; set; }
+    private string? ReturnUrl { get; set; }
 
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }

@@ -11,7 +11,7 @@
     public required HttpContext HttpContext { get; set; }
 
     [SupplyParameterFromQuery]
-    public string? ReturnUrl { get; set; }
+    private string? ReturnUrl { get; set; }
 
     protected override void OnInitialized()
     {
