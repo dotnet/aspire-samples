@@ -1,6 +1,7 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
 // The default value of these parameters is set in the appsettings.json file.
+// These values are modeled as parameters so they can be overridden for different environments, etc.
 var keycloakRealmName = builder.AddParameter("keycloak-realm");
 var keycloakRealmDisplayName = builder.AddParameter("keycloak-realm-display");
 var webBlazorSsrClientId = builder.AddParameter("web-blazorssr-client-id");
@@ -19,7 +20,7 @@ var keycloak = builder.AddKeycloak("keycloak")
     .WithDataVolume()
     .RunWithHttpsDevCertificate();
 
-var apiWeather = builder.AddProject<Projects.Keycloak_ApiService>("api-weather")
+var apiWeather = builder.AddProject<Projects.Keycloak_Api_Weather>("api-weather")
     .WithReference(keycloak)
     .WithEnvironment("Authentication__Keycloak__Realm", keycloakRealmName)
     .WithEnvironment("Authentication__Schemes__Bearer__ValidAudience", apiWeatherClientId);

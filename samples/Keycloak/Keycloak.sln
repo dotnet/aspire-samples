@@ -6,9 +6,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.AppHost", "Keycloa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.ServiceDefaults", "Keycloak.ServiceDefaults\Keycloak.ServiceDefaults.csproj", "{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.ApiService", "Keycloak.ApiService\Keycloak.ApiService.csproj", "{E9D1B969-0EF6-4004-AA62-88997191A728}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keycloak.Web.BlazorSSR", "Keycloak.Web.BlazorSSR\Keycloak.Web.BlazorSSR.csproj", "{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keycloak.Api.Weather", "Keycloak.Api.Weather\Keycloak.Api.Weather.csproj", "{37D818DA-4202-42CD-B02F-4D822AB6524A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,14 +24,14 @@ Global
 		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C28C8F9F-DEF4-4764-93E8-C8F2B2DFDD0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9D1B969-0EF6-4004-AA62-88997191A728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9D1B969-0EF6-4004-AA62-88997191A728}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9D1B969-0EF6-4004-AA62-88997191A728}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9D1B969-0EF6-4004-AA62-88997191A728}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D2BB6C7-E41B-47BC-B8F3-54D34A9D7627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D818DA-4202-42CD-B02F-4D822AB6524A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37D818DA-4202-42CD-B02F-4D822AB6524A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37D818DA-4202-42CD-B02F-4D822AB6524A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37D818DA-4202-42CD-B02F-4D822AB6524A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

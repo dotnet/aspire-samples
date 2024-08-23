@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Keycloak.ApiService\Keycloak.ApiService.csproj" />
+    <ProjectReference Include="..\Keycloak.Api.Weather\Keycloak.Api.Weather.csproj" />
     <ProjectReference Include="..\Keycloak.Web.BlazorSSR\Keycloak.Web.BlazorSSR.csproj" />
   </ItemGroup>
 

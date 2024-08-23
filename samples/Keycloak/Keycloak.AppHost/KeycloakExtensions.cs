@@ -3,9 +3,16 @@
 public static class KeycloakExtensions
 {
     /// <summary>
-    /// Configures the Keycloak container to use HTTPS with the ASP.NET Core HTTPS developer certificate when
+    /// Configures the Keycloak container to use the ASP.NET Core HTTPS development certificate created by <c>dotnet dev-certs</c> when
     /// <paramref name="builder"/><c>.ExecutionContext.IsRunMode == true</c>.
     /// </summary>
+    /// <remarks>
+    /// See <see href="https://learn.microsoft.com/dotnet/core/tools/dotnet-dev-certs">https://learn.microsoft.com/dotnet/core/tools/dotnet-dev-certs</see>
+    /// for more information on the <c>dotnet dev-certs</c> tool.<br/>
+    /// See <see href="https://learn.microsoft.com/aspnet/core/security/enforcing-ssl#trust-the-aspnet-core-https-development-certificate-on-windows-and-macos">
+    /// https://learn.microsoft.com/aspnet/core/security/enforcing-ssl</see>
+    /// for more information on the ASP.NET Core HTTPS development certificate.
+    /// </remarks>
     public static IResourceBuilder<KeycloakResource> RunWithHttpsDevCertificate(this IResourceBuilder<KeycloakResource> builder, int targetPort = 8443)
     {
         if (builder.ApplicationBuilder.ExecutionContext.IsRunMode)
@@ -64,6 +71,7 @@ public static class KeycloakExtensions
             .WithEnvironment("REALM_NAME", realmName)
             .WithEnvironment("REALM_DISPLAY_NAME", displayName)
             // Ensure HSTS is not enabled in run mode to avoid browser caching issues when developing.
+            // Workaround for https://github.com/keycloak/keycloak/issues/32366
             .WithEnvironment("REALM_HSTS", builder.ApplicationBuilder.ExecutionContext.IsRunMode ? "" : "max-age=31536000; includeSubDomains");
 
         foreach (var client in clientDetails)
@@ -90,13 +98,12 @@ public static class KeycloakExtensions
 /// <summary>
 /// Details for a Keycloak client used in the sample realm.
 /// </summary>
+/// <param name="EnvironmentVariable">
+/// The environment variable name that the client details are injected into.<br/>
+/// The realm import file uses environment variables named based on this value to reference the injected details,<br/>
+/// e.g. <c>CLIENT_${<paramref name="EnvironmentVariable"/>}_ID</c>, <c>CLIENT_${<paramref name="EnvironmentVariable"/>}_SECRET</c>.
+/// </param>
 public record KeycloakClientDetails(
-    /// <summary>
-    /// The environment variable name that the client details are injected into.
-    /// </summary>
-    /// <remarks>
-    /// The realm import file uses environment variables named using this value to reference the injected details.
-    /// </remarks>
     string EnvironmentVariable,
     IResourceBuilder<ParameterResource> ClientId,
     IResourceBuilder<ParameterResource> ClientName,
