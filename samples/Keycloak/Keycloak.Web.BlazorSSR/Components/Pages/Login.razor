@@ -1,4 +1,5 @@
 ﻿@page "/login"
+
 @using Microsoft.AspNetCore.WebUtilities
 
 @attribute [Authorize]
@@ -14,11 +15,7 @@
 
     protected override void OnInitialized()
     {
-        var returnUrl = ReturnUrl ?? "/";
-
-        // Ensure we only redirect to relative URLs (prevent open redirect attacks)
-        var url = new Uri(returnUrl, UriKind.RelativeOrAbsolute);
-        NavigationManager.NavigateTo(url.IsAbsoluteUri ? "/" : returnUrl);
+        NavigationManager.NavigateToRelativeUrl(ReturnUrl, forceLoad: true);
     }
 
     private static Uri _placeholderHostUri = new Uri("http://notused");

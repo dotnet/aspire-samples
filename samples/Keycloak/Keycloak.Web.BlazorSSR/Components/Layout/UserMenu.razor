@@ -9,9 +9,9 @@
     <Authorized>
         <div class="top-row-item">Logged in as <a href="@userProfileManagementUrl" target="_blank" title="Manage user profile">@context.User.Identity?.Name</a></div>
         <div>
-            <form method="post" action="logout" @formname="logout" @onsubmit="OnLogoutAsync">
+            <form method="post" action="logout" @formname="logout" @onsubmit="OnLogoutAsync" data-enhance="false">
                 <AntiforgeryToken />
-                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                <input type="hidden" name="@nameof(ReturnUrl)" value="@returnUrl" />
                 <button type="submit" class="btn-link">
                     Logout
                 </button>
@@ -24,29 +24,44 @@
 </AuthorizeView>
 
 @code {
-    private string? currentUrl;
+    private string? returnUrl;
     private string? userProfileManagementUrl;
+
+    [SupplyParameterFromForm]
+    public string? ReturnUrl { get; set; }
 
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        SetReturnUrl(NavigationManager.Uri);
         userProfileManagementUrl = await KeycloakUrls.GetAccountConsoleUrlAsync("keycloak");
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        SetReturnUrl(e.Location);
         StateHasChanged();
+    }
+
+    private void SetReturnUrl(string location)
+    {
+        var endpointMetadata = HttpContext.GetEndpoint()?.Metadata;
+
+        // Do not attempt to return to the current page if it requires authorization
+        var requiresAuthz = endpointMetadata?.GetMetadata<IAuthorizeData>() is not null
+                            && endpointMetadata?.GetMetadata<IAllowAnonymous>() is null;
+
+        returnUrl = !requiresAuthz ? NavigationManager.ToBaseRelativePath(location) : "/";
     }
 
     private async Task OnLogoutAsync()
     {
+        var returnUrl = NavigationManager.EnsureRelativeUrl(ReturnUrl);
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new() { RedirectUri = returnUrl });
     }
 
     public void Dispose()

@@ -8,9 +8,11 @@ var webBlazorSsrClientName = builder.AddParameter("web-blazorssr-client-name");
 var apiWeatherClientId = builder.AddParameter("api-weather-client-id");
 var apiWeatherClientName = builder.AddParameter("api-weather-client-name");
 
-// When running during local development the generated client secret is stored in user secrets.
-var webBlazorSSRClientSecret = builder.AddClientSecretParameter("web-blazorssr-client-secret");
-var apiWeatherClientSecret = builder.AddClientSecretParameter("api-weather-client-secret");
+// When running during local development the generated client secrets are stored in user secrets.
+var webBlazorSSRClientSecret = builder.AddParameter("web-blazorssr-client-secret", secret: true)
+    .WithGeneratedDefault(new() { MinLength = 32, Special = false });
+var apiWeatherClientSecret = builder.AddParameter("api-weather-client-secret", secret: true)
+    .WithGeneratedDefault(new() { MinLength = 32, Special = false });
 
 var keycloak = builder.AddKeycloak("keycloak")
     .WithImageTag("25.0")

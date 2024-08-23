@@ -7,22 +7,34 @@ namespace Aspire.Hosting;
 public static class HostingExtensions
 {
     /// <summary>
-    /// Adds a parameter resource that represents a client secret. A default value is generated that is stored in user secrets during local development.
+    /// Configures the parameter resource with a generated default value. The generated default value is stored in user secrets during local development.
     /// </summary>
-    public static IResourceBuilder<ParameterResource> AddClientSecretParameter(this IDistributedApplicationBuilder builder, string name)
+    public static IResourceBuilder<ParameterResource> WithGeneratedDefault(this IResourceBuilder<ParameterResource> builder, GenerateParameterDefault generateParameterDefault)
     {
-        var generatedSecret = new GenerateParameterDefault
+        var generatedParameter = ParameterResourceBuilderExtensions.CreateGeneratedParameter(builder.ApplicationBuilder, builder.Resource.Name, builder.Resource.Secret, generateParameterDefault);
+
+        builder.Resource.Default = generatedParameter.Default;
+
+        // Need to override the initial state as parameters attempt to bind from configuration first and move to an error state if it's not found.
+        // This is adapted from the source of the internal static helper AddParameter(this IDistributedApplicationBuilder builder, ...) on Aspire.Hosting.ParameterResourceBuilderExtensions.
+        builder.WithInitialState(new()
         {
-            MinLength = 32,
-            Special = false
-        };
-        var parameter = ParameterResourceBuilderExtensions.CreateGeneratedParameter(builder, name, secret: true, generatedSecret);
-        return builder.AddResource(parameter);
+            ResourceType = "Parameter",
+            // Hide parameters by default
+            State = KnownResourceStates.Hidden,
+            Properties = [
+                new("parameter.secret", builder.Resource.Secret.ToString()),
+                new(CustomResourceKnownProperties.Source, $"Parameters:{builder.Resource.Name}")
+            ]
+        });
+
+        return builder;
     }
 
     /// <summary>
     /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables when
-    /// <paramref name="builder"/><c>.ExecutionContext.IsRunMode == true</c>.<br/>
+    /// <paramref name="builder"/>.<see cref="IResourceBuilder{T}.ApplicationBuilder">ApplicationBuilder</see>.
+    /// <see cref="IDistributedApplicationBuilder.ExecutionContext">ExecutionContext</see>.<see cref="DistributedApplicationExecutionContext.IsRunMode">IsRunMode</see><c> == true</c>.<br/>
     /// If the resource is a <see cref="ContainerResource"/>, the certificate files will be bind mounted into the container.
     /// </summary>
     /// <remarks>
