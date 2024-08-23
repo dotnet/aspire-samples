@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,14 +35,7 @@ builder.Services.AddAuthentication(options =>
     .AddCookie()
     .AddKeycloakOpenIdConnect("keycloak", builder.Configuration.GetRequiredValue("Authentication:Keycloak:Realm"), oidc =>
     {
-        // ClientId and ClientSecret are set via configuration.
-        oidc.ResponseType = OpenIdConnectResponseType.Code; // Ensure we're configured to use the authorization code flow.
-        oidc.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        oidc.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-        oidc.Scope.Add(OpenIdConnectScope.Email);
-        oidc.Scope.Add(OpenIdConnectScope.Address);
-        oidc.SaveTokens = true; // Required to save the id and access tokens returned by Keycloak for later use, including logout.
-        oidc.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
+        // Most properties including ClientId and ClientSecret are set via configuration from the appsettings.json file.
         oidc.TokenValidationParameters.NameClaimType = KeycloakClaimTypes.PreferredUsername; // Keycloak uses "preferred_username" as the default name claim type.
     });
 
