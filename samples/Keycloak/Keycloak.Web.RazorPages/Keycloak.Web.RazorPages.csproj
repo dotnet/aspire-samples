@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Keycloak.Web.BlazorSSR\WeatherApiClient.cs" Link="WeatherApiClient.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="4.63.0" />
   </ItemGroup>
 

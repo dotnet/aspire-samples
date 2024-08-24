@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
-namespace Keycloak.Web.BlazorSSR;
+namespace Keycloak.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Keycloak;
-using Keycloak.Web.BlazorSSR;
+using Keycloak.Web;
 using Keycloak.Web.BlazorSSR.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;

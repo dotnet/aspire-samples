@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Keycloak;
+using Keycloak.Web;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
@@ -14,6 +15,9 @@ builder.Services.AddOutputCache();
 
 // Add Keycloak URLs service.
 builder.Services.AddSingleton<KeycloakUrls>();
+
+// Add the weather API client.
+builder.Services.AddWeatherApiClient(new("https+http://api-weather"), "keycloak");
 
 // Add authentication services (to authenticate end users)
 builder.Services.AddAuthentication(options =>
