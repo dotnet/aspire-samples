@@ -23,7 +23,7 @@
 }
 
 <ul class="navbar-nav">
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity?.IsAuthenticated == true)
 {
     <li class="nav-item">
         <a class="nav-link text-dark" href="@userConsoleUrl" title="Manage" target="_blank">Hello @User.Identity?.Name!</a>
