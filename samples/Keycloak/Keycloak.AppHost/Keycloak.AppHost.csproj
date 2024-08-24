@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Keycloak.Api.Weather\Keycloak.Api.Weather.csproj" />
     <ProjectReference Include="..\Keycloak.Web.BlazorSSR\Keycloak.Web.BlazorSSR.csproj" />
+    <ProjectReference Include="..\Keycloak.Web.RazorPages\Keycloak.Web.RazorPages.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,7 +18,7 @@
         NavigationManager.NavigateToRelativeUrl(ReturnUrl, forceLoad: true);
     }
 
-    private static Uri _placeholderHostUri = new Uri("http://notused");
+    private static readonly Uri _placeholderHostUri = new Uri("http://notused");
 
     public static string Url(NavigationManager nav, string? returnUrl = null, bool preserveQuery = true)
     {

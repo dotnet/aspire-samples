@@ -272,6 +272,7 @@
         }
       ],
       "${CLIENT_WEB_BLAZORSSR_ID}": [],
+      "${CLIENT_WEB_RAZORPAGES_ID}": [],
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
@@ -459,6 +460,24 @@
       "groups": []
     },
     {
+      "id": "6a8a9a15-2e63-482c-ae15-9b838b75ba04",
+      "username": "service-account-${CLIENT_WEB_RAZORPAGES_ID}",
+      "emailVerified": false,
+      "createdTimestamp": 1723766772828,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "${CLIENT_WEB_RAZORPAGES_ID}",
+      "credentials": [],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [ "default-roles-${REALM_NAME}" ],
+      "clientRoles": {
+        "${CLIENT_API_WEATHER_ID}": [ "api-callers" ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "7475173d-4ada-4ab6-be7b-936502d1ecba",
       "username": "testuser",
       "firstName": "Test",
@@ -503,6 +522,10 @@
     "${CLIENT_API_WEATHER_ID}": [
       {
         "client": "${CLIENT_WEB_BLAZORSSR_ID}",
+        "roles": [ "api-callers" ]
+      },
+      {
+        "client": "${CLIENT_WEB_RAZORPAGES_ID}",
         "roles": [ "api-callers" ]
       }
     ],
@@ -813,6 +836,113 @@
         },
         {
           "id": "09ebff14-541b-457b-8a35-5485a5c8b35e",
+          "name": "address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-address-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute.formatted": "formatted",
+            "user.attribute.country": "address_country",
+            "introspection.token.claim": "true",
+            "user.attribute.postal_code": "address_zip_code",
+            "userinfo.token.claim": "true",
+            "user.attribute.street": "address_street_1",
+            "id.token.claim": "true",
+            "user.attribute.region": "address_state",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "user.attribute.locality": "address_city"
+          }
+        }
+      ],
+      "defaultClientScopes": [ "web-origins", "acr", "roles", "profile", "email" ],
+      "optionalClientScopes": [ "address", "phone", "offline_access", "microprofile-jwt" ]
+    },
+    {
+      "id": "f16d08f2-39c9-4c0b-9eed-82cfb2ede39d",
+      "clientId": "${CLIENT_WEB_RAZORPAGES_ID}",
+      "name": "${CLIENT_WEB_RAZORPAGES_ID}",
+      "description": "The ${CLIENT_WEB_RAZORPAGES_ID} application project. This is a web application that authenticates end users in the browser and has to authenticate itself to backend APIs.",
+      "rootUrl": "${CLIENT_WEB_RAZORPAGES_URL}",
+      "adminUrl": "${CLIENT_WEB_RAZORPAGES_URL_CONTAINERHOST}",
+      "baseUrl": "/",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${CLIENT_WEB_RAZORPAGES_SECRET}",
+      "redirectUris": [ "/*" ],
+      "webOrigins": [ "+" ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1723763986",
+        "backchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": false,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "0be9c7fe-561b-4a60-bdea-46b7e38db556",
+          "name": "Client Host",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientHost",
+            "introspection.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientHost",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "943962b8-7380-4e4e-9d9d-0f1dfa7a5595",
+          "name": "Client IP Address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientAddress",
+            "introspection.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientAddress",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "a086620d-ce93-4f11-ab0e-8fa2d01460e9",
+          "name": "Client ID",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "client_id",
+            "introspection.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "client_id",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "d30eed24-c191-41b9-b0c7-a97c4ba1d163",
           "name": "address",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-address-mapper",
