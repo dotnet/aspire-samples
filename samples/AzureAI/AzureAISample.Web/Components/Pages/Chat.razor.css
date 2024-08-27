@@ -1,0 +1,28 @@
+.messages-scroller {
+    /* Make the scrollbar default to being at the end, instead of the start */
+    display: flex;
+    flex-direction: column-reverse;
+
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.5rem 0 0.75rem;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: auto;
+}
+
+.write-message {
+    height: 160px;
+    flex-shrink: 0;
+    padding: 0.5rem 1rem 1.5rem 1rem;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}

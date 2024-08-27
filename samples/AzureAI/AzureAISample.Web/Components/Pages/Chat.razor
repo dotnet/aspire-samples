@@ -1,0 +1,27 @@
+﻿@page "/chat"
+@rendermode InteractiveServer
+
+
+<PageTitle>Chat Demo</PageTitle>
+
+<h1>Chat</h1>
+
+<p>Limerick generator, give a topic and AI will generate a limerick</p>
+
+<div class="messages-scroller">
+    <div class="messages">
+       
+        @for (var i = 0; i < sampleChatService.Messages.Count; i++)
+        {
+            var id = $"message{i}";
+            var state = sampleChatService.Messages[i]!;
+            <ChatMessage @key="@id" State="@state" />
+        }
+    </div>
+</div>
+
+<div class="write-message">
+    <textarea @bind="@userMessageText" Placeholder="Ask the AI assistant" style="width: 100%; height: 100%;" />
+    <button @onclick="SendMessage">Send</button>
+</div>
+
