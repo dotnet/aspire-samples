@@ -1,0 +1,119 @@
+﻿@page "/"
+
+@inject TodoApiClient TodoApi
+@inject IJSRuntime JS
+
+<PageTitle>Todos</PageTitle>
+
+<h1>Todos</h1>
+
+<p>Below is your list of todos.</p>
+
+@if (todos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <tbody>
+            @foreach (var todo in todos.Where(_ => _.IsComplete == false))
+            {
+                <tr>
+                    <td width="120">
+                        <button class="btn btn-sm btn-success" style="width: 100%" @onclick="async () => await OnCompleteButtonClicked(todo.id)">Finished</button>
+                    </td>
+                    <td colspan="2">@todo.Description</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="2">
+                    <input @bind="_newTodoDescription" style="width: 100%" @ref="inputElement" />
+                </td>
+                <td width="120">
+                    <button class="btn btn-sm btn-primary" style="width: 100%" @onclick="async () => await OnNewTodoItemButtonClicked()">Create</button>
+                </td>
+            </tr>
+            @foreach (var todo in todos.Where(_ => _.IsComplete == true))
+            {
+                <tr>
+                    <td width="120">
+                        <button class="btn btn-sm btn-warning" style="width: 100%" @onclick="async () => await OnNotCompleteButtonClicked(todo.id)">Unfinished</button>
+                    </td>
+                    <td>@todo.Description</td>
+                    <td width="120">
+                        <button class="btn btn-sm btn-danger" style="width: 100%" @onclick="async () => await OnDeleteButtonClicked(todo.id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Todo> todos = new();
+    private bool _shouldRender = false;
+    private string _newTodoDescription = string.Empty;
+    private string _sampleUserName = "sampleuser";
+    private bool _setFocus = true;
+    private ElementReference inputElement;
+
+    protected override bool ShouldRender() => _shouldRender;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || _setFocus)
+        {
+            await JS.InvokeVoidAsync("setFocus", inputElement);
+            _setFocus = false;
+        }
+    }
+
+    private async Task RefreshTodos()
+    {
+        todos = await TodoApi.Retrieve();
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshTodos();
+        _shouldRender = true;
+    }
+
+    protected async Task OnCompleteButtonClicked(string todoId)
+    {
+        var completed = todos.First(_ => _.id == todoId);
+        completed.IsComplete = true;
+        completed = await TodoApi.Update(todoId, completed);
+        await RefreshTodos();
+    }
+
+    protected async Task OnNotCompleteButtonClicked(string todoId)
+    {
+        var completed = todos.First(_ => _.id == todoId);
+        completed.IsComplete = false;
+        completed = await TodoApi.Update(todoId, completed);
+        await RefreshTodos();
+    }
+
+    protected async Task OnDeleteButtonClicked(string todoId)
+    {
+        var completed = todos.First(_ => _.id == todoId);
+        await TodoApi.Delete(_sampleUserName, todoId);
+        await RefreshTodos();
+    }
+
+    protected async Task OnNewTodoItemButtonClicked()
+    {
+        await TodoApi.Create(new Todo(_newTodoDescription, _sampleUserName)
+            {
+                id = Guid.NewGuid().ToString(),
+                IsComplete = false,
+            });
+
+        _newTodoDescription = string.Empty;
+        _setFocus = true;
+        await RefreshTodos();
+    }
+}
