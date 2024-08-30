@@ -6,13 +6,7 @@ builder.AddServiceDefaults();
 
 builder.AddKeyedRedisClient("voting-redis");
 
-builder.UseOrleans(orleansBuilder =>
-{
-    if (builder.Environment.IsDevelopment())
-    {
-        orleansBuilder.ConfigureEndpoints(Random.Shared.Next(10_000, 50_000), Random.Shared.Next(10_000, 50_000));
-    }
-});
+builder.UseOrleans();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
