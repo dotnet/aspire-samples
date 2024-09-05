@@ -1,0 +1,17 @@
+﻿@using AzureAISample.Web.Services
+
+<div class="message">
+    <div class="@CalcClass(State.IsAssistant)">
+        <div class="message-text">
+            @State.Text
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public MessageViewModel State { get; set; } = default!;
+
+    string CalcClass(bool isAssistant) => (isAssistant) ? "assistant" : "user";
+
+}
