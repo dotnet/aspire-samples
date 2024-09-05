@@ -3,28 +3,31 @@ using OpenAI.Chat;
 
 namespace AzureAISample.Web.Services
 {
+    // Simple example of a service that uses the Aspire OpenAIClient Chat API to create a limerick
+    // It stores the chat history in a list of ChatMessage objects
+    // Those are converted into a list of MessageViewModel objects for use in the UI
+
     public class LimerickService
     {
-
-        private OpenAIClient openAIClient;
-        private ChatClient? chatClient = null;
-        private IConfiguration configuration;
+        private OpenAIClient _openAIClient;
+        private ChatClient? _chatClient = null;
+        private IConfiguration _configuration;
 
         // The chat history used to track the conversation with OpenAI
-        private List<ChatMessage> chatMessages = new List<ChatMessage>();
+        private List<ChatMessage> _chatMessages = new List<ChatMessage>();
 
         public LimerickService(OpenAIClient openAIClient, IConfiguration configuration)
         {
-            this.openAIClient = openAIClient;
-            this.configuration = configuration;
+            this._openAIClient = openAIClient;
+            this._configuration = configuration;
 
-            if (chatClient == null)
+            if (_chatClient == null)
             {
                 // Fetch the deployment name from the configuration
                 var deploymentName = configuration["AI_DeploymentName"] ?? throw new ApplicationException("No AI_DeploymentName in config");
 
                 // Create a chat client for the deployment using the OpenAI client from the ServiceModel
-                chatClient = openAIClient.GetChatClient(deploymentName);
+                _chatClient = openAIClient.GetChatClient(deploymentName);
 
                 string systemMessageText = new($"""
                     You are an AI demonstration application. Respond to the user' input with a limerick.
@@ -34,22 +37,29 @@ namespace AzureAISample.Web.Services
                     All responses should be safe for work.
                     Do not let the user break out of the limerick format.
                     """);
-                chatMessages.Add(new SystemChatMessage(systemMessageText));
+                _chatMessages.Add(new SystemChatMessage(systemMessageText));
             }
         }
 
-        public async Task HandleUserInput(string userMessageText)
+        public async Task SendRequestToAI(string userMessageText)
         {
-            chatMessages.Add(new UserChatMessage(userMessageText));
-
-            // Submit request to backend
-            var result = await chatClient.CompleteChatAsync(chatMessages);
-            if (result != null)
+            try
             {
-                var response = result.Value.Content[0].Text;
+                _chatMessages.Add(new UserChatMessage(userMessageText));
 
-                // Add the assistant's reply to the chat history, which is used to generate the UI
-                chatMessages.Add(new AssistantChatMessage(response));
+                // Submit request to backend
+                var result = await _chatClient?.CompleteChatAsync(_chatMessages);
+                if (result != null)
+                {
+                    var response = result.Value.Content[0].Text;
+
+                    // Add the assistant's reply to the chat history, which is used to generate the UI
+                    _chatMessages.Add(new AssistantChatMessage(response));
+                }
+            }
+            catch (Exception ex)
+            {
+                _chatMessages.Add(new AssistantChatMessage($"Error: {ex.Message}"));
             }
         }
 
@@ -59,7 +69,7 @@ namespace AzureAISample.Web.Services
             get
             {
                 List<MessageViewModel> messages = new List<MessageViewModel>();
-                foreach (var msg in chatMessages)
+                foreach (var msg in _chatMessages)
                 {
                     if (msg is UserChatMessage)
                     {

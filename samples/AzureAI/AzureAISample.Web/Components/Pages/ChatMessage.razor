@@ -1,24 +1,17 @@
 ﻿@using AzureAISample.Web.Services
-@if (!State.IsAssistant)
-{
-    <div class="message">
-        <div class="sender-name">You</div>
-        <div class="message-content">
-            <div class="message-text">@State.Text</div>
+
+<div class="message">
+    <div class="@CalcClass(State.IsAssistant)">
+        <div class="message-text">
+            @State.Text
         </div>
     </div>
-}
-else
-{
-    <div class="message assistant visible">
-        <div class="sender-name">Assistant</div>
-        <div class="message-content" visi> @* @ref="messageContentElement"> *@
-            <div class="message-text">@(string.IsNullOrEmpty(State.Text) ? "..." : State.Text)</div>
-        </div>
-    </div>
-}
+</div>
 
 @code {
     [Parameter, EditorRequired]
     public MessageViewModel State { get; set; } = default!;
+
+    string CalcClass(bool isAssistant) => (isAssistant) ? "assistant" : "user";
+
 }

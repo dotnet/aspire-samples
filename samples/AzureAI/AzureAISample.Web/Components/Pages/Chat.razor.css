@@ -1,28 +1,41 @@
+.chat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
 .messages-scroller {
-    /* Make the scrollbar default to being at the end, instead of the start */
     display: flex;
     flex-direction: column-reverse;
-
     overflow-y: auto;
     flex-grow: 1;
+    width: 600px;
 }
 
 .messages {
     display: flex;
     flex-direction: column;
-    padding: 1rem 1.5rem 0 0.75rem;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: flex-start;
     margin-bottom: auto;
+    width: 600px;
 }
 
 .write-message {
-    height: 160px;
-    flex-shrink: 0;
-    padding: 0.5rem 1rem 1.5rem 1rem;
-    z-index: 1;
     display: flex;
-    flex-direction: column;
     gap: 0.5rem;
-    align-items: center;
+    align-items: end;
+    width: 600px;
+}
+
+.write-message .ta
+{
+    flex-grow: 1;
+    height: 140px;
+}
+
+.write-message .sendBtn
+{
+    flex-shrink: 0;
 }

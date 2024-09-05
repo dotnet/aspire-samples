@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
-    <UserSecretsId>84f7605e-c14c-440f-9e2f-d41f551e50d0</UserSecretsId>
+    <UserSecretsId>e2081e2b-b18b-4e5a-84ce-87dd05d7ac47</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="8.1.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.CognitiveServices" Version="8.1.0"/>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="8.2.0" />
+    <PackageReference Include="Aspire.Hosting.Azure.CognitiveServices" Version="8.2.0" />
   </ItemGroup>
 
 </Project>

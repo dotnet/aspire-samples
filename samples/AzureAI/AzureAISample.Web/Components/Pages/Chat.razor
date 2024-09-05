@@ -7,21 +7,25 @@
 <h1>Chat</h1>
 
 <p>Limerick generator, give a topic and AI will generate a limerick</p>
-
-<div class="messages-scroller">
-    <div class="messages">
-       
-        @for (var i = 0; i < sampleChatService.Messages.Count; i++)
-        {
-            var id = $"message{i}";
-            var state = sampleChatService.Messages[i]!;
-            <ChatMessage @key="@id" State="@state" />
-        }
+<div class="chat-content">
+    <div class="messages-scroller">
+        <div class="messages">
+            @for (var i = 0; i < _sampleChatService.Messages.Count; i++)
+            {
+                var id = $"message{i}";
+                var state = _sampleChatService.Messages[i]!;
+                <ChatMessage @key="@id" State="@state" />
+            }
+        </div>
+    </div>
+    @if (_pendingRequestCount > 0)
+    {
+        <div class="messages">
+            Thinking...
+        </div>
+    }
+    <div class="write-message">
+        <textarea class="ta" @ref="userMessage" @bind="@_userMessageText" Placeholder="Topic for a limerick, or suggestion for refinement" />
+        <button type="button" class="sendBtn" @ref="sendBtn" @onclick="SendChatRequest">Send</button>
     </div>
 </div>
-
-<div class="write-message">
-    <textarea @bind="@userMessageText" Placeholder="Ask the AI assistant" style="width: 100%; height: 100%;" />
-    <button @onclick="SendMessage">Send</button>
-</div>
-

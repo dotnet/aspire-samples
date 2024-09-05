@@ -7,12 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
-// Use the Aspire Azure AI component
+// Use the Aspire Azure AI component with the name from the AppHost
 builder.AddAzureOpenAIClient("openai");
 
 // Add our chat service
-builder.Services.AddSingleton<LimerickService>();
-
+builder.Services.AddScoped<LimerickService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
