@@ -1,6 +1,0 @@
-@AspireWithRabbitmQ.Receiver_HostAddress = http://localhost:5102
-
-GET {{AspireWithRabbitmQ.Receiver_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
