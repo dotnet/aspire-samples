@@ -12,7 +12,7 @@ description: "This is a sample project using the .NET Aspire RabbitMQ client as 
 
 # .NET Aspire with RabbitMQ 
 
-![Screenshot of the Sender and Receiver testing](./images/sender-receiever-testing.png)
+![Screenshot of the Sender and Receiver testing](./images/sender-receiever-testing.PNG)
 
 This sample demonstrates an approach for integrating a RabbitMQ into a .NET Aspire application.
 
