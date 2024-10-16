@@ -48,9 +48,15 @@ public static class Extensions
             })
             .WithTracing(tracing =>
             {
-                tracing.AddAspNetCoreInstrumentation()
-                       .AddGrpcClientInstrumentation()
-                       .AddHttpClientInstrumentation();
+                tracing.AddSource(builder.Environment.ApplicationName)
+                    .AddAspNetCoreInstrumentation(tracing =>
+                        // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
+                        tracing.Filter = httpContext =>
+                            !(httpContext.Request.Path.StartsWithSegments("/health")
+                              || httpContext.Request.Path.StartsWithSegments("/alive"))
+                    )
+                    .AddGrpcClientInstrumentation()
+                    .AddHttpClientInstrumentation();
             });
 
         builder.AddOpenTelemetryExporters();

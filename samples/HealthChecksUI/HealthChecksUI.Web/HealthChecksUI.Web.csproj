@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.0.0-preview.4.24475.3" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
   </ItemGroup>
 
