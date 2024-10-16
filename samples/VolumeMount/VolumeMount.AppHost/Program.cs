@@ -1,25 +1,28 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var sqlDatabase = builder.AddSqlServer("sqlserver")
+var sqlserver = builder.AddSqlServer("sqlserver")
     .WithDataVolume()
-    .AddDatabase("sqldb");
+    .WithLifetime(ContainerLifetime.Persistent);
 
-var postgresDatabase = builder.AddPostgres("postgresserver")
+var sqlDatabase = sqlserver.AddDatabase("sqldb");
+
+var postgresserver = builder.AddPostgres("postgresserver")
     .WithDataVolume()
-    .AddDatabase("postgres");
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var postgresDatabase = postgresserver.AddDatabase("postgres");
 
 var blobs = builder.AddAzureStorage("Storage")
     // Use the Azurite storage emulator for local development
-    .RunAsEmulator(emulator =>
-    {
-        emulator.WithImageTag("3.31.0") // workaround https://github.com/dotnet/aspire/issues/5078
-            .WithDataVolume();
-    })
+    .RunAsEmulator(emulator => emulator.WithDataVolume())
     .AddBlobs("BlobConnection");
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
     .WithReference(sqlDatabase)
+    .WaitFor(sqlDatabase)
     .WithReference(postgresDatabase)
-    .WithReference(blobs);
+    .WaitFor(postgresDatabase)
+    .WithReference(blobs)
+    .WaitFor(blobs);
 
 builder.Build().Run();
