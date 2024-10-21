@@ -9,10 +9,12 @@ if (OperatingSystem.IsWindows())
     // coordinate a build dependency though).
     builder.AddProject<Projects.ClientAppsIntegration_WinForms>("winformsclient")
         .WithReference(apiService)
+        .WaitFor(apiService)
         .ExcludeFromManifest();
 
     builder.AddProject<Projects.ClientAppsIntegration_WPF>("wpfclient")
         .WithReference(apiService)
+        .WaitFor(apiService)
         .ExcludeFromManifest();
 }
 
