@@ -40,7 +40,7 @@ jobs:
     - name: Dapr tool installer
       uses: dapr/setup-dapr@v2
       with:
-        version: '1.13.0'
+        version: '1.14.1'
       id: install-dapr
 
     - name: Initialize Dapr (Ubuntu)
