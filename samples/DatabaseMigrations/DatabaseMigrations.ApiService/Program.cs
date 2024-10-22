@@ -30,7 +30,7 @@ app.MapGet("/", async (MyDb1Context context) =>
     return new
     {
         totalEntries = entries.Count,
-        entries = entries
+        entries
     };
 });
 
