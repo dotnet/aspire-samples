@@ -19,18 +19,18 @@ func main() {
     })
 
     portVar := os.Getenv("PORT")
-	if portVar == "" {
-		fmt.Println("Environment variable PORT is not set.")
-		return
-	}
+    if portVar == "" {
+        fmt.Println("Environment variable PORT is not set.")
+        return
+    }
 
     port, err := strconv.Atoi(portVar)
-	if err != nil {
-		fmt.Printf("Error converting PORT to integer: %s\n", err)
-		return
-	}
+    if err != nil {
+        fmt.Printf("Error converting PORT to integer: %s\n", err)
+        return
+    }
 
     endpoint := fmt.Sprintf(":%d", port);
-    // Start the server on port 5555
+    // Start the server
     router.Run(endpoint)
 }

@@ -4,7 +4,7 @@ var goVersion = builder.AddParameter("goversion"); // Value set in appsettings.j
                                                    // specified in the Dockerfile.
 
 builder.AddDockerfile("ginapp", "../ginapp")
-       .WithEndpoint(scheme: "http", targetPort: 5555, env: "PORT")
+       .WithHttpEndpoint(targetPort: 5555, env: "PORT")
        .WithBuildArg("GO_VERSION", goVersion);
 
 builder.Build().Run();
