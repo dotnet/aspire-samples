@@ -43,7 +43,7 @@
     <Exec Command="python -m venv $(VenvDir)" WorkingDirectory="$(PipRequirementsTxtDir)" Condition=" '$(CreateVenv)' == 'True' " />
   </Target>
 
-  <Target Name="PipInstall" BeforeTargets="PrepareForBuild" DependsOnTargets="SetPipInstallSentinelFilePath;CreatePythonVirtualEnvironments" Condition=" '$(DesignTimeBuild)' != 'True' "
+  <Target Name="PipInstall" AfterTargets="PrepareForBuild" DependsOnTargets="SetPipInstallSentinelFilePath;CreatePythonVirtualEnvironments" Condition=" '$(DesignTimeBuild)' != 'True' "
           Inputs="@(PipRequirementsTxt)" Outputs="$(PipInstallSentinelFilePath)">
     <PropertyGroup>
       <PipRequirementsTxtDir>%(PipRequirementsTxt.RootDir)%(PipRequirementsTxt.Directory)</PipRequirementsTxtDir>
