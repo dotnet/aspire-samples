@@ -51,7 +51,7 @@
       <PipCmd Condition=" '$(OS)' != 'Windows_NT' ">python -m pip</PipCmd>
       <PipInstallCmd>$(PipCmd) install -r %(PipRequirementsTxt.Filename)%(PipRequirementsTxt.Extension)</PipInstallCmd>
       <RestoreCmd Condition=" '$(OS)' == 'Windows_NT' ">call $(PythonVirtualEnvironmentName)\Scripts\activate.bat &amp;&amp; $(PipInstallCmd)</RestoreCmd>
-      <RestoreCmd Condition=" '$(OS)' != 'Windows_NT' ">source $(PythonVirtualEnvironmentName)/bin/activate &amp;&amp; $(PipInstallCmd)</RestoreCmd>
+      <RestoreCmd Condition=" '$(OS)' != 'Windows_NT' ">. ./$(PythonVirtualEnvironmentName)/bin/activate &amp;&amp; $(PipInstallCmd)</RestoreCmd>
     </PropertyGroup>
 
     <Message Importance="Normal" Text="Restoring packages for $(PipRequirementsTxtDir)" />
