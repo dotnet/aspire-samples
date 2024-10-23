@@ -47,7 +47,9 @@
           Inputs="@(PipRequirementsTxt)" Outputs="$(PipInstallSentinelFilePath)">
     <PropertyGroup>
       <PipRequirementsTxtDir>%(PipRequirementsTxt.RootDir)%(PipRequirementsTxt.Directory)</PipRequirementsTxtDir>
-      <PipInstallCmd>pip install -r %(PipRequirementsTxt.Filename)%(PipRequirementsTxt.Extension)</PipInstallCmd>
+      <PipCmd Condition=" '$(OS)' == 'Windows_NT' ">pip</PipCmd>
+      <PipCmd Condition=" '$(OS)' != 'Windows_NT' ">python -m pip</PipCmd>
+      <PipInstallCmd>$(PipCmd) install -r %(PipRequirementsTxt.Filename)%(PipRequirementsTxt.Extension)</PipInstallCmd>
       <RestoreCmd Condition=" '$(OS)' == 'Windows_NT' ">call $(PythonVirtualEnvironmentName)\Scripts\activate.bat &amp;&amp; $(PipInstallCmd)</RestoreCmd>
       <RestoreCmd Condition=" '$(OS)' != 'Windows_NT' ">source $(PythonVirtualEnvironmentName)/bin/activate &amp;&amp; $(PipInstallCmd)</RestoreCmd>
     </PropertyGroup>
