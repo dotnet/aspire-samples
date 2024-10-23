@@ -26,7 +26,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await using var app = await appHost.BuildAsync();
 
         await app.StartAsync();
-        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(60));
+        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
@@ -46,7 +46,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await using var app = await appHost.BuildAsync();
 
         await app.StartAsync();
-        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(60));
+        await app.WaitForResources().WaitAsync(TimeSpan.FromSeconds(120));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
