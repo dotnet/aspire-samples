@@ -96,7 +96,7 @@ public static partial class DistributedApplicationExtensions
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResources));
 
-        targetStates ??= [KnownResourceStates.Running, ..KnownResourceStates.TerminalStates];
+        targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
@@ -128,6 +128,8 @@ public static partial class DistributedApplicationExtensions
                 string.Join(',', resourceNames),
                 string.Join(',', targetStates));
         }
+
+        logger.LogInformation("Wait for all resources completed successfully!");
     }
 
     /// <summary>
