@@ -1,25 +1,32 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogDb = builder.AddPostgres("catalog")
+var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
-    .AddDatabase("catalogdb");
+    .WithPgAdmin();
+
+var catalogDb = postgres.AddDatabase("catalogdb");
 
 var basketCache = builder.AddRedis("basketcache")
-    .WithRedisCommander()
-    .WithDataVolume();
+    .WithDataVolume()
+    .WithRedisCommander();
+
+var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
+    .WithReference(catalogDb)
+    .WaitFor(catalogDb)
+    .WithHttpHealthCheck("/health");
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
-    .WithReference(catalogDb);
+    .WithReference(catalogDb)
+    .WaitFor(catalogDbManager);
 
 var basketService = builder.AddProject<Projects.AspireShop_BasketService>("basketservice")
-    .WithReference(basketCache);
+    .WithReference(basketCache)
+    .WaitFor(basketCache);
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
+    .WithExternalHttpEndpoints()
     .WithReference(basketService)
     .WithReference(catalogService)
-    .WithExternalHttpEndpoints();
-
-builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
-    .WithReference(catalogDb);
+    .WaitFor(catalogService);
 
 builder.Build().Run();

@@ -9,9 +9,6 @@ builder.Services.AddHostedService<ApiDbInitializer>();
 
 builder.AddServiceDefaults();
 
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracing => tracing.AddSource(ApiDbInitializer.ActivitySourceName));
-
 builder.Services.AddDbContextPool<MyDb1Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("db1"), sqlOptions =>
     {

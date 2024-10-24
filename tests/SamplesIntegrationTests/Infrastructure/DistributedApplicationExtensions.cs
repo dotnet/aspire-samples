@@ -92,13 +92,44 @@ public static partial class DistributedApplicationExtensions
     /// <remarks>
     /// If <paramref name="targetStates"/> is null, the default states are <see cref="KnownResourceStates.Running"/> and <see cref="KnownResourceStates.Hidden"/>.
     /// </remarks>
-    public static Task WaitForResources(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
+    public static async Task WaitForResources(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
     {
-        targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden];
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResources));
+
+        targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
-        return Task.WhenAll(applicationModel.Resources.Select(r => resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)));
+        var resourceTasks = applicationModel.Resources.Select(async r =>
+            (r.Name, await resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)))
+            .ToList();
+
+        var resourceNames = applicationModel.Resources.Select(r => r.Name).ToList();
+
+        logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+            string.Join(',', applicationModel.Resources.Select(r => r.Name)),
+            string.Join(',', targetStates));
+
+        while (resourceTasks.Count > 0)
+        {
+            var completedTask = await Task.WhenAny(resourceTasks);
+            var (resourceName, targetStateReached) = await completedTask;
+
+            if (targetStateReached == KnownResourceStates.FailedToStart)
+            {
+                throw new DistributedApplicationException($"Resource '{resourceName}' failed to start.");
+            }
+
+            resourceNames.Remove(resourceName);
+            resourceTasks.Remove(completedTask);
+
+            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", resourceName, targetStateReached);
+            logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                string.Join(',', resourceNames),
+                string.Join(',', targetStates));
+        }
+
+        logger.LogInformation("Wait for all resources completed successfully!");
     }
 
     /// <summary>

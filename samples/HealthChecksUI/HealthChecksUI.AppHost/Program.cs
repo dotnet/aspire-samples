@@ -6,7 +6,9 @@ var apiService = builder.AddProject<Projects.HealthChecksUI_ApiService>("apiserv
 
 var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
     .WithReference(cache)
+    .WaitFor(cache)
     .WithReference(apiService)
+    .WaitFor(apiService)
     .WithExternalHttpEndpoints();
 
 builder.AddHealthChecksUI("healthchecksui")
