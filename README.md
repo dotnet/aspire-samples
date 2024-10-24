@@ -13,11 +13,15 @@ Official samples hosted in this repo can be accessed via the [Samples browser](h
 Sample highlights include:
 
 - [Aspire Shop](./samples/AspireShop/)
-- [Metrics with OpenTelemetry, Prometheus & Grafana](./samples/Metrics)
+- [Custom metrics visualization with OpenTelemetry, Prometheus & Grafana](./samples/Metrics)
 - [Integrating a Node.js app](./samples/AspireWithNode)
-- [Integrating DAPR](./samples/AspireWithDapr)
+- [Integrating frontend apps using React, Vue, Angular, etc.](./samples/AspireWithJavaScript)
+- [Integrating a Go app using a Dockerfile](./samples/ContainerBuild)
+- [Integrating Dapr](./samples/AspireWithDapr)
+- [Integrating Orleans](./samples/OrleansVoting)
 - [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
-- [Working with database containers](./samples/DatabaseContainers)
+- [Working with and initializing database containers](./samples/DatabaseContainers)
+- [Running Entity Framework Core migrations](./samples/DatabaseMigrations)
 - [Integrating clients apps like WinForms](./samples/ClientAppsIntegration)
 
 ## eShop
@@ -27,7 +31,7 @@ Sample highlights include:
 ## .NET Aspire Links
 
 - [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire)
-- [.NET Aspire Blog](https://aka.ms/aspireannouncement)
+- [.NET Aspire Blog](https://aka.ms/dotnet/aspire/blog)
 - [.NET Aspire GitHub](https://github.com/dotnet/aspire)
 
 ## License
@@ -42,7 +46,7 @@ The code is not intended for operational deployment. Users should exercise cauti
 
 ## Contributing
 
-We welcome contributions to this repository of samples related to official .NET Aspire hosting and components pieces (i.e. those pieces who's code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
+We welcome contributions to this repository of samples related to official .NET Aspire features and integrations (i.e. those pieces who's code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
 
 ## Code of conduct
 
