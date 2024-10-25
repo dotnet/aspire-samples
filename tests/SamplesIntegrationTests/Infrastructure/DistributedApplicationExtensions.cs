@@ -33,6 +33,25 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
+    /// Sets the container lifetime for all container resources in the application.
+    /// </summary>
+    public static TBuilder WithContainersLifetime<TBuilder>(this TBuilder builder, ContainerLifetime containerLifetime)
+        where TBuilder : IDistributedApplicationTestingBuilder
+    {
+        var containerLifetimeAnnotations = builder.Resources.SelectMany(r => r.Annotations
+            .OfType<ContainerLifetimeAnnotation>()
+            .Where(c => c.Lifetime != containerLifetime))
+            .ToList();
+
+        foreach (var annotation in containerLifetimeAnnotations)
+        {
+            annotation.Lifetime = containerLifetime;
+        }
+
+        return builder;
+    }
+
+    /// <summary>
     /// Replaces all named volumes with anonymous volumes so they're isolated across test runs and from the volume the app uses during development.
     /// </summary>
     /// <remarks>
