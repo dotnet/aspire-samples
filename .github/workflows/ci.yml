@@ -29,6 +29,7 @@ jobs:
       DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
       ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
+      SuppressNETCoreSdkPreviewMessage: true
     steps:
     - uses: actions/checkout@v4
 
@@ -50,6 +51,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
+        dotnet-version: | 
+          8.0.x
     
     - uses: actions/setup-node@v4
       with:
