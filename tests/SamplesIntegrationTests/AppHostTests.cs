@@ -169,7 +169,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
             }),
-            new TestEndpoints("ImageGallery", new() {
+            new TestEndpoints("ImageGallery.AppHost", new() {
                 { "frontend", ["/alive", "/health", "/"] }
             }),
         ]);
