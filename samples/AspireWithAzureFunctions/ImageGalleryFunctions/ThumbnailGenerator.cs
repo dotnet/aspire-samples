@@ -1,4 +1,4 @@
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -18,8 +18,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     }
 
     [Function("ThumbnailGenerator")]
-    public async Task Run([BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, 
-        string name)
+    public async Task Run([BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, string name)
     {
         try
         {
