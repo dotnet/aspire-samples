@@ -1,11 +1,9 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Text.Json;
+using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
-using System.Text.Json;
+using SkiaSharp;
 
 namespace ImageGalleryFunctions;
 
@@ -22,22 +20,22 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     {
         try
         {
-            using var image = await Image.LoadAsync(stream);
+            int targetHeight = 128;
 
-            int maxHeight = 128;
-            var scale = (double)maxHeight / image.Height;
-            int thumbnailWidth = (int)(image.Width * scale);
-            int thumbnailHeight = (int)(image.Height * scale);
+            using var originalBitmap = SKBitmap.Decode(stream);
+            float scale = (float)targetHeight / originalBitmap.Height;
+            int targetWidth = (int)(originalBitmap.Width * scale);
 
-            image.Mutate(x => x.Resize(thumbnailWidth, thumbnailHeight));
+            using var resizedBitmap = originalBitmap.Resize(new SKImageInfo(targetWidth, targetHeight), SKFilterQuality.High);
+            using var resizedStream = new MemoryStream();
+            using var image = SKImage.FromBitmap(resizedBitmap);
+
+            image.Encode(SKEncodedImageFormat.Jpeg, 100).SaveTo(resizedStream);
+            resizedStream.Position = 0;
+
             var containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
             var blobClient = containerClient.GetBlobClient(name);
-
-            using var outputStream = new MemoryStream();
-            await image.SaveAsync(outputStream, new JpegEncoder());
-            outputStream.Position = 0;
-
-            await blobClient.UploadAsync(outputStream, overwrite: true);
+            await blobClient.UploadAsync(resizedStream, overwrite: true);
 
             var resultsQueueClient = queueServiceClient.GetQueueClient("thumbnailresults");
             await resultsQueueClient.SendMessageAsync(JsonSerializer.Serialize(new UploadResult()));
