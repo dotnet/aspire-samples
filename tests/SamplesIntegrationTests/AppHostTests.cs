@@ -23,13 +23,13 @@ public class AppHostTests(ITestOutputHelper testOutput)
         }
 
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
-        await using var app = await appHost.BuildAsync();
+        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
         await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync();
+        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
     }
 
     [Theory]
@@ -42,7 +42,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHostPath = $"{appHostName}.dll";
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
-        await using var app = await appHost.BuildAsync();
+        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
         await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
 
@@ -106,7 +106,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync();
+        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
     }
 
     public static TheoryData<string> AppHostAssemblies()
