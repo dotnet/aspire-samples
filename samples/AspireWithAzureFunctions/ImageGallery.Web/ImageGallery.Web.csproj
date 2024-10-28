@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.0.0-rc.1.24511.1" />
+	  <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.0.0-rc.1.24511.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

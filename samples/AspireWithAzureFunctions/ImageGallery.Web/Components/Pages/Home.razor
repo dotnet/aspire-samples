@@ -1,0 +1,129 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject BlobServiceClient blobServiceClient
+@inject QueueMessageHandler queueMessageHandler
+@implements IDisposable
+
+<div class="row">
+    <InputFile OnChange="HandleFileSelected" accept=".jpg,.jpeg,.png,.gif" multiple />
+</div>
+
+<div class="row">
+    @foreach (var image in images)
+    {
+        <div class="col-md-2" style="margin-bottom: 10px;">
+            <a target="_blank" href="@image.ImageUrl">
+                <img src="@image.ThumbnailUrl" />
+            </a>
+        </div>
+    }
+</div>
+
+@if (isDialogOpen)
+{
+    <div class="modal-overlay" @onclick="CloseDialog"></div>
+    <div class="modal" tabindex="-1" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Message</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDialog" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@dialogMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="CloseDialog">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ImageViewModel> images = new();
+    private BlobContainerClient? imageContainerClient;
+    private BlobContainerClient? thumbsContainerClient;
+    private bool isDialogOpen = false;
+    private string dialogMessage = string.Empty;
+
+    private void HandleMessageReceived(object? sender, UploadResult args) => InvokeAsync(LoadBlobs);
+
+    private void OpenDialog()
+    {
+        isDialogOpen = true;
+    }
+
+    private void CloseDialog()
+    {
+        isDialogOpen = false;
+    }
+
+    private void InitializeBlobContainerClient()
+    {
+        imageContainerClient = blobServiceClient.GetBlobContainerClient("images");
+        thumbsContainerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        InitializeBlobContainerClient();
+        await LoadBlobs();
+        queueMessageHandler.MessageReceived += HandleMessageReceived;
+    }
+
+    public void Dispose()
+    {
+        queueMessageHandler.MessageReceived -= HandleMessageReceived;
+    }
+
+    private async Task LoadBlobs()
+    {
+        images.Clear();
+        await foreach (var blobItem in thumbsContainerClient!.GetBlobsAsync())
+        {
+            var imageBlobClient = imageContainerClient!.GetBlobClient(blobItem.Name);
+            var thumbBlobClient = thumbsContainerClient.GetBlobClient(blobItem.Name);
+
+            images.Add(new ImageViewModel
+                {
+                    ImageUrl = imageBlobClient.Uri.AbsoluteUri,
+                    ThumbnailUrl = thumbBlobClient.Uri.AbsoluteUri
+                });
+
+        }
+        StateHasChanged();
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        const long fileSizeLimit = 512000;
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                dialogMessage = ($"File {file.Name} is not a valid image.");
+                OpenDialog();
+                continue;
+            }
+
+            if (file.Size > fileSizeLimit)
+            {
+                dialogMessage = ($"File {file.Name} exceeds the size limit of {fileSizeLimit} bytes.");
+                OpenDialog();
+                continue;
+            }
+
+            var blobClient = imageContainerClient!.GetBlobClient(file.Name);
+            using var stream = file.OpenReadStream();
+            await blobClient.UploadAsync(stream, overwrite: true);
+        }
+    }
+
+    public class ImageViewModel
+    {
+        public string? ImageUrl { get; set; }
+        public string? ThumbnailUrl { get; set; }
+    }
+}

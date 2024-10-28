@@ -168,7 +168,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            })
+            }),
+            new TestEndpoints("ImageGallery", new() {
+                { "frontend", ["/alive", "/health", "/"] }
+            }),
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
