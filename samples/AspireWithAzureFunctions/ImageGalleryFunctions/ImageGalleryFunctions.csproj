@@ -24,13 +24,8 @@
 		<ProjectReference Include="..\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Update="host.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="local.settings.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
-		</None>
+		<None Update="host.json" CopyToOutputDirectory="PreserveNewest" />
+		<None Update="local.settings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Never" />
 	</ItemGroup>
 	<ItemGroup>
 		<Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
