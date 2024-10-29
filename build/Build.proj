@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.0">
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <SamplesDir>$(MSBuildThisFileDirectory)../samples/</SamplesDir>
+        <NodeModules>$(SamplesDir)**/node_modules/**/*.*</NodeModules>
     </PropertyGroup>
 
     <ItemGroup>
-        <SampleSln Include="$(MSBuildThisFileDirectory)../samples/**/*.sln" />
-        <AppHostProjects Include="$(MSBuildThisFileDirectory)../samples/**/*.AppHost/*.AppHost.csproj" />
+        <SampleSln Include="$(SamplesDir)**/*.sln" />
+        <SampleSln Remove="$(NodeModules)" />
+        <AppHostProjects Include="$(SamplesDir)**/*.AppHost/*.AppHost.csproj" />
+        <AppHostProjects Remove="$(NodeModules)" />
     </ItemGroup>
 
     <Target Name="BuildSamples" BeforeTargets="Build">
