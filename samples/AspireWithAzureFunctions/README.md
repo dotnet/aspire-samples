@@ -6,7 +6,7 @@ products:
 - dotnet-aspire
 page_type: sample
 name: ".NET Aspire and Functions image gallery sample"
-urlFragment: "aspire-functions"
+urlFragment: "aspire-azure-functions-with-blob-triggers"
 description: "An example image gallery app written with .NET Aspire and Azure Functions."
 ---
 
