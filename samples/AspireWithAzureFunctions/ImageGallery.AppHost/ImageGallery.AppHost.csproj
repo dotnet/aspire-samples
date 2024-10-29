@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImageGallery.Web\ImageGallery.Web.csproj" />
-    <ProjectReference Include="..\ImageGalleryFunctions\ImageGalleryFunctions.csproj" />
+    <ProjectReference Include="..\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj" />
+    <ProjectReference Include="..\ImageGallery.Functions\ImageGallery.Functions.csproj" />
   </ItemGroup>
 
 </Project>

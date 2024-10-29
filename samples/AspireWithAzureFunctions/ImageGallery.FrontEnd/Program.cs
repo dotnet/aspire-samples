@@ -1,5 +1,5 @@
-using ImageGallery.Web;
-using ImageGallery.Web.Components;
+﻿using ImageGallery.FrontEnd;
+using ImageGallery.FrontEnd.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +27,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
 app.UseAntiforgery();
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

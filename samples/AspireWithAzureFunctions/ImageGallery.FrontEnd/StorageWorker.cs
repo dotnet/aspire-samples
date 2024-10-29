@@ -2,7 +2,7 @@
 using Azure.Storage.Queues;
 using System.Text.Json;
 
-namespace ImageGallery.Web;
+namespace ImageGallery.FrontEnd;
 
 public class StorageWorker(QueueServiceClient queueServiceClient, 
     BlobServiceClient blobServiceClient,
