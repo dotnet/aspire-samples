@@ -118,6 +118,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static TheoryData<TestEndpoints> TestEndpoints() =>
         new([
+            #if NET8_0
             new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
@@ -169,9 +170,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
             }),
+            #elif NET9_0
             new TestEndpoints("ImageGallery.AppHost", new() {
                 { "frontend", ["/alive", "/health", "/"] }
             }),
+            #endif
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()

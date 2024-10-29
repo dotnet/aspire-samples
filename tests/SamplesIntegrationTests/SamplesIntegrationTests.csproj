@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -13,12 +13,13 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="Aspire.Hosting.Azure" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="Aspire.Hosting.Testing" Version="9.0.0-rc.1.24511.1" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="8.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.0.0-preview.9.24507.7" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 
@@ -29,7 +30,9 @@
 
   <ItemGroup>
     <!-- Reference all sample AppHost projects in the repo -->
-    <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
+    <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net8.0' " />
+    <ProjectReference Remove="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net8.0' " />
+    <ProjectReference Include="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net9.0' " />
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 
