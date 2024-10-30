@@ -1,24 +1,26 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Queues;
+using ImageGallery.Shared.Serialization;
 using System.Text.Json;
 
 namespace ImageGallery.FrontEnd;
 
-public class StorageWorker(QueueServiceClient queueServiceClient, 
-    BlobServiceClient blobServiceClient,
-    QueueMessageHandler handler) : BackgroundService
+public sealed class StorageWorker(
+    QueueClient thumbnailResultsQueueClient,
+    [FromKeyedServices("images")] BlobContainerClient imagesContainerClient,
+    [FromKeyedServices("thumbnails")] BlobContainerClient thumbsContainerClient,
+    QueueMessageHandler handler,
+    ILogger<StorageWorker> logger) : BackgroundService
 {
-    QueueClient thumbnailResultsQueueClient = queueServiceClient.GetQueueClient("thumbnailresults");
-    BlobContainerClient imageContainerClient = blobServiceClient.GetBlobContainerClient("images");
-    BlobContainerClient thumbsContainerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
-
-    public override Task StopAsync(CancellationToken cancellationToken) => base.StopAsync(cancellationToken);
-
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        await thumbnailResultsQueueClient.CreateIfNotExistsAsync();
-        await imageContainerClient.CreateIfNotExistsAsync(publicAccessType: Azure.Storage.Blobs.Models.PublicAccessType.Blob);
-        await thumbsContainerClient.CreateIfNotExistsAsync(publicAccessType: Azure.Storage.Blobs.Models.PublicAccessType.Blob);
+        logger.LogInformation("Starting storage worker.");
+
+        await Task.WhenAll(
+            thumbnailResultsQueueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken),
+            imagesContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken),
+            thumbsContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken));
 
         await base.StartAsync(cancellationToken);
     }
@@ -27,33 +29,43 @@ public class StorageWorker(QueueServiceClient queueServiceClient,
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var message = await thumbnailResultsQueueClient.ReceiveMessageAsync(TimeSpan.FromSeconds(1), stoppingToken);
-            if (message is not null && message.Value is not null)
+            try
             {
-                var result = JsonSerializer.Deserialize<UploadResult>(message.Value.Body.ToString());
-                if(result is not null)
-                {
-                    handler.OnMessageReceived(result);
-                    await thumbnailResultsQueueClient.DeleteMessageAsync(message.Value.MessageId, message.Value.PopReceipt);
-                }
-            }
+                var message = await thumbnailResultsQueueClient.ReceiveMessageAsync(
+                    TimeSpan.FromSeconds(1), stoppingToken);
 
-            await Task.Delay(1000);
+                if (message is null or { Value: null })
+                {
+                    logger.LogInformation(
+                        "Message received but was either null or without value.");
+
+                    continue;
+                }
+
+                var result = JsonSerializer.Deserialize(
+                    message.Value.Body.ToString(), SerializationContext.Default.UploadResult);
+
+                if (result is null or { IsSuccessful: false })
+                {
+                    logger.LogInformation(
+                        "Message upload result was either null or unsuccessful for {Name}.",
+                        result?.Name);
+
+                    continue;
+                }
+
+                logger.LogInformation(
+                        "Relaying message of a successful upload...");
+
+                await handler.OnMessageReceivedAsync(result);
+
+                await thumbnailResultsQueueClient.DeleteMessageAsync(
+                    message.Value.MessageId, message.Value.PopReceipt, stoppingToken);
+            }
+            finally
+            {
+                await Task.Delay(7_500, stoppingToken);
+            }
         }
     }
-}
-
-public class QueueMessageHandler
-{
-    public event EventHandler<UploadResult>? MessageReceived;
-
-    public void OnMessageReceived(UploadResult result)
-    {
-        if (MessageReceived is not null)
-            MessageReceived(this, result);
-    }
-}
-
-public class UploadResult
-{
 }

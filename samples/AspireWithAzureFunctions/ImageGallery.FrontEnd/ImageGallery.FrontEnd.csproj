@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\ImageGallery.Shared\ImageGallery.Shared.csproj" />
   </ItemGroup>
 
 </Project>
