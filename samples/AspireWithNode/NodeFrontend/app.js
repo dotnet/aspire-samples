@@ -1,5 +1,7 @@
-import { env } from 'node:process';
-import { createServer } from 'node:http';
+import env from 'node:process';
+import http from 'node:http';
+import https from 'node:https';
+import fs from 'node:fs';
 import fetch from 'node-fetch';
 import express from 'express';
 import { createTerminus, HealthCheckError } from '@godaddy/terminus';
@@ -7,7 +9,16 @@ import { createClient } from 'redis';
 
 const environment = process.env.NODE_ENV || 'development';
 const app = express();
-const port = env.PORT ?? 8080;
+const httpPort = env.PORT ?? 8080;
+const httpsPort = env.HTTPS_PORT ?? 8443;
+const certFile = env.HTTPS_CERT_FILE ?? '';
+const certKeyFile = env.HTTPS_CERT_KEY_FILE ?? '';
+const httpsOptions = fs.existsSync(certFile) && fs.existsSync(certKeyFile)
+    ? {
+        cert: fs.readFileSync(certFile),
+        key: fs.readFileSync(certKeyFile)
+    }
+    : null;
 
 const cacheAddress = env['ConnectionStrings__cache'];
 const apiServer = env['services__weatherapi__https__0'] ?? env['services__weatherapi__http__0'];
@@ -50,7 +61,8 @@ app.get('/', async (req, res) => {
 app.set('views', './views');
 app.set('view engine', 'pug');
 
-const server = createServer(app)
+const httpServer = http.createServer(app)
+const httpsServer = httpsOptions ? https.createServer(httpsOptions, app) : null;
 
 async function healthCheck() {
     const errors = [];
@@ -68,20 +80,32 @@ async function healthCheck() {
     }
 }
 
-createTerminus(server, {
-    signal: 'SIGINT',
-    healthChecks: {
-        '/health': healthCheck,
-        '/alive': () => { }
-    },
-    onSignal: async () => {
-        console.log('server is starting cleanup');
-        console.log('closing Redis connection');
-        await cache.disconnect();
-    },
-    onShutdown: () => console.log('cleanup finished, server is shutting down')
-});
+function startTerminus(server) {
+    createTerminus(httpServer, {
+        signal: 'SIGINT',
+        healthChecks: {
+            '/health': healthCheck,
+            '/alive': () => { }
+        },
+        onSignal: async () => {
+            console.log('server is starting cleanup');
+            console.log('closing Redis connection');
+            await cache.disconnect();
+        },
+        onShutdown: () => console.log('cleanup finished, server is shutting down')
+    });
+}
 
-server.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+startTerminus(httpServer);
+if (httpsServer) {
+    startTerminus(httpsServer);
+}
+
+httpServer.listen(httpPort, () => {
+    console.log(`HTTP listening on port ${httpPort}`);
 });
+if (httpsServer) {
+    httpsServer.listen(httpsPort, () => {
+        console.log(`HTTPS listening on port ${httpsPort}`);
+    });
+}
