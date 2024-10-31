@@ -9,14 +9,16 @@ using SkiaSharp;
 
 namespace ImageGalleryFunctions;
 
-public class ThumbnailGenerator(
-    ILogger<ThumbnailGenerator> logger,
+public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     QueueServiceClient queueServiceClient,
     BlobServiceClient blobServiceClient)
 {
+    private BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+    private QueueClient resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
+    private const int targetHeight = 128;
+
     [Function(nameof(ThumbnailGenerator))]
-    public async Task Resize(
-        [BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, string name)
+    public async Task Resize([BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, string name)
     {
         try
         {
@@ -34,8 +36,7 @@ public class ThumbnailGenerator(
         }
     }
 
-    private MemoryStream GetResizedImageStream(
-        string name, Stream stream, SKEncodedImageFormat format, int targetHeight = 128)
+    private MemoryStream GetResizedImageStream(string name, Stream stream, SKEncodedImageFormat format)
     {
         using var originalBitmap = SKBitmap.Decode(stream);
 
@@ -63,8 +64,6 @@ public class ThumbnailGenerator(
     {
         resizedStream.Position = 0;
 
-        var containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
-
         var blobClient = containerClient.GetBlobClient(name);
 
         logger.LogInformation("Uploading {Name}", name);
@@ -76,8 +75,6 @@ public class ThumbnailGenerator(
 
     private async Task SendQueueMessageAsync(string name)
     {
-        var resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
-
         var jsonMessage = JsonSerializer.Serialize(
             new UploadResult(name, true), SerializationContext.Default.UploadResult);
 
