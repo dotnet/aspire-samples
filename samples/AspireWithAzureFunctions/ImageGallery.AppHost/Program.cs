@@ -6,7 +6,6 @@ var queues = storage.AddQueues("queues");
 
 var functions =
     builder.AddAzureFunctionsProject<Projects.ImageGallery_Functions>("functions")
-           .WithHostStorage(storage)
            .WithReference(queues)
            .WithReference(blobs)
            .WaitFor(storage);
