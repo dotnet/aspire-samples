@@ -25,7 +25,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        // We must start the app first, and then wait for resources.
+        // Otherwise there's a race condition where some resources are removed just before start.
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(30));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(90));
 
         app.EnsureNoErrorsLogged();
 
@@ -44,7 +47,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        // We must start the app first, and then wait for resources.
+        // Otherwise there's a race condition where some resources are removed just before start.
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(30));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(90));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {

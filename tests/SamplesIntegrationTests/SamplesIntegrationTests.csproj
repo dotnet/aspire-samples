@@ -28,11 +28,15 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <!-- Reference all sample AppHost projects in the repo -->
-    <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net8.0' " />
-    <ProjectReference Remove="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net8.0' " />
-    <ProjectReference Include="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" Condition=" '$(TargetFramework)' == 'net9.0' " />
+    <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
+    <ProjectReference Remove="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
+    <ThisProject Include="$(MSBuildThisFileFullPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <ProjectReference Include="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 

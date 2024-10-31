@@ -12,6 +12,8 @@ description: "An example image gallery app written with .NET Aspire and Azure Fu
 
 # Image Gallery
 
+![Screenshot of the web frontend the .NET Aspire with Azure Functions sample](./images/aspire-with-functions.png)
+
 The app consists of two services:
 
 - **ImageGallery.Frontend**: This is a Blazor app that displays a for uploading of images, showing thumbnails of images in a grid.

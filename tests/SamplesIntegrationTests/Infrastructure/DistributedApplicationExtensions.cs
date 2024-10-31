@@ -92,22 +92,22 @@ public static partial class DistributedApplicationExtensions
     /// <remarks>
     /// If <paramref name="targetStates"/> is null, the default states are <see cref="KnownResourceStates.Running"/> and <see cref="KnownResourceStates.Hidden"/>.
     /// </remarks>
-    public static async Task WaitForResources(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
+    public static async Task WaitForResourcesAsync(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
     {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResources));
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResourcesAsync));
 
         targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
         var resourceTasks = applicationModel.Resources.Select(async r =>
-            (r.Name, await resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)))
+            (r.Name, State: await resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)))
             .ToList();
 
         var resourceNames = applicationModel.Resources.Select(r => r.Name).ToList();
 
         logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-            string.Join(',', applicationModel.Resources.Select(r => r.Name)),
+            string.Join(',', resourceNames),
             string.Join(',', targetStates));
 
         while (resourceTasks.Count > 0)
