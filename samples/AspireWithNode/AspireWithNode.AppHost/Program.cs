@@ -20,9 +20,7 @@ var launchProfile = builder.Configuration["DOTNET_LAUNCH_PROFILE"] ??
 
 if (builder.Environment.IsDevelopment() && launchProfile == "https")
 {
-    frontend
-        .RunWithHttpsDevCertificate("HTTPS_CERT_FILE", "HTTPS_CERT_KEY_FILE")
-        .WithHttpsEndpoint(env: "HTTPS_PORT");
+    frontend.RunWithHttpsDevCertificate("HTTPS_CERT_FILE", "HTTPS_CERT_KEY_FILE");
 }
 
 builder.Build().Run();

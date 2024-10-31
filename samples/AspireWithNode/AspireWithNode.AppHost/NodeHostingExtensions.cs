@@ -1,4 +1,6 @@
-﻿namespace Aspire.Hosting;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace Aspire.Hosting;
 
 internal static class NodeHostingExtensions
 {
@@ -6,21 +8,26 @@ internal static class NodeHostingExtensions
     /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables when
     /// <paramref name="builder"/>.<see cref="IResourceBuilder{T}.ApplicationBuilder">ApplicationBuilder</see>.<see cref="IDistributedApplicationBuilder.ExecutionContext">ExecutionContext</see>.<see cref="DistributedApplicationExecutionContext.IsRunMode">IsRunMode</see><c> == true</c>.<br/>
     /// </summary>
-    /// <remarks>
-    /// This method <strong>does not</strong> configure an HTTPS endpoint on the resource. Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
-    /// </remarks>
-    public static IResourceBuilder<NodeAppResource> RunWithHttpsDevCertificate(this IResourceBuilder<NodeAppResource> builder, string? certFileEnv = null, string? certKeyFileEnv = null)
+    public static IResourceBuilder<NodeAppResource> RunWithHttpsDevCertificate(this IResourceBuilder<NodeAppResource> builder, string certFileEnv, string certKeyFileEnv)
     {
-        certFileEnv ??= "HTTPS_CERT_FILE";
-        certKeyFileEnv ??= "HTTPS_CERT_KEY_FILE";
-
-        DevCertHostingExtensions.RunWithHttpsDevCertificate(builder, certFileEnv, certKeyFileEnv);
-
-        builder.WithEnvironment(context =>
+        if (builder.ApplicationBuilder.ExecutionContext.IsRunMode && builder.ApplicationBuilder.Environment.IsDevelopment())
         {
-            var certPath = context.EnvironmentVariables[certFileEnv];
-            context.EnvironmentVariables["NODE_EXTRA_CA_CERTS"] = certPath;
-        });
+            DevCertHostingExtensions.RunWithHttpsDevCertificate(builder, certFileEnv, certKeyFileEnv, (certFilePath, certKeyPath) =>
+            {
+                builder.WithHttpsEndpoint(env: "HTTPS_PORT");
+                var httpsEndpoint = builder.GetEndpoint("https");
+
+                builder.WithEnvironment(context =>
+                {
+                    // Configure Node to trust the ASP.NET Core HTTPS development certificate as a root CA.
+                    if (context.EnvironmentVariables.TryGetValue(certFileEnv, out var certPath))
+                    {
+                        context.EnvironmentVariables["NODE_EXTRA_CA_CERTS"] = certPath;
+                        context.EnvironmentVariables["HTTPS_REDIRECT_PORT"] = ReferenceExpression.Create($"{httpsEndpoint.Property(EndpointProperty.Port)}");
+                    }
+                });
+            });
+        }
 
         return builder;
     }
