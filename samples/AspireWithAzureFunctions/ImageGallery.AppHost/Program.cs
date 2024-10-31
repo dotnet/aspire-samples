@@ -11,7 +11,7 @@ var functions =
            .WithReference(blobs)
            .WaitFor(storage);
 
-builder.AddProject<Projects.ImageGallery_FrontEnd>("web")
+builder.AddProject<Projects.ImageGallery_FrontEnd>("frontend")
        .WithReference(queues)
        .WithReference(blobs)
        .WaitFor(functions);
