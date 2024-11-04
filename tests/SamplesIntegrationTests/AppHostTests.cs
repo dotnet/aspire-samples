@@ -25,7 +25,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        await Task.WhenAll(app.StartAsync(), app.WaitForResourcesAsync()).WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
@@ -44,7 +44,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        await Task.WhenAll(app.StartAsync(), app.WaitForResourcesAsync()).WaitAsync(TimeSpan.FromSeconds(120));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
@@ -118,6 +118,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static TheoryData<TestEndpoints> TestEndpoints() =>
         new([
+            #if NET8_0
             new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
@@ -168,7 +169,12 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            })
+            }),
+            #elif NET9_0
+            new TestEndpoints("ImageGallery.AppHost", new() {
+                { "frontend", ["/alive", "/health", "/"] }
+            }),
+            #endif
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()
