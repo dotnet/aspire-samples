@@ -33,6 +33,7 @@ public static class DevCertHostingExtensions
                 if (!exported)
                 {
                     // The export failed for some reason, don't configure the resource to use the certificate.
+                    return;
                 }
 
                 if (builder.Resource is ContainerResource containerResource)
