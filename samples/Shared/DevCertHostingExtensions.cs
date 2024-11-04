@@ -75,7 +75,7 @@ public static class DevCertHostingExtensions
     {
         // Exports the ASP.NET Core HTTPS development certificate & private key to PEM files using 'dotnet dev-certs https' to a temporary
         // directory and returns the path.
-        // TODO: Check if we're running on a platform that already has the cert and key exported to a file (e.g. macOS) and just use those intead.
+        // TODO: Check if we're running on a platform that already has the cert and key exported to a file (e.g. macOS) and just use those instead.
         var appNameHash = builder.Configuration["AppHost:Sha256"]![..10];
         var tempDir = Path.Combine(Path.GetTempPath(), $"aspire.{appNameHash}");
         var certExportPath = Path.Combine(tempDir, "dev-cert.pem");
@@ -121,7 +121,7 @@ public static class DevCertHostingExtensions
             WindowStyle = ProcessWindowStyle.Hidden,
         };
 
-        var exportProcess = new Process() { StartInfo = exportStartInfo };
+        var exportProcess = new Process { StartInfo = exportStartInfo };
 
         Task? stdOutTask = null;
         Task? stdErrTask = null;
