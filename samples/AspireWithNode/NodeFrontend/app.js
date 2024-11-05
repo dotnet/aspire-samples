@@ -29,7 +29,7 @@ const httpsOptions = fs.existsSync(config.certFile) && fs.existsSync(config.cert
     : { enabled: false };
 
 // Setup connection to Redis cache
-const passwordPrefix = ",password=";
+const passwordPrefix = ',password=';
 let cacheConfig = {
     url: `redis://${config.cacheAddress}`
 };
@@ -101,7 +101,7 @@ async function healthCheck() {
 // Start a server
 function startServer(server, port) {
     if (server) {
-        const serverType = server instanceof https.Server ? "HTTPS" : "HTTP";
+        const serverType = server instanceof https.Server ? 'HTTPS' : 'HTTP';
 
         // Create the health check endpoint
         createTerminus(server, {
