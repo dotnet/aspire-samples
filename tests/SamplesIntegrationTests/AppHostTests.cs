@@ -45,11 +45,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync();
 
-        var startTask = app.StartAsync();
-        await startTask.WaitAsync(TimeSpan.FromSeconds(120));
-
-        var waitForResourcesTask = app.WaitForResourcesAsync();
-        await waitForResourcesTask.WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
