@@ -114,33 +114,34 @@ public static partial class DistributedApplicationExtensions
         while (resourceTasks.Count > 0)
         {
             var completedTask = await Task.WhenAny(resourceTasks.Values);
-            var (resourceName, targetStateReached) = await completedTask;
+            var (completedResourceName, targetStateReached) = await completedTask;
 
             if (targetStateReached == KnownResourceStates.FailedToStart)
             {
-                throw new DistributedApplicationException($"Resource '{resourceName}' failed to start.");
+                throw new DistributedApplicationException($"Resource '{completedResourceName}' failed to start.");
             }
 
-            resourceTasks.Remove(resourceName);
+            resourceTasks.Remove(completedResourceName);
+
+            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", completedResourceName, targetStateReached);
 
             // Ensure resources being waited on still exist
-            var resourceNames = resourceTasks.Keys.ToList();
-            for (var i = resourceNames.Count - 1; i >= 0; i--)
+            var remainingResources = resourceTasks.Keys.ToList();
+            for (var i = remainingResources.Count - 1; i > 0; i--)
             {
-                var name = resourceNames[i];
-                if (applicationModel.Resources.FirstOrDefault(r => r.Name == name) is null)
+                var name = remainingResources[i];
+                if (!applicationModel.Resources.Any(r => r.Name == name))
                 {
-                    logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it to reach one of a target state.", resourceName);
+                    logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it.", name);
                     resourceTasks.Remove(name);
+                    remainingResources.RemoveAt(i);
                 }
             }
-
-            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", resourceName, targetStateReached);
 
             if (resourceTasks.Count > 0)
             {
                 logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-                    string.Join(',', resourceNames),
+                    string.Join(',', remainingResources),
                     string.Join(',', targetStates));
             }
         }
