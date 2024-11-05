@@ -136,9 +136,13 @@ public static partial class DistributedApplicationExtensions
             }
 
             logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", resourceName, targetStateReached);
-            logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-                string.Join(',', resourceNames),
-                string.Join(',', targetStates));
+
+            if (resourceTasks.Count > 0)
+            {
+                logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                    string.Join(',', resourceNames),
+                    string.Join(',', targetStates));
+            }
         }
 
         logger.LogInformation("Wait for all resources completed successfully!");
