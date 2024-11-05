@@ -25,11 +25,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
-        var startTask = app.StartAsync();
-        var waitForResourcesTask = app.WaitForResourcesAsync();
-
-        await startTask.WaitAsync(TimeSpan.FromSeconds(120));
-        await waitForResourcesTask.WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
@@ -49,9 +46,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
         await using var app = await appHost.BuildAsync();
 
         var startTask = app.StartAsync();
-        var waitForResourcesTask = app.WaitForResourcesAsync();
-
         await startTask.WaitAsync(TimeSpan.FromSeconds(120));
+
+        var waitForResourcesTask = app.WaitForResourcesAsync();
         await waitForResourcesTask.WaitAsync(TimeSpan.FromSeconds(120));
 
         if (testEndpoints.WaitForResources?.Count > 0)
