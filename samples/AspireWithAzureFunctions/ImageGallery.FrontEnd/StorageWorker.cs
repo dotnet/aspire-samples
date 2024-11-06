@@ -19,8 +19,8 @@ public sealed class StorageWorker(
 
         await Task.WhenAll(
             thumbnailResultsQueueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken),
-            imagesContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken),
-            thumbsContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken));
+            imagesContainerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken),
+            thumbsContainerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken));
 
         await base.StartAsync(cancellationToken);
     }
