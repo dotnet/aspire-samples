@@ -13,24 +13,21 @@ internal static class ImageUrl
     {
         var extension = Path.GetExtension(name);
 
-        var chars = name.AsSpan();
-        Span<char> buffer = stackalloc char[chars.Length];
+        var nameSpan = name.AsSpan();
+        Span<char> slugBuffer = stackalloc char[nameSpan.Length];
 
         // Replace invalid characters with '-'
         // Valid chars are letters, digits, '-', and '_'
-        for (var i = 0; i < chars.Length - extension.Length; i++)
+        for (var i = 0; i < nameSpan.Length - extension.Length; i++)
         {
-            var c = chars[i];
-            buffer[i] = char.IsLetterOrDigit(c) || c == '-' || c == '_' ? c : '-';
+            var c = nameSpan[i];
+            slugBuffer[i] = char.IsLetterOrDigit(c) || c == '-' || c == '_' ? c : '-';
         }
 
         // Add extension back
-        for (var i = 0; i < extension.Length; i++)
-        {
-            buffer[chars.Length - extension.Length + i] = extension[i];
-        }
+        nameSpan[^extension.Length..].CopyTo(slugBuffer[^extension.Length..]);
 
-        var slug = new string(buffer);
+        var slug = new string(slugBuffer);
 
         return slug;
     }

@@ -27,7 +27,7 @@ public sealed partial class Home(
 
     protected override async Task OnInitializedAsync()
     {
-        logger.LogInformation("Subscribing to message handler.");
+        logger.LogDebug("Subscribing to message handler.");
 
         await LoadBlobsAsync();
 
@@ -38,7 +38,7 @@ public sealed partial class Home(
     {
         try
         {
-            logger.LogInformation("Loading blobs...");
+            logger.LogDebug("Loading blobs...");
 
             await foreach (var blobItem in thumbsContainerClient.GetBlobsAsync())
             {
@@ -73,7 +73,7 @@ public sealed partial class Home(
                     continue;
                 }
 
-                logger.LogInformation("Uploading {Name}", file.Name);
+                logger.LogDebug("Uploading {Name}", file.Name);
 
                 var slug = ImageUrl.CreateNameSlug(file.Name);
                 var blobClient = imagesContainerClient.GetBlobClient(slug);
