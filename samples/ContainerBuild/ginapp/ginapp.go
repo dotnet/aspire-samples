@@ -14,10 +14,14 @@ func main() {
 
     // Configure trusted proxies
     trustedProxies := os.Getenv("TRUSTED_PROXIES")
-    if trustedProxies != "" {
+    if trustedProxies == "all" {
+        // Trust all networks (default, no method call required)
+    } else if trustedProxies != "" {
+        // Trust specific networks
         proxies := strings.Split(trustedProxies, ";")
         router.SetTrustedProxies(proxies)
     } else {
+        // Disable trusted proxies
         router.SetTrustedProxies(nil)
     }
 
@@ -41,6 +45,7 @@ func main() {
     }
 
     endpoint := fmt.Sprintf(":%d", port);
+
     // Start the server
     router.Run(endpoint)
 }
