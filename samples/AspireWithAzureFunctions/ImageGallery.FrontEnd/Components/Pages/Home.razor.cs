@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Net;
+using Azure.Storage.Blobs;
 using ImageGallery.Shared;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -10,7 +11,7 @@ public sealed partial class Home(
     QueueMessageHandler queueMessageHandler,
     ILogger<Home> logger)
 {
-    private const long UploadFileSizeLimit = 512_000; // 512 KB
+    private const long UploadFileSizeLimit = 524_288; // 512 KB (512 x 1024 bytes)
 
     private readonly HashSet<ImageViewModel> _images = [];
 
@@ -41,12 +42,7 @@ public sealed partial class Home(
 
             await foreach (var blobItem in thumbsContainerClient.GetBlobsAsync())
             {
-                var imageBlobClient = imagesContainerClient.GetBlobClient(blobItem.Name);
-                var thumbBlobClient = thumbsContainerClient.GetBlobClient(blobItem.Name);
-
-                _images.Add(new ImageViewModel(
-                    ImageUrl: imageBlobClient.Uri.AbsoluteUri,
-                    ThumbnailUrl: thumbBlobClient.Uri.AbsoluteUri));
+                _images.Add(new(ImageUrl.GetImageUrl(blobItem.Name), ImageUrl.GetThumbnailUrl(blobItem.Name)));
             }
         }
         finally
@@ -79,13 +75,20 @@ public sealed partial class Home(
 
                 logger.LogInformation("Uploading {Name}", file.Name);
 
-                var blobClient = imagesContainerClient.GetBlobClient(file.Name);
+                var slug = ImageUrl.CreateNameSlug(file.Name);
+                var blobClient = imagesContainerClient.GetBlobClient(slug);
 
                 using var stream = file.OpenReadStream();
 
                 await blobClient.UploadAsync(stream, overwrite: true);
 
-                logger.LogInformation("Uploaded {Name}", file.Name);
+                var metadata = new Dictionary<string, string>
+                {
+                    ["OriginalFileName"] = WebUtility.UrlEncode(file.Name)
+                };
+                await blobClient.SetMetadataAsync(metadata);
+
+                logger.LogInformation("Uploaded {Name} with slug {Slug}", file.Name, slug);
             }
         }
         finally

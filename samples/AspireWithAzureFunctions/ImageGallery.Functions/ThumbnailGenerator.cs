@@ -7,15 +7,15 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SkiaSharp;
 
-namespace ImageGalleryFunctions;
+namespace ImageGallery.Functions;
 
 public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     QueueServiceClient queueServiceClient,
     BlobServiceClient blobServiceClient)
 {
-    private BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
-    private QueueClient resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
-    private const int targetHeight = 128;
+    private readonly BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+    private readonly QueueClient resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
+    private const int TargetHeight = 128;
 
     [Function(nameof(ThumbnailGenerator))]
     public async Task Resize([BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, string name)
@@ -40,11 +40,11 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     {
         using var originalBitmap = SKBitmap.Decode(stream);
 
-        var scale = (float)targetHeight / originalBitmap.Height;
+        var scale = (float)TargetHeight / originalBitmap.Height;
         var targetWidth = (int)(originalBitmap.Width * scale);
 
         using var resizedBitmap = originalBitmap.Resize(
-            new SKImageInfo(targetWidth, targetHeight), SKFilterQuality.High);
+            new SKImageInfo(targetWidth, TargetHeight), SKFilterQuality.High);
 
         using var image = SKImage.FromBitmap(resizedBitmap);
 
@@ -55,7 +55,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
 
         logger.LogInformation(
             "Resized image {Name} from {OriginalWidth}x{OriginalHeight} to {Width}x{Height}.",
-            name, originalBitmap.Width, originalBitmap.Height, targetWidth, targetHeight);
+            name, originalBitmap.Width, originalBitmap.Height, targetWidth, TargetHeight);
 
         return resizedStream;
     }
