@@ -1,10 +1,19 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using Microsoft.Extensions.Hosting;
 
-var goVersion = builder.AddParameter("goversion"); // Value set in appsettings.json and overrides the default
-                                                   // specified in the Dockerfile.
+var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddDockerfile("ginapp", "../ginapp")
-       .WithHttpEndpoint(targetPort: 5555, env: "PORT")
-       .WithBuildArg("GO_VERSION", goVersion);
+var goVersion = builder.AddParameter("goversion", "1.22", publishValueAsDefault: true);
+
+var ginapp = builder.AddDockerfile("ginapp", "../ginapp")
+    .WithBuildArg("GO_VERSION", goVersion)
+    .WithHttpEndpoint(targetPort: 5555, env: "PORT")
+    .WithExternalHttpEndpoints();
+
+ginapp.WithEnvironment("TRUSTED_PROXIES", $"{ginapp.GetEndpoint("http").Property(EndpointProperty.Host)}");
+
+if (builder.ExecutionContext.IsRunMode || builder.Environment.IsProduction())
+{
+    ginapp.WithEnvironment("GIN_MODE", "release");
+}
 
 builder.Build().Run();
