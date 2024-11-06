@@ -2,8 +2,6 @@
 using Azure.Storage.Queues;
 using ImageGallery.FrontEnd;
 using ImageGallery.FrontEnd.Components;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 

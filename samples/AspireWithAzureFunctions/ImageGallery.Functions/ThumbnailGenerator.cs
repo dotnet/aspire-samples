@@ -13,8 +13,8 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     QueueServiceClient queueServiceClient,
     BlobServiceClient blobServiceClient)
 {
-    private readonly BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
-    private readonly QueueClient resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
+    private readonly BlobContainerClient _containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+    private readonly QueueClient _resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
     private const int TargetHeight = 128;
 
     [Function(nameof(ThumbnailGenerator))]
@@ -64,7 +64,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     {
         resizedStream.Position = 0;
 
-        var blobClient = containerClient.GetBlobClient(name);
+        var blobClient = _containerClient.GetBlobClient(name);
 
         logger.LogDebug("Uploading {Name}", name);
 
@@ -80,7 +80,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
 
         logger.LogDebug("Signaling upload of {Name}", name);
 
-        await resultsQueueClient.SendMessageAsync(jsonMessage);
+        await _resultsQueueClient.SendMessageAsync(jsonMessage);
 
         logger.LogInformation("Signaled upload of {Name}", name);
     }

@@ -10,6 +10,8 @@ var storage = builder.AddAzureStorage("storage").RunAsEmulator()
         // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
         construct.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageAccountContributor, construct.PrincipalTypeParameter, construct.PrincipalIdParameter));
         construct.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageBlobDataOwner, construct.PrincipalTypeParameter, construct.PrincipalIdParameter));
+        // Ensure that public access to blobs is disabled
+        storageAccount.AllowBlobPublicAccess = false;
     });
 var blobs = storage.AddBlobs("blobs");
 var queues = storage.AddQueues("queues");
