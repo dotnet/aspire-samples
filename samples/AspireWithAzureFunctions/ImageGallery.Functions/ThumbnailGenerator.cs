@@ -66,7 +66,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
 
         var blobClient = containerClient.GetBlobClient(name);
 
-        logger.LogInformation("Uploading {Name}", name);
+        logger.LogDebug("Uploading {Name}", name);
 
         await blobClient.UploadAsync(resizedStream, overwrite: true);
 
@@ -78,7 +78,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
         var jsonMessage = JsonSerializer.Serialize(
             new UploadResult(name, true), SerializationContext.Default.UploadResult);
 
-        logger.LogInformation("Signaling upload of {Name}", name);
+        logger.LogDebug("Signaling upload of {Name}", name);
 
         await resultsQueueClient.SendMessageAsync(jsonMessage);
 
