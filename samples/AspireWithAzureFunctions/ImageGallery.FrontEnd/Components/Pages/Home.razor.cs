@@ -1,7 +1,7 @@
 ﻿using System.Net;
+using Microsoft.AspNetCore.Components.Forms;
 using Azure.Storage.Blobs;
 using ImageGallery.Shared;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace ImageGallery.FrontEnd.Components.Pages;
 
@@ -11,7 +11,7 @@ public sealed partial class Home(
     QueueMessageHandler queueMessageHandler,
     ILogger<Home> logger)
 {
-    private const long UploadFileSizeLimit = 524_288; // 512 KB (512 x 1024 bytes)
+    private const long UploadFileSizeLimitBytes = 524_288; // 512 KB (512 x 1024 bytes)
 
     private readonly HashSet<ImageViewModel> _images = [];
 
@@ -65,9 +65,9 @@ public sealed partial class Home(
                     continue;
                 }
 
-                if (file is { Size: > UploadFileSizeLimit })
+                if (file is { Size: > UploadFileSizeLimitBytes })
                 {
-                    _dialogMessage = $"File {file.Name} exceeds the size limit of {UploadFileSizeLimit} bytes.";
+                    _dialogMessage = $"File {file.Name} exceeds the size limit of {UploadFileSizeLimitBytes} bytes.";
                     OpenDialog();
 
                     continue;
