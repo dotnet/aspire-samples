@@ -1,8 +1,13 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
-    .WithDataVolume()
     .WithPgAdmin();
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    // Data volumes don't work on ACA for Postgres so only add when running
+    postgres.WithDataVolume();
+}
 
 var catalogDb = postgres.AddDatabase("catalogdb");
 
