@@ -1,0 +1,78 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
+{
+	"name": ".NET Aspire Samples",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-9.0-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/powershell:1": {},
+		"ghcr.io/azure/azure-dev/azd:0": {},
+		"ghcr.io/devcontainers/features/dotnet": {
+			"additionalVersions": [
+				"8.0.403"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [5000, 5001],
+	// "portsAttributes": {
+	//		"5001": {
+	//			"protocol": "https"
+	//		}
+	// }
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "dotnet restore",
+	"onCreateCommand": "dotnet new install Aspire.ProjectTemplates::9.0.0-rc.1.24511.1 --force",
+	"postStartCommand": "dotnet dev-certs https --trust",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.csdevkit",
+				"ms-azuretools.vscode-bicep",
+				"GitHub.copilot-chat",
+				"GitHub.copilot"
+			]
+		}
+	},
+
+	"forwardPorts": [
+		15179, 7276, 15180, 15181, 7241 // AspireShop
+	],
+	"portsAttributes": {
+		"15179": {
+			"label": "AspireShop AppHost",
+			"protocol": "https",
+			"onAutoForward": "ignore"
+		},
+		"7276": {
+			"label": "AspireShop Frontend",
+			"protocol": "https",
+			"onAutoForward": "ignore"
+		},
+		"7241": {
+			"label": "AspireShop Catalog Service",
+			"protocol": "https",
+			"onAutoForward": "ignore"
+		},
+		"15180": {
+			"label": "AspireShop PGAdmin",
+			"protocol": "http",
+			"onAutoForward": "ignore"
+		},
+		"15181": {
+			"label": "AspireShop RedisCommander",
+			"protocol": "http",
+			"onAutoForward": "ignore"
+		}
+	}
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

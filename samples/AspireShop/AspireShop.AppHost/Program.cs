@@ -2,13 +2,13 @@
 
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
-    .WithPgAdmin();
+    .WithPgAdmin(c => c.WithHostPort(15180));
 
 var catalogDb = postgres.AddDatabase("catalogdb");
 
 var basketCache = builder.AddRedis("basketcache")
     .WithDataVolume()
-    .WithRedisCommander();
+    .WithRedisCommander(c => c.WithHostPort(15181));
 
 var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
     .WithReference(catalogDb)
