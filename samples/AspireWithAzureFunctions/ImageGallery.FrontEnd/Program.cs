@@ -43,4 +43,22 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapGet(ImageUrl.RoutePattern, async (string slug, bool? thumbnail, IServiceProvider services, CancellationToken cancellationToken) =>
+{
+    var containerClient = services.GetRequiredKeyedService<BlobContainerClient>(thumbnail == true ? "thumbnails" : "images");
+    var blobClient = containerClient.GetBlobClient(slug);
+
+    if (!await blobClient.ExistsAsync(cancellationToken))
+    {
+        return Results.NotFound();
+    }
+
+    var properties = (await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value;
+
+    return Results.Stream(destination => blobClient.DownloadToAsync(destination, cancellationToken: cancellationToken),
+        contentType: properties.ContentType,
+        lastModified: properties.LastModified,
+        entityTag: new(properties.ETag.ToString("H")));
+});
+
 app.Run();

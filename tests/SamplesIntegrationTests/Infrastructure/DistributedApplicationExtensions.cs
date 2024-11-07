@@ -100,36 +100,59 @@ public static partial class DistributedApplicationExtensions
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
-        var resourceTasks = applicationModel.Resources.Select(async r =>
-            (r.Name, State: await resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)))
-            .ToList();
+        var resourceTasks = new Dictionary<string, Task<(string Name, string State)>>();
 
-        var resourceNames = applicationModel.Resources.Select(r => r.Name).ToList();
+        foreach (var resource in applicationModel.Resources)
+        {
+            resourceTasks[resource.Name] = GetResourceWaitTask(resource.Name, targetStates, cancellationToken);
+        }
 
         logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-            string.Join(',', resourceNames),
+            string.Join(',', resourceTasks.Keys),
             string.Join(',', targetStates));
 
         while (resourceTasks.Count > 0)
         {
-            var completedTask = await Task.WhenAny(resourceTasks);
-            var (resourceName, targetStateReached) = await completedTask;
+            var completedTask = await Task.WhenAny(resourceTasks.Values);
+            var (completedResourceName, targetStateReached) = await completedTask;
 
             if (targetStateReached == KnownResourceStates.FailedToStart)
             {
-                throw new DistributedApplicationException($"Resource '{resourceName}' failed to start.");
+                throw new DistributedApplicationException($"Resource '{completedResourceName}' failed to start.");
             }
 
-            resourceNames.Remove(resourceName);
-            resourceTasks.Remove(completedTask);
+            resourceTasks.Remove(completedResourceName);
 
-            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", resourceName, targetStateReached);
-            logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-                string.Join(',', resourceNames),
-                string.Join(',', targetStates));
+            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", completedResourceName, targetStateReached);
+
+            // Ensure resources being waited on still exist
+            var remainingResources = resourceTasks.Keys.ToList();
+            for (var i = remainingResources.Count - 1; i > 0; i--)
+            {
+                var name = remainingResources[i];
+                if (!applicationModel.Resources.Any(r => r.Name == name))
+                {
+                    logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it.", name);
+                    resourceTasks.Remove(name);
+                    remainingResources.RemoveAt(i);
+                }
+            }
+
+            if (resourceTasks.Count > 0)
+            {
+                logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                    string.Join(',', remainingResources),
+                    string.Join(',', targetStates));
+            }
         }
 
         logger.LogInformation("Wait for all resources completed successfully!");
+
+        async Task<(string Name, string State)> GetResourceWaitTask(string resourceName, IEnumerable<string> targetStates, CancellationToken cancellationToken)
+        {
+            var state = await resourceNotificationService.WaitForResourceAsync(resourceName, targetStates, cancellationToken);
+            return (resourceName, state);
+        }
     }
 
     /// <summary>

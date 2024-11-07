@@ -19,8 +19,8 @@ public sealed class StorageWorker(
 
         await Task.WhenAll(
             thumbnailResultsQueueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken),
-            imagesContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken),
-            thumbsContainerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob, cancellationToken: cancellationToken));
+            imagesContainerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken),
+            thumbsContainerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken));
 
         await base.StartAsync(cancellationToken);
     }
@@ -36,7 +36,7 @@ public sealed class StorageWorker(
 
                 if (message is null or { Value: null })
                 {
-                    logger.LogInformation(
+                    logger.LogDebug(
                         "Message received but was either null or without value.");
 
                     continue;
@@ -47,7 +47,7 @@ public sealed class StorageWorker(
 
                 if (result is null or { IsSuccessful: false })
                 {
-                    logger.LogInformation(
+                    logger.LogWarning(
                         "Message upload result was either null or unsuccessful for {Name}.",
                         result?.Name);
 
@@ -64,7 +64,7 @@ public sealed class StorageWorker(
             }
             finally
             {
-                await Task.Delay(7_500, stoppingToken);
+                await Task.Delay(TimeSpan.FromMilliseconds(7_500), stoppingToken);
             }
         }
     }

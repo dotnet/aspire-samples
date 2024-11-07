@@ -7,15 +7,15 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SkiaSharp;
 
-namespace ImageGalleryFunctions;
+namespace ImageGallery.Functions;
 
 public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     QueueServiceClient queueServiceClient,
     BlobServiceClient blobServiceClient)
 {
-    private BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
-    private QueueClient resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
-    private const int targetHeight = 128;
+    private readonly BlobContainerClient _containerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+    private readonly QueueClient _resultsQueueClient = queueServiceClient.GetQueueClient("thumbnail-queue");
+    private const int TargetHeight = 128;
 
     [Function(nameof(ThumbnailGenerator))]
     public async Task Resize([BlobTrigger("images/{name}", Connection = "blobs")] Stream stream, string name)
@@ -40,11 +40,11 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     {
         using var originalBitmap = SKBitmap.Decode(stream);
 
-        var scale = (float)targetHeight / originalBitmap.Height;
+        var scale = (float)TargetHeight / originalBitmap.Height;
         var targetWidth = (int)(originalBitmap.Width * scale);
 
         using var resizedBitmap = originalBitmap.Resize(
-            new SKImageInfo(targetWidth, targetHeight), SKFilterQuality.High);
+            new SKImageInfo(targetWidth, TargetHeight), SKFilterQuality.High);
 
         using var image = SKImage.FromBitmap(resizedBitmap);
 
@@ -55,7 +55,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
 
         logger.LogInformation(
             "Resized image {Name} from {OriginalWidth}x{OriginalHeight} to {Width}x{Height}.",
-            name, originalBitmap.Width, originalBitmap.Height, targetWidth, targetHeight);
+            name, originalBitmap.Width, originalBitmap.Height, targetWidth, TargetHeight);
 
         return resizedStream;
     }
@@ -64,9 +64,9 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
     {
         resizedStream.Position = 0;
 
-        var blobClient = containerClient.GetBlobClient(name);
+        var blobClient = _containerClient.GetBlobClient(name);
 
-        logger.LogInformation("Uploading {Name}", name);
+        logger.LogDebug("Uploading {Name}", name);
 
         await blobClient.UploadAsync(resizedStream, overwrite: true);
 
@@ -78,9 +78,9 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
         var jsonMessage = JsonSerializer.Serialize(
             new UploadResult(name, true), SerializationContext.Default.UploadResult);
 
-        logger.LogInformation("Signaling upload of {Name}", name);
+        logger.LogDebug("Signaling upload of {Name}", name);
 
-        await resultsQueueClient.SendMessageAsync(jsonMessage);
+        await _resultsQueueClient.SendMessageAsync(jsonMessage);
 
         logger.LogInformation("Signaled upload of {Name}", name);
     }
