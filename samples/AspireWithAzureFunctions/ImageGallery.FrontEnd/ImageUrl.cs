@@ -1,4 +1,6 @@
-﻿namespace ImageGallery.FrontEnd;
+﻿using System.Buffers;
+
+namespace ImageGallery.FrontEnd;
 
 internal static class ImageUrl
 {
@@ -11,24 +13,20 @@ internal static class ImageUrl
 
     public static string CreateNameSlug(string name)
     {
-        var extension = Path.GetExtension(name);
-
-        var nameSpan = name.AsSpan();
-        Span<char> slugBuffer = stackalloc char[nameSpan.Length];
-
-        // Replace invalid characters with '-'
-        // Valid chars are letters, digits, '-', and '_'
-        for (var i = 0; i < nameSpan.Length - extension.Length; i++)
+        return string.Create(name.Length, name, static (slugBuffer, name) =>
         {
-            var c = nameSpan[i];
-            slugBuffer[i] = char.IsLetterOrDigit(c) || c == '-' || c == '_' ? c : '-';
-        }
+            var extension = Path.GetExtension(name);
 
-        // Add extension back
-        nameSpan[^extension.Length..].CopyTo(slugBuffer[^extension.Length..]);
+            // Replace invalid characters with '-'
+            // Valid chars are letters, digits, '-', and '_'
+            for (var i = 0; i < name.Length - extension.Length; i++)
+            {
+                var c = name[i];
+                slugBuffer[i] = char.IsLetterOrDigit(c) || c == '-' || c == '_' ? c : '-';
+            }
 
-        var slug = new string(slugBuffer);
-
-        return slug;
+            // Add extension back
+            name.AsSpan(^extension.Length..).CopyTo(slugBuffer[^extension.Length..]);
+        });
     }
 }
