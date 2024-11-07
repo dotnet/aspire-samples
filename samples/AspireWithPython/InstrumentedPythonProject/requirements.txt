@@ -2,3 +2,4 @@ Flask==3.0.3
 opentelemetry-distro
 opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-instrumentation-flask
+gunicorn
