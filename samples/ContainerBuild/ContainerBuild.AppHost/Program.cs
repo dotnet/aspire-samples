@@ -3,6 +3,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 // BUG: azd doesn't properly support parameters with default values yet
+//      https://github.com/Azure/azure-dev/issues/4523
 //var goVersion = builder.AddParameter("goversion", "1.22", publishValueAsDefault: true);
 // Workaround: Default value used when running locally comes from appsettings.Development.json.
 //             A value must be provided when running azd up (use '1.22').
