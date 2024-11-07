@@ -16,12 +16,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
     [MemberData(nameof(AppHostAssemblies))]
     public async Task AppHostRunsCleanly(string appHostPath)
     {
-        if (appHostPath.Contains("AspireWithPython.AppHost.dll", StringComparison.OrdinalIgnoreCase))
-        {
-            // https://github.com/dotnet/aspire-samples/issues/444: Disabled due to Python not being installed in the CI environment
-            return;
-        }
-
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync();
 
@@ -141,6 +135,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("AspireWithNode.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "frontend", ["/alive", "/health", "/"] }
+            }),
+            new TestEndpoints("AspireWithPython.AppHost", new() {
+                { "instrumented-python-app", ["/"] }
             }),
             new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
