@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Aspire.Hosting.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -193,8 +194,8 @@ public static partial class DistributedApplicationExtensions
                 is
                     // Container resources tend to write to stderr for various reasons so only assert projects and executables
                     (ProjectResource or ExecutableResource)
-                    // Node resources tend to have npm modules that write to stderr so ignore them
-                    and not NodeAppResource
+                    // Node & Python resources tend to have modules that write to stderr so ignore them
+                    and not (NodeAppResource or PythonAppResource)
                 // Dapr resources write to stderr about deprecated --components-path flag
                 && !resource.Name.EndsWith("-dapr-cli");
         }
