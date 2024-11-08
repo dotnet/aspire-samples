@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireWithMassTransit.ApiService", "AspireWithMassTransit.ApiService\AspireWithMassTransit.ApiService.csproj", "{0B88A0EE-6435-4A30-9131-165118F3053C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireWithMassTransit.AppHost", "AspireWithMassTransit.AppHost\AspireWithMassTransit.AppHost.csproj", "{665B7823-0444-4F4D-9C41-D43CD50DAEF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireWithMassTransit.ServiceDefaults", "AspireWithMassTransit.ServiceDefaults\AspireWithMassTransit.ServiceDefaults.csproj", "{77A8E695-50D9-48D4-8ED3-1F458BB31A00}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B88A0EE-6435-4A30-9131-165118F3053C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B88A0EE-6435-4A30-9131-165118F3053C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B88A0EE-6435-4A30-9131-165118F3053C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B88A0EE-6435-4A30-9131-165118F3053C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{665B7823-0444-4F4D-9C41-D43CD50DAEF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{665B7823-0444-4F4D-9C41-D43CD50DAEF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{665B7823-0444-4F4D-9C41-D43CD50DAEF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{665B7823-0444-4F4D-9C41-D43CD50DAEF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77A8E695-50D9-48D4-8ED3-1F458BB31A00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77A8E695-50D9-48D4-8ED3-1F458BB31A00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77A8E695-50D9-48D4-8ED3-1F458BB31A00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77A8E695-50D9-48D4-8ED3-1F458BB31A00}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
