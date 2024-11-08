@@ -24,7 +24,7 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- **Optional** [Visual Studio 2022 17.9 Preview](https://visualstudio.microsoft.com/vs/preview/)
+- **Optional** [Visual Studio 2022 17.10](https://visualstudio.microsoft.com/vs/preview/)
 
 ## Running the app
 

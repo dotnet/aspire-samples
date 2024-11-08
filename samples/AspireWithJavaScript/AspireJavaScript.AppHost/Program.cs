@@ -1,24 +1,28 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var weatherApi =
-    builder.AddProject<Projects.AspireJavaScript_MinimalApi>("weatherapi");
+var weatherApi = builder.AddProject<Projects.AspireJavaScript_MinimalApi>("weatherapi")
+    .WithExternalHttpEndpoints();
 
-// Angular: npm run start
 builder.AddNpmApp("angular", "../AspireJavaScript.Angular")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(targetPort: 3000, env: "PORT")
+    .WaitFor(weatherApi)
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
-// React: npm run start
 builder.AddNpmApp("react", "../AspireJavaScript.React")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(targetPort: 3001, env: "PORT")
+    .WaitFor(weatherApi)
+    .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
-// Vue: npm run dev
-builder.AddNpmApp("vue", "../AspireJavaScript.Vue", "dev")
+builder.AddNpmApp("vue", "../AspireJavaScript.Vue")
     .WithReference(weatherApi)
-    .WithHttpEndpoint(targetPort: 3002, env: "PORT")
+    .WaitFor(weatherApi)
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
 builder.Build().Run();

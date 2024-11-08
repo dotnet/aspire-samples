@@ -425,3 +425,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# azd
+**/*/.azure
+**/*/azure.yaml
+**/*/next-steps.md
+
+# Python virtual environment files
+**/.venv/*

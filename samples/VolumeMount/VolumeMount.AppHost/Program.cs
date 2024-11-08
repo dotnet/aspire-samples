@@ -1,16 +1,16 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-// Using a persistent volume mount requires a stable password rather than the default generated one.
-
-// To have a persistent volume across container instances, it must be named.
-var sqlDatabase = builder.AddSqlServer("sqlserver", password: builder.CreateStablePassword("sqlpassword", minLower: 1, minUpper: 1, minNumeric: 1))
+var sqlserver = builder.AddSqlServer("sqlserver")
     .WithDataVolume()
-    .AddDatabase("sqldb");
+    .WithLifetime(ContainerLifetime.Persistent);
 
-// Postgres must also have a stable password and a named volume
-var postgresDatabase = builder.AddPostgres("postgresserver", password: ParameterExtensions.CreateStablePassword(builder, "postgrespassword"))
+var sqlDatabase = sqlserver.AddDatabase("sqldb");
+
+var postgresserver = builder.AddPostgres("postgresserver")
     .WithDataVolume()
-    .AddDatabase("postgres");
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var postgresDatabase = postgresserver.AddDatabase("postgres");
 
 var blobs = builder.AddAzureStorage("Storage")
     // Use the Azurite storage emulator for local development
@@ -19,7 +19,10 @@ var blobs = builder.AddAzureStorage("Storage")
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
     .WithReference(sqlDatabase)
+    .WaitFor(sqlDatabase)
     .WithReference(postgresDatabase)
-    .WithReference(blobs);
+    .WaitFor(postgresDatabase)
+    .WithReference(blobs)
+    .WaitFor(blobs);
 
 builder.Build().Run();

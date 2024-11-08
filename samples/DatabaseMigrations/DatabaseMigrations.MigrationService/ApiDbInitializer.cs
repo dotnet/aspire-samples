@@ -14,14 +14,14 @@ namespace DatabaseMigrations.MigrationService;
 
 public class ApiDbInitializer(
     IServiceProvider serviceProvider,
+    IHostEnvironment hostEnvironment,
     IHostApplicationLifetime hostApplicationLifetime) : BackgroundService
 {
-    public const string ActivitySourceName = "Migrations";
-    private static readonly ActivitySource s_activitySource = new(ActivitySourceName);
+    private readonly ActivitySource _activitySource = new(hostEnvironment.ApplicationName);
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        using var activity = s_activitySource.StartActivity("Migrating database", ActivityKind.Client);
+        using var activity = _activitySource.StartActivity(hostEnvironment.ApplicationName, ActivityKind.Client);
 
         try
         {

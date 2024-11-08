@@ -15,7 +15,7 @@ public class CatalogServiceClient(HttpClient client)
             _ => throw new InvalidOperationException(),
         };
 
-        return client.GetFromJsonAsync<CatalogItemsPage>($"api/v1/catalog/items/type/all/brand{query}");
+        return client.GetFromJsonAsync<CatalogItemsPage>($"api/v1/catalog/items/type/all{query}");
     }
 }
 

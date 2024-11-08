@@ -27,15 +27,9 @@ The app consists of four services:
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Node.js](https://nodejs.org) - at least version 20.7.0
-- **Optional** [Visual Studio 2022 17.9 Preview](https://visualstudio.microsoft.com/vs/preview/)
+- **Optional** [Visual Studio 2022 17.12](https://visualstudio.microsoft.com/vs/)
 
 ## Running the app
-
-Before running the app, you'll need to install the Node dependencies for each of the Node.js apps. From the root directory of each JavaScript app, run the following command:
-
-```
-npm install
-```
 
 If using Visual Studio, open the solution file `AspireJavaScript.sln` and launch/debug the `AspireJavaScript.AppHost` project.
 

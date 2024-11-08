@@ -1,25 +1,37 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogDb = builder.AddPostgres("catalog", password: builder.CreateStablePassword("catalog-password"))
-    .WithDataVolume()
-    .AddDatabase("catalogdb");
+var postgres = builder.AddPostgres("postgres")
+    .WithPgAdmin();
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    // Data volumes don't work on ACA for Postgres so only add when running
+    postgres.WithDataVolume();
+}
+
+var catalogDb = postgres.AddDatabase("catalogdb");
 
 var basketCache = builder.AddRedis("basketcache")
-    .WithRedisCommander()
-    .WithDataVolume();
+    .WithDataVolume()
+    .WithRedisCommander();
+
+var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
+    .WithReference(catalogDb)
+    .WaitFor(catalogDb)
+    .WithHttpHealthCheck("/health");
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
-    .WithReference(catalogDb);
+    .WithReference(catalogDb)
+    .WaitFor(catalogDbManager);
 
 var basketService = builder.AddProject<Projects.AspireShop_BasketService>("basketservice")
-    .WithReference(basketCache);
+    .WithReference(basketCache)
+    .WaitFor(basketCache);
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
+    .WithExternalHttpEndpoints()
     .WithReference(basketService)
     .WithReference(catalogService)
-    .WithExternalHttpEndpoints();
-
-builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
-    .WithReference(catalogDb);
+    .WaitFor(catalogService);
 
 builder.Build().Run();
