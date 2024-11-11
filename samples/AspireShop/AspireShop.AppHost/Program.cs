@@ -1,7 +1,8 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
-    .WithPgAdmin();
+    .WithPgAdmin()
+    .WithLifetime(ContainerLifetime.Persistent);
 
 if (builder.ExecutionContext.IsRunMode)
 {
