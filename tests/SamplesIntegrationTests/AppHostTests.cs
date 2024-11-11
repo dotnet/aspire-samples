@@ -16,16 +16,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
     [MemberData(nameof(AppHostAssemblies))]
     public async Task AppHostRunsCleanly(string appHostPath)
     {
-        if (appHostPath.Contains("AspireWithPython.AppHost.dll", StringComparison.OrdinalIgnoreCase))
-        {
-            // https://github.com/dotnet/aspire-samples/issues/444: Disabled due to Python not being installed in the CI environment
-            return;
-        }
-
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
@@ -44,7 +39,8 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
-        await Task.WhenAll(app.StartAsync(), app.WaitForResources()).WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
@@ -118,6 +114,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static TheoryData<TestEndpoints> TestEndpoints() =>
         new([
+            #if NET8_0
             new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
@@ -138,6 +135,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("AspireWithNode.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "frontend", ["/alive", "/health", "/"] }
+            }),
+            new TestEndpoints("AspireWithPython.AppHost", new() {
+                { "instrumented-python-app", ["/"] }
             }),
             new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
@@ -168,7 +168,12 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
-            })
+            }),
+            #elif NET9_0
+            new TestEndpoints("ImageGallery.AppHost", new() {
+                { "frontend", ["/alive", "/health", "/"] }
+            }),
+            #endif
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()

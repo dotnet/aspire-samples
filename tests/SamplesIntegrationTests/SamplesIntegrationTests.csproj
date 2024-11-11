@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -13,6 +13,8 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.Azure" Version="9.0.0-preview.5.*" />
     <PackageReference Include="Aspire.Hosting.Testing" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
@@ -27,9 +29,15 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <!-- Reference all sample AppHost projects in the repo -->
     <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
+    <ProjectReference Remove="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
+    <ThisProject Include="$(MSBuildThisFileFullPath)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <ProjectReference Include="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 

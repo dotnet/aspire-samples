@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Aspire.Hosting.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -111,44 +112,67 @@ public static partial class DistributedApplicationExtensions
     /// <remarks>
     /// If <paramref name="targetStates"/> is null, the default states are <see cref="KnownResourceStates.Running"/> and <see cref="KnownResourceStates.Hidden"/>.
     /// </remarks>
-    public static async Task WaitForResources(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
+    public static async Task WaitForResourcesAsync(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
     {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResources));
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResourcesAsync));
 
         targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
-        var resourceTasks = applicationModel.Resources.Select(async r =>
-            (r.Name, await resourceNotificationService.WaitForResourceAsync(r.Name, targetStates, cancellationToken)))
-            .ToList();
+        var resourceTasks = new Dictionary<string, Task<(string Name, string State)>>();
 
-        var resourceNames = applicationModel.Resources.Select(r => r.Name).ToList();
+        foreach (var resource in applicationModel.Resources)
+        {
+            resourceTasks[resource.Name] = GetResourceWaitTask(resource.Name, targetStates, cancellationToken);
+        }
 
         logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-            string.Join(',', applicationModel.Resources.Select(r => r.Name)),
+            string.Join(',', resourceTasks.Keys),
             string.Join(',', targetStates));
 
         while (resourceTasks.Count > 0)
         {
-            var completedTask = await Task.WhenAny(resourceTasks);
-            var (resourceName, targetStateReached) = await completedTask;
+            var completedTask = await Task.WhenAny(resourceTasks.Values);
+            var (completedResourceName, targetStateReached) = await completedTask;
 
             if (targetStateReached == KnownResourceStates.FailedToStart)
             {
-                throw new DistributedApplicationException($"Resource '{resourceName}' failed to start.");
+                throw new DistributedApplicationException($"Resource '{completedResourceName}' failed to start.");
             }
 
-            resourceNames.Remove(resourceName);
-            resourceTasks.Remove(completedTask);
+            resourceTasks.Remove(completedResourceName);
 
-            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", resourceName, targetStateReached);
-            logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-                string.Join(',', resourceNames),
-                string.Join(',', targetStates));
+            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", completedResourceName, targetStateReached);
+
+            // Ensure resources being waited on still exist
+            var remainingResources = resourceTasks.Keys.ToList();
+            for (var i = remainingResources.Count - 1; i > 0; i--)
+            {
+                var name = remainingResources[i];
+                if (!applicationModel.Resources.Any(r => r.Name == name))
+                {
+                    logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it.", name);
+                    resourceTasks.Remove(name);
+                    remainingResources.RemoveAt(i);
+                }
+            }
+
+            if (resourceTasks.Count > 0)
+            {
+                logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                    string.Join(',', remainingResources),
+                    string.Join(',', targetStates));
+            }
         }
 
         logger.LogInformation("Wait for all resources completed successfully!");
+
+        async Task<(string Name, string State)> GetResourceWaitTask(string resourceName, IEnumerable<string> targetStates, CancellationToken cancellationToken)
+        {
+            var state = await resourceNotificationService.WaitForResourceAsync(resourceName, targetStates, cancellationToken);
+            return (resourceName, state);
+        }
     }
 
     /// <summary>
@@ -189,8 +213,8 @@ public static partial class DistributedApplicationExtensions
                 is
                     // Container resources tend to write to stderr for various reasons so only assert projects and executables
                     (ProjectResource or ExecutableResource)
-                    // Node resources tend to have npm modules that write to stderr so ignore them
-                    and not NodeAppResource
+                    // Node & Python resources tend to have modules that write to stderr so ignore them
+                    and not (NodeAppResource or PythonAppResource)
                 // Dapr resources write to stderr about deprecated --components-path flag
                 && !resource.Name.EndsWith("-dapr-cli");
         }

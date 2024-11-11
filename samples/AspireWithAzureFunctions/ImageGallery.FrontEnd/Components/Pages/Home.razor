@@ -1,0 +1,44 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<div class="row">
+    <div class="input-group mb-3">
+        <InputFile OnChange="OnFilesChangedAsync" @key="@_fileUploadKey"
+                   class="form-control form-control-lg" accept=".jpg,.jpeg,.png,.gif" multiple />
+    </div>
+</div>
+
+@foreach (var images in _images.OrderBy(i => i.ImageUrl).Chunk(4))
+{
+    <div class="row">
+        @foreach (var image in images)
+        {
+            <div class="col mb-4">
+                <a target="_blank" href="@image.ImageUrl">
+                    <img src="@image.ThumbnailUrl" class="img-fluid img-thumbnail" />
+                </a>
+            </div>
+        }
+    </div>
+}
+
+@if (_isDialogOpen)
+{
+    <div class="modal-overlay" @onclick="CloseDialog"></div>
+    <div class="modal" tabindex="-1" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Message</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDialog" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@_dialogMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="CloseDialog">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
