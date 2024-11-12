@@ -27,6 +27,7 @@ internal static class DistributedApplicationTestFactory
 
         builder.WithRandomParameterValues();
         builder.WithRandomVolumeNames();
+        builder.WithContainersLifetime(ContainerLifetime.Session);
 
         builder.Services.AddLogging(logging =>
         {

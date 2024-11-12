@@ -10,17 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0-rc.1.24511.1" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.0.0-rc.1.24511.1" />
-    <PackageReference Include="Aspire.Hosting.Testing" Version="9.0.0-rc.1.24511.1" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0-rc.1.24511.1" />
-    <PackageReference Include="Aspire.Hosting.Python" Version="9.0.0-rc.1.24511.1" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="9.0.0-preview.5.*" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="xunit" Version="2.9.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.0.0-preview.9.24507.7" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.0.0" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 

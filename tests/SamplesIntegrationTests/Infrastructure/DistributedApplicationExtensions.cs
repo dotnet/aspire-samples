@@ -34,6 +34,25 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
+    /// Sets the container lifetime for all container resources in the application.
+    /// </summary>
+    public static TBuilder WithContainersLifetime<TBuilder>(this TBuilder builder, ContainerLifetime containerLifetime)
+        where TBuilder : IDistributedApplicationTestingBuilder
+    {
+        var containerLifetimeAnnotations = builder.Resources.SelectMany(r => r.Annotations
+            .OfType<ContainerLifetimeAnnotation>()
+            .Where(c => c.Lifetime != containerLifetime))
+            .ToList();
+
+        foreach (var annotation in containerLifetimeAnnotations)
+        {
+            annotation.Lifetime = containerLifetime;
+        }
+
+        return builder;
+    }
+
+    /// <summary>
     /// Replaces all named volumes with anonymous volumes so they're isolated across test runs and from the volume the app uses during development.
     /// </summary>
     /// <remarks>
@@ -190,6 +209,7 @@ public static partial class DistributedApplicationExtensions
 
         static bool ShouldAssertErrorsForResource(IResource resource)
         {
+#pragma warning disable ASPIREHOSTINGPYTHON001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             return resource
                 is
                     // Container resources tend to write to stderr for various reasons so only assert projects and executables
@@ -198,6 +218,7 @@ public static partial class DistributedApplicationExtensions
                     and not (NodeAppResource or PythonAppResource)
                 // Dapr resources write to stderr about deprecated --components-path flag
                 && !resource.Name.EndsWith("-dapr-cli");
+#pragma warning restore ASPIREHOSTINGPYTHON001
         }
     }
 
