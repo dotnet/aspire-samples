@@ -209,6 +209,7 @@ public static partial class DistributedApplicationExtensions
 
         static bool ShouldAssertErrorsForResource(IResource resource)
         {
+#pragma warning disable ASPIREHOSTINGPYTHON001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             return resource
                 is
                     // Container resources tend to write to stderr for various reasons so only assert projects and executables
@@ -217,6 +218,7 @@ public static partial class DistributedApplicationExtensions
                     and not (NodeAppResource or PythonAppResource)
                 // Dapr resources write to stderr about deprecated --components-path flag
                 && !resource.Name.EndsWith("-dapr-cli");
+#pragma warning restore ASPIREHOSTINGPYTHON001
         }
     }
 
