@@ -43,9 +43,9 @@ internal static class ResourceBuilderExtensions
         var endpoint = endpoints.FirstOrDefault(e => string.Equals(e.EndpointName, endpointName, StringComparison.OrdinalIgnoreCase))
             ?? throw new DistributedApplicationException($"Could not create HTTP command for resource '{builder.Resource.Name}' as no endpoint named '{endpointName}' was found.");
 
-        var commandType = $"http-{method.Method.ToLowerInvariant()}-request";
+        var commandName = $"http-{method.Method.ToLowerInvariant()}-request";
 
-        builder.WithCommand(commandType, displayName, async context =>
+        builder.WithCommand(commandName, displayName, async context =>
         {
             if (!endpoint.IsAllocated)
             {
