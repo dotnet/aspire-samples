@@ -7,7 +7,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var storage = builder.AddAzureStorage("storage").RunAsEmulator()
     .ConfigureInfrastructure((infrastructure) =>
     {
-        var storageAccount = infrastructure.GetProvisionableResources().OfType<StorageAccount>().FirstOrDefault(r => r.Name.Value == "storage")
+        var storageAccount = infrastructure.GetProvisionableResources().OfType<StorageAccount>().FirstOrDefault(r => r.BicepIdentifier == "storage")
             ?? throw new InvalidOperationException($"Could not find configured storage account with name 'storage'");
 
         // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
