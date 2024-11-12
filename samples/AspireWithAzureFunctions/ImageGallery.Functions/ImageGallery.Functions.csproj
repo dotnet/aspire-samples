@@ -19,7 +19,7 @@
     <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.0.0-rc.1.24511.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.9" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj" />
