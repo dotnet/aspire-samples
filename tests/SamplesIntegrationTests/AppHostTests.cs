@@ -127,7 +127,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "webfrontend", ["/alive", "/health", "/", "/weather"] }
             }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
+                { "weatherapi", ["/alive", "/health", "/weatherforecast", "/swagger"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
@@ -146,7 +146,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "ginapp", ["/"] }
             }),
             new TestEndpoints("DatabaseContainers.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
+                { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1", "/swagger"] }
             }),
             new TestEndpoints("DatabaseMigrations.AppHost", new() {
                 { "api", ["/alive", "/health", "/"] }
@@ -160,7 +160,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "healthchecksui", ["/"] }
             }),
             new TestEndpoints("MetricsApp.AppHost", new() {
-                { "app", ["/alive", "/health"] },
+                { "app", ["/alive", "/health", "/swagger"] },
                 { "grafana", ["/"] }
             }),
             new TestEndpoints("OrleansVoting.AppHost", new() {
