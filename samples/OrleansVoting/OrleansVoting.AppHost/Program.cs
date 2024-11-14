@@ -9,6 +9,7 @@ var orleans = builder.AddOrleans("voting-cluster")
 builder.AddProject<Projects.OrleansVoting_Service>("voting-fe")
     .WithReference(orleans)
     .WaitFor(redis)
-    .WithReplicas(3);
+    .WithReplicas(3)
+    .WithExternalHttpEndpoints();
 
 builder.Build().Run();
