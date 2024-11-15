@@ -28,6 +28,7 @@ internal static class DistributedApplicationTestFactory
         builder.WithRandomParameterValues();
         builder.WithRandomVolumeNames();
         builder.WithContainersLifetime(ContainerLifetime.Session);
+        builder.WithAutoRestartResources(logMessages: ["address in use"], attempts: 3);
 
         builder.Services.AddLogging(logging =>
         {

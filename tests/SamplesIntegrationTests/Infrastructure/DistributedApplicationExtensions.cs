@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Aspire.Hosting.Lifecycle;
 using Aspire.Hosting.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -91,6 +92,27 @@ public static partial class DistributedApplicationExtensions
             resource.Annotations.Remove(volume);
             resource.Annotations.Add(newMount);
         }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Attempts to restart finished resources when they emit the specified log message a maximum of the specified number of times.
+    /// </summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder"></param>
+    /// <param name="logMessages"></param>
+    /// <param name="attempts"></param>
+    /// <returns></returns>
+    public static TBuilder WithAutoRestartResources<TBuilder>(this TBuilder builder, IEnumerable<string> logMessages, int attempts = 5)
+        where TBuilder : IDistributedApplicationTestingBuilder
+    {
+        builder.Services.Configure<AutoRestartOptions>(configure =>
+        {
+            configure.LogMessages.AddRange(logMessages);
+            configure.Attempts = attempts;
+        });
+        builder.Services.TryAddLifecycleHook<AutoRestartResourceLifecycleHook>();
 
         return builder;
     }
