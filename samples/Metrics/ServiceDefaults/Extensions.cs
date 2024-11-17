@@ -68,8 +68,7 @@ public static class Extensions
 
         // The following lines enable the Prometheus exporter (requires the OpenTelemetry.Exporter.Prometheus.AspNetCore package)
         builder.Services.AddOpenTelemetry()
-            // BUG: Part of the workaround for https://github.com/open-telemetry/opentelemetry-dotnet-contrib/issues/1617
-           .WithMetrics(metrics => metrics.AddPrometheusExporter(options => options.DisableTotalNameSuffixForCounters = true));
+           .WithMetrics(metrics => metrics.AddPrometheusExporter());
 
         return builder;
     }
