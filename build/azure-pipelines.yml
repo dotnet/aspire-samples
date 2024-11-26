@@ -55,6 +55,10 @@ extends:
         steps:
         - checkout: self
           clean: true
+        - task: UseDotNet@2
+          displayName: Install global.json SDK
+          inputs:
+            useGlobalJson: true
         - powershell: |
               ./build.cmd
           displayName: ./build.cmd
