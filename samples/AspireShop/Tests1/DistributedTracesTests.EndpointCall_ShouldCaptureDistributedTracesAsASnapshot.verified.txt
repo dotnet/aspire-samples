@@ -1,0 +1,23 @@
+﻿╚══🌐 Server 'frontend'
+    ║ Name: GET /
+    ║ http.response.status_code: 200
+    ╠══📤 Client 'frontend'
+    ║   ║ Name: GET
+    ║   ║ http.response.status_code: 200
+    ║   ╚══🌐 Server 'catalogservice'
+    ║       ║ Name: GET /api/v1/catalog/items/type/all/brand/{catalogBrandId?}
+    ║       ║ http.response.status_code: 200
+    ║       ╚══📤 Client 'catalogservice'
+    ║           ║ Name: catalogdb
+    ║           ║ db.statement: SELECT c."Id", c."AvailableStock", c."CatalogBrandId", c."CatalogTypeId", c."Description", c."MaxStockThreshold", c."Name", c."OnReorder", c."PictureFileName", c."Price", c."RestockThreshold"  FROM "Catalog" AS c  ORDER BY c."Id"  LIMIT @__pageSize + 1
+    ╚══📤 Client 'frontend'
+        ║ Name: BasketApi.Basket/GetBasketById
+        ║ rpc.grpc.status_code: 0
+        ╚══📤 Client 'frontend'
+            ║ Name: POST
+            ║ http.response.status_code: 200
+            ╚══🌐 Server 'basketservice'
+                ║ Name: POST /BasketApi.Basket/GetBasketById
+                ║ grpc.method: /BasketApi.Basket/GetBasketById
+                ║ http.response.status_code: 200
+
