@@ -19,6 +19,16 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapPost("/reset-db", async (CatalogDbContext dbContext, CatalogDbInitializer dbInitializer, CancellationToken cancellationToken) =>
+    {
+        // Delete and recreate the database. This is useful for development scenarios to reset the database to its initial state.
+        await dbContext.Database.EnsureDeletedAsync(cancellationToken);
+        await dbInitializer.InitializeDatabaseAsync(dbContext, cancellationToken);
+    });
+}
+
 app.MapDefaultEndpoints();
 
 await app.RunAsync();

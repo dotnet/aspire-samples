@@ -1,15 +1,21 @@
-﻿using Azure.Provisioning.Storage;
+﻿using Aspire.Hosting.Azure;
+using Azure.Provisioning;
+using Azure.Provisioning.Storage;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var storage = builder.AddAzureStorage("storage").RunAsEmulator()
-    .ConfigureConstruct((ResourceModuleConstruct construct) =>
+    .ConfigureInfrastructure((infrastructure) =>
     {
-        var storageAccount = construct.GetResources().OfType<StorageAccount>().FirstOrDefault(r => r.IdentifierName == "storage")
+        var storageAccount = infrastructure.GetProvisionableResources().OfType<StorageAccount>().FirstOrDefault(r => r.BicepIdentifier == "storage")
             ?? throw new InvalidOperationException($"Could not find configured storage account with name 'storage'");
+
         // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
-        construct.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageAccountContributor, construct.PrincipalTypeParameter, construct.PrincipalIdParameter));
-        construct.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageBlobDataOwner, construct.PrincipalTypeParameter, construct.PrincipalIdParameter));
+        var principalTypeParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalType, typeof(string));
+        var principalIdParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalId, typeof(string));
+        infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageAccountContributor, principalTypeParameter, principalIdParameter));
+        infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageBlobDataOwner, principalTypeParameter, principalIdParameter));
+
         // Ensure that public access to blobs is disabled
         storageAccount.AllowBlobPublicAccess = false;
     });

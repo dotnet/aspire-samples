@@ -17,14 +17,14 @@ public class AppHostTests(ITestOutputHelper testOutput)
     public async Task AppHostRunsCleanly(string appHostPath)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
-        await using var app = await appHost.BuildAsync();
+        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
         await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
         await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync();
+        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHostPath = $"{appHostName}.dll";
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
-        await using var app = await appHost.BuildAsync();
+        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
 
         await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
         await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
@@ -102,7 +102,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync();
+        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
     }
 
     public static TheoryData<string> AppHostAssemblies()
@@ -127,7 +127,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "webfrontend", ["/alive", "/health", "/", "/weather"] }
             }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
+                { "weatherapi", ["/alive", "/health", "/weatherforecast", "/swagger"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
@@ -146,7 +146,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "ginapp", ["/"] }
             }),
             new TestEndpoints("DatabaseContainers.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1"] }
+                { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1", "/swagger"] }
             }),
             new TestEndpoints("DatabaseMigrations.AppHost", new() {
                 { "api", ["/alive", "/health", "/"] }
@@ -160,7 +160,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "healthchecksui", ["/"] }
             }),
             new TestEndpoints("MetricsApp.AppHost", new() {
-                { "app", ["/alive", "/health"] },
+                { "app", ["/alive", "/health", "/swagger"] },
                 { "grafana", ["/"] }
             }),
             new TestEndpoints("OrleansVoting.AppHost", new() {

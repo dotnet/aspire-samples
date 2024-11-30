@@ -1,7 +1,8 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
-    .WithPgAdmin();
+    .WithPgAdmin()
+    .WithLifetime(ContainerLifetime.Persistent);
 
 if (builder.ExecutionContext.IsRunMode)
 {
@@ -18,7 +19,8 @@ var basketCache = builder.AddRedis("basketcache")
 var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>("catalogdbmanager")
     .WithReference(catalogDb)
     .WaitFor(catalogDb)
-    .WithHttpHealthCheck("/health");
+    .WithHttpHealthCheck("/health")
+    .WithHttpsCommand("/reset-db", "Reset Database", iconName: "DatabaseLightning");
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
     .WithReference(catalogDb)
