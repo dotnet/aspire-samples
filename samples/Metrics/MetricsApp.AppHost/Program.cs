@@ -13,7 +13,7 @@ var grafana = builder.AddContainer("grafana", "grafana/grafana")
                      .WithEnvironment("PROMETHEUS_PORT", $"{prometheus.GetEndpoint("http").Property(EndpointProperty.Port)}")
                      .WithHttpEndpoint(targetPort: 3000, name: "http");
 
-builder.AddCollector("otelcollector", "../otelcollector/config.yaml")
+builder.AddOpenTelemetryCollector("otelcollector", "../otelcollector/config.yaml")
        .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp");
 
 builder.AddProject<Projects.MetricsApp>("app")
