@@ -20,8 +20,8 @@ public static class CollectorResourceBuilderExtensions
         var resource = new CollectorResource(name);
         return builder.AddResource(resource)
             .WithImage("ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib", "latest")
-            .WithEndpoint(port: 4317, targetPort: 4317, name: CollectorResource.OtlpGrpcEndpointName, scheme: "http")
-            .WithEndpoint(port: 4318, targetPort: 4318, name: CollectorResource.OtlpHttpEndpointName, scheme: "http")
+            .WithEndpoint(targetPort: 4317, name: CollectorResource.OtlpGrpcEndpointName, scheme: "http")
+            .WithEndpoint(targetPort: 4318, name: CollectorResource.OtlpHttpEndpointName, scheme: "http")
             .WithBindMount(configFileLocation, "/etc/otelcol-contrib/config.yaml")
             .WithEnvironment("ASPIRE_ENDPOINT", $"{dashboardOtlpEndpoint}")
             .WithEnvironment("ASPIRE_API_KEY", builder.Configuration[DashboardOtlpApiKeyVariableName])
