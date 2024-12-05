@@ -30,13 +30,13 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp/aspire]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/aspire]
     metrics:
       receivers: [otlp]
       processors: [batch]
       exporters:
         - otlp/aspire
         - otlphttp/prometheus
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp/aspire]

@@ -10,7 +10,7 @@ var prometheus = builder.AddContainer("prometheus", "prom/prometheus")
 var grafana = builder.AddContainer("grafana", "grafana/grafana")
                      .WithBindMount("../grafana/config", "/etc/grafana", isReadOnly: true)
                      .WithBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
-                     .WithEnvironment("PROMETHEUS_PORT", $"{prometheus.GetEndpoint("http").Property(EndpointProperty.Port)}")
+                     .WithEnvironment("PROMETHEUS_ENDPOINT", prometheus.GetEndpoint("http"))
                      .WithHttpEndpoint(targetPort: 3000, name: "http");
 
 builder.AddOpenTelemetryCollector("otelcollector", "../otelcollector/config.yaml")
