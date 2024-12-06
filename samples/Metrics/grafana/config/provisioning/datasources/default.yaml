@@ -5,5 +5,5 @@ datasources:
     type: prometheus
     access: proxy
     # Access mode - proxy (server in the UI) or direct (browser in the UI).
-    url: http://host.docker.internal:9090
+    url: $PROMETHEUS_ENDPOINT
     uid: PBFA97CFB590B2093

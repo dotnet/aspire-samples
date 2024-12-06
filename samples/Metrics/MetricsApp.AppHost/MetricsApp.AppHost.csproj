@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\Shared\DevCertHostingExtensions.cs" Link="DevCertHostingExtensions.cs" />
+
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
 
     <ProjectReference Include="..\MetricsApp\MetricsApp.csproj" />

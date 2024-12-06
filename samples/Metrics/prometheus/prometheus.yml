@@ -1,7 +1,5 @@
-global:
-  scrape_interval: 1s # makes for a good demo
+storage:
+  tsdb:
+    out_of_order_time_window: 30m
 
-scrape_configs:
-  - job_name: 'metricsapp'
-    static_configs:
-      - targets: ['host.docker.internal:5048'] # hard-coded port matches launchSettings.json
+otlp:

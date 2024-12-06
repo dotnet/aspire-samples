@@ -46,8 +46,8 @@ public static class DevCertHostingExtensions
 
                     var bindSource = Path.GetDirectoryName(certPath) ?? throw new UnreachableException();
 
-                    var certFileDest = Path.Combine(DEV_CERT_BIND_MOUNT_DEST_DIR, certFileName);
-                    var certKeyFileDest = Path.Combine(DEV_CERT_BIND_MOUNT_DEST_DIR, certKeyFileName);
+                    var certFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certFileName}";
+                    var certKeyFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}";
 
                     builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
                         .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true)
