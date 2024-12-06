@@ -5,6 +5,8 @@ namespace MetricsApp.AppHost.OpenTelemetryCollector;
 
 internal sealed class OpenTelemetryCollectorLifecycleHook : IDistributedApplicationLifecycleHook
 {
+    private const string OtelExporterOtlpEndpoint = "OTEL_EXPORTER_OTLP_ENDPOINT";
+
     private readonly ILogger<OpenTelemetryCollectorLifecycleHook> _logger;
 
     public OpenTelemetryCollectorLifecycleHook(ILogger<OpenTelemetryCollectorLifecycleHook> logger)
@@ -28,13 +30,16 @@ internal sealed class OpenTelemetryCollectorLifecycleHook : IDistributedApplicat
             return Task.CompletedTask;
         }
 
-        foreach (var resource in appModel.GetProjectResources())
+        foreach (var resource in appModel.Resources)
         {
-            _logger.LogDebug("Forwarding telemetry for {ResourceName} to the collector.", resource.Name);
-
             resource.Annotations.Add(new EnvironmentCallbackAnnotation((EnvironmentCallbackContext context) =>
             {
-                context.EnvironmentVariables["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint;
+                if (context.EnvironmentVariables.ContainsKey(OtelExporterOtlpEndpoint))
+                {
+                    _logger.LogDebug("Forwarding telemetry for {ResourceName} to the collector.", resource.Name);
+
+                    context.EnvironmentVariables[OtelExporterOtlpEndpoint] = endpoint;
+                }
             }));
         }
 
