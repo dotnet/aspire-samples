@@ -18,6 +18,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+
+    <!-- explicitly pick newer version with security fix -->
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
+
     <ProjectReference Include="..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj" />
     <ProjectReference Include="..\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj" />
   </ItemGroup>
