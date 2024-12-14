@@ -22,6 +22,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+
+    <!-- explicitly pick newer version with security fix -->
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
