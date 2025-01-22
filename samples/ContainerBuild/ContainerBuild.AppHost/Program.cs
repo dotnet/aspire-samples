@@ -1,10 +1,27 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+﻿using Microsoft.Extensions.Hosting;
 
-var goVersion = builder.AddParameter("goversion"); // Value set in appsettings.json and overrides the default
-                                                   // specified in the Dockerfile.
+var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddDockerfile("ginapp", "../ginapp")
-       .WithHttpEndpoint(targetPort: 5555, env: "PORT")
-       .WithBuildArg("GO_VERSION", goVersion);
+// BUG: azd doesn't properly support parameters with default values yet
+//      https://github.com/Azure/azure-dev/issues/4523
+//var goVersion = builder.AddParameter("goversion", "1.22", publishValueAsDefault: true);
+// Workaround: Default value used when running locally comes from appsettings.Development.json.
+//             A value must be provided when running azd up (use '1.22').
+var goVersion = builder.AddParameter("goversion");
+
+var ginapp = builder.AddDockerfile("ginapp", "../ginapp")
+    .WithBuildArg("GO_VERSION", goVersion)
+    .WithHttpEndpoint(targetPort: 5555, env: "PORT")
+    .WithExternalHttpEndpoints();
+
+if (builder.ExecutionContext.IsPublishMode || builder.Environment.IsProduction())
+{
+    ginapp
+        .WithEnvironment("GIN_MODE", "release")
+        // Trust all proxies when running behind a reverse proxy. If deploying to an environment
+        // without a reverse proxy that ensures X-Forwarded-* headers are not forwarded from clients,
+        // this should be removed.
+        .WithEnvironment("TRUSTED_PROXIES", "all");
+}
 
 builder.Build().Run();

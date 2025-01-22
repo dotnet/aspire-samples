@@ -1,0 +1,42 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed
+  otlp/aspire:
+    endpoint: ${env:ASPIRE_ENDPOINT}
+    headers:
+      x-otlp-api-key: ${env:ASPIRE_API_KEY}
+    tls:
+        insecure: ${env:ASPIRE_INSECURE}
+        insecure_skip_verify: true # Required in local development because cert is localhost and the endpoint is host.docker.internal
+  otlphttp/prometheus:
+    endpoint: ${env:PROMETHEUS_ENDPOINT}
+    tls:
+        insecure: true
+  
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/aspire]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/aspire]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters:
+        - otlp/aspire
+        - otlphttp/prometheus

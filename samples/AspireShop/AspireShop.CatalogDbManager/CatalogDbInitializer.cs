@@ -16,13 +16,12 @@ internal class CatalogDbInitializer(IServiceProvider serviceProvider, ILogger<Ca
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
+        using var activity = _activitySource.StartActivity("Initializing catalog database", ActivityKind.Client);
         await InitializeDatabaseAsync(dbContext, cancellationToken);
     }
 
-    private async Task InitializeDatabaseAsync(CatalogDbContext dbContext, CancellationToken cancellationToken)
+    public async Task InitializeDatabaseAsync(CatalogDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        using var activity = _activitySource.StartActivity("Initializing catalog database", ActivityKind.Client);
-
         var sw = Stopwatch.StartNew();
 
         var strategy = dbContext.Database.CreateExecutionStrategy();

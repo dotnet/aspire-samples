@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0-preview.1.24523.12" />
 
@@ -14,6 +14,7 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0-preview.1.24523.12" />
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.1.0-preview.1.24523.12" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.1.0-preview.1.24523.12" />
+    <Compile Include="..\..\Shared\DevCertHostingExtensions.cs" Link="DevCertHostingExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

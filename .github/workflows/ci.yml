@@ -21,19 +21,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        sdk: [sdk-baseline, sdk-global-json]
-        exclude:
-          - os: windows-latest
-            sdk: sdk-baseline
     runs-on: ${{ matrix.os }}
     name: Build & Test Samples
     env:
-      DOTNET_BASELINE_SDK_VERSION: '8.0.1xx'
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       DOTNET_NOLOGO: true
       DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
       ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
+      SuppressNETCoreSdkPreviewMessage: true
     steps:
     - uses: actions/checkout@v4
 
@@ -43,6 +39,14 @@ jobs:
         version: '1.14.1'
       id: install-dapr
 
+    - name: Install Azure Functions Core Tools
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install azure-functions-core-tools-4
+
     - name: Initialize Dapr (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
@@ -51,26 +55,25 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
 
-    - name: "Install .NET SDK (baseline: ${{ env.DOTNET_BASELINE_SDK_VERSION }})"
-      if: matrix.os == 'ubuntu-latest' && matrix.sdk == 'sdk-baseline'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_BASELINE_SDK_VERSION }}
-
-    - name: "Install .NET SDK (global.json)"
-      if: matrix.sdk == 'sdk-global-json'
+    - name: Install .NET SDK (global.json)
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
+        dotnet-version: | 
+          8.0.x
     
+    - name: Print .NET info
+      run: dotnet --info
+
     - uses: actions/setup-node@v4
       with:
         node-version: '20.x'
 
-    - name: Install linux-dev-certs
+    - name: Install & trust dev-certs
       id: install-dev-certs
+      # Trusting certs on Windows throws a prompt so will halt the build
       if: matrix.os == 'ubuntu-latest'
-      run: dotnet tool update -g linux-dev-certs && dotnet linux-dev-certs install
+      run: dotnet dev-certs https --trust
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
@@ -79,6 +82,7 @@ jobs:
 
     - name: Test
       id: test
+      # We only test on Ubuntu because Windows agents don't support Docker with WSL
       if: matrix.os == 'ubuntu-latest'
       # Note that the space after the last double dash (--) is intentional
       run: >
@@ -94,5 +98,5 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: TestResults_${{ matrix.os }}_${{ matrix.sdk }}
+        name: TestResults_${{ matrix.os }}
         path: ./TestResults

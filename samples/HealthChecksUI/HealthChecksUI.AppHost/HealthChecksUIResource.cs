@@ -67,11 +67,7 @@ public class MonitoredProject(IResourceBuilder<ProjectResource> project, string 
 
 internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContext executionContext) : IDistributedApplicationLifecycleHook
 {
-    private const int DefaultAspNetCoreContainerPort = 8080;
-    private const int DefaultHealthChecksPort = 8081;
     private const string HEALTHCHECKSUI_URLS = "HEALTHCHECKSUI_URLS";
-    private const string ASPNETCORE_HTTP_PORTS = "ASPNETCORE_HTTP_PORTS";
-    private const string ASPNETCORE_HTTPS_PORTS = "ASPNETCORE_HTTPS_PORTS";
 
     public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
@@ -88,10 +84,7 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                 var healthChecksEndpoint = project.GetEndpoint(monitoredProject.EndpointName);
                 if (!healthChecksEndpoint.Exists)
                 {
-                    // WORKAROUND: https://github.com/dotnet/aspire/issues/3786
-                    // Need to set a concrete target port in publish mode
-                    int? targetPort = executionContext.IsPublishMode ? DefaultHealthChecksPort : null;
-                    project.WithHttpEndpoint(targetPort: targetPort, name: monitoredProject.EndpointName);
+                    project.WithHttpEndpoint(name: monitoredProject.EndpointName);
                     Debug.Assert(healthChecksEndpoint.Exists, "The health check endpoint should exist after adding it.");
                 }
 
@@ -112,26 +105,6 @@ internal class HealthChecksUILifecycleHook(DistributedApplicationExecutionContex
                         };
 
                         healthChecksEndpointsExpression = ReferenceExpression.Create($"{healthChecksEndpointsExpression};{fromContainerUriBuilder.ToString()}");
-                    }
-                    else if (context.ExecutionContext.IsPublishMode)
-                    {
-                        // WORKAROUND: https://github.com/dotnet/aspire/issues/3749
-                        if (!context.EnvironmentVariables.ContainsKey(ASPNETCORE_HTTP_PORTS)
-                            && healthChecksEndpoint.Scheme is "http" && healthChecksEndpoint.TargetPort is int httpPort && httpPort != DefaultAspNetCoreContainerPort)
-                        {
-                            // The target port is different from the default port so set ASPNETCORE_HTTP_PORTS to listen on both ports
-                            context.EnvironmentVariables.Add(
-                                ASPNETCORE_HTTP_PORTS,
-                                ReferenceExpression.Create($"{DefaultAspNetCoreContainerPort.ToString()};{healthChecksEndpoint.Property(EndpointProperty.TargetPort)}"));
-                        }
-                        if (!context.EnvironmentVariables.ContainsKey(ASPNETCORE_HTTPS_PORTS)
-                            && healthChecksEndpoint.Scheme is "https" && healthChecksEndpoint.TargetPort.HasValue)
-                        {
-                            // The target port is for HTTPS so set ASPNETCORE_HTTPS_PORTS to listen on that port
-                            context.EnvironmentVariables.Add(
-                                ASPNETCORE_HTTPS_PORTS,
-                                ReferenceExpression.Create($"{healthChecksEndpoint.Property(EndpointProperty.TargetPort)}"));
-                        }
                     }
 
                     context.EnvironmentVariables.Add(HEALTHCHECKSUI_URLS, healthChecksEndpointsExpression);
