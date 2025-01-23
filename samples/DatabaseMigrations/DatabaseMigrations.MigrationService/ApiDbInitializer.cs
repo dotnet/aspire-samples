@@ -33,7 +33,7 @@ public class ApiDbInitializer(
         }
         catch (Exception ex)
         {
-            activity?.AddException(ex);
+            activity?.RecordException(ex);
             throw;
         }
 
