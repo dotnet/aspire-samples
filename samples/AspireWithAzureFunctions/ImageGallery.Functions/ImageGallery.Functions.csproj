@@ -16,8 +16,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.1" />
-    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.0.0" />
-    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.0.0" />
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.1.0-preview.1.25072.3" />
+    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.1.0-preview.1.25072.3" />
     <PackageReference Include="SkiaSharp" Version="2.88.9" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
   </ItemGroup>
