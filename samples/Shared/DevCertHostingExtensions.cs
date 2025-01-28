@@ -76,8 +76,8 @@ public static class DevCertHostingExtensions
         // Exports the ASP.NET Core HTTPS development certificate & private key to PEM files using 'dotnet dev-certs https' to a temporary
         // directory and returns the path.
         // TODO: Check if we're running on a platform that already has the cert and key exported to a file (e.g. macOS) and just use those instead.
-        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10];
-        var tempDir = Path.Combine(Path.GetTempPath(), $"aspire.{appNameHash}");
+        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
+        var tempDir = GetOrCreateAppHostTempSubdirectory(builder);
         var certExportPath = Path.Combine(tempDir, "dev-cert.pem");
         var certKeyExportPath = Path.Combine(tempDir, "dev-cert.key");
 
@@ -181,5 +181,28 @@ public static class DevCertHostingExtensions
                 callback(new string(buffer, 0, charsRead));
             }
         }
+    }
+
+    private static string GetOrCreateAppHostTempSubdirectory(IDistributedApplicationBuilder builder)
+    {
+        // Create a temp directory with a name that is unique to the application and does not change across restarts.
+
+        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
+        var dirName = $"aspire.{appNameHash}";
+
+        // Determine the parent directory to create the temp directory in.
+        var tempDir = Directory.CreateTempSubdirectory(dirName);
+        var parentDir = tempDir.Parent ?? throw new InvalidOperationException("User temp directory could not be determined.");
+
+        // Check if the final directory already exists.
+        var fullDirPath = Path.Combine(parentDir.FullName, dirName);
+
+        if (!Directory.Exists(fullDirPath))
+        {
+            // Rename the temp directory to the final directory name so that it's stable across restarts.
+            Directory.Move(tempDir.FullName, fullDirPath);
+        }
+
+        return fullDirPath;
     }
 }
