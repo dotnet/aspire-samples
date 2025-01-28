@@ -1,4 +1,7 @@
-﻿@inject BasketServiceClient BasketClient
+﻿@using System.Diagnostics
+@using Microsoft.AspNetCore.Mvc
+@inject IConfiguration Configuration
+@inject BasketServiceClient BasketClient
 @inject NavigationManager Navigation
 
 <div class="justify-content-end">
@@ -27,6 +30,25 @@
     protected override async Task OnInitializedAsync()
     {
         (customerBasket, basketIsAvailable) = await BasketClient.GetBasketAsync("user");
+
+        var randomChaos = !string.IsNullOrWhiteSpace(Configuration["RANDOM_CHAOS"]);
+
+        //introduce some chaos
+        if (randomChaos)
+        {
+            try
+            {
+                if (new Random(Guid.NewGuid().GetHashCode()).Next(0, 100) == 0)
+                {
+                    throw new Exception("Random Chaos");
+                }
+            }
+            catch (Exception ex)
+            {
+                Activity.Current?.AddException(ex);
+                throw;
+            }
+        }
 
         await BasketAvailabilityChanged.InvokeAsync(basketIsAvailable);
     }
