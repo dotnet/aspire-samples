@@ -12,6 +12,8 @@ if (builder.ExecutionContext.IsRunMode)
 
 var catalogDb = postgres.AddDatabase("catalogdb");
 
+var rabbitmq = builder.AddRabbitMQ("messaging");
+
 var basketCache = builder.AddRedis("basketcache")
     .WithDataVolume()
     .WithRedisCommander();
@@ -32,6 +34,7 @@ var basketService = builder.AddProject<Projects.AspireShop_BasketService>("baske
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
     .WithExternalHttpEndpoints()
+    .WithReference(rabbitmq)
     .WithReference(basketService)
     .WithReference(catalogService)
     .WaitFor(catalogService);
