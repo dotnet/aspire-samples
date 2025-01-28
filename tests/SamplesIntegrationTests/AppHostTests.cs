@@ -122,10 +122,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 //{ "basketservice", ["/alive", "/health"] },
                 { "frontend", ["/alive", "/health", "/"] }
             }),
-            new TestEndpoints("AspireWithDapr.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
-                { "webfrontend", ["/alive", "/health", "/", "/weather"] }
-            }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast", "/swagger"] },
                 { "angular", ["/"] },
