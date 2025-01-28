@@ -187,8 +187,9 @@ public static class DevCertHostingExtensions
     {
         // Create a temp directory with a name that is unique to the application and does not change across restarts.
 
+        var appName = Sanitize(builder.Environment.ApplicationName).ToLowerInvariant();
         var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
-        var dirName = $"aspire.{appNameHash}";
+        var dirName = $"aspire.{appName}.{appNameHash}";
 
         // Determine the parent directory to create the temp directory in.
         var tempDir = Directory.CreateTempSubdirectory(dirName);
@@ -204,5 +205,22 @@ public static class DevCertHostingExtensions
         }
 
         return fullDirPath;
+    }
+
+    private static char[] _invalidPathChars = Path.GetInvalidPathChars();
+
+    private static string Sanitize(string name)
+    {
+        return string.Create(name.Length, name, static (s, name) =>
+        {
+            var nameSpan = name.AsSpan();
+
+            for (var i = 0; i < nameSpan.Length; i++)
+            {
+                var c = nameSpan[i];
+
+                s[i] = Array.IndexOf(_invalidPathChars, c) == -1 ? c : '_';
+            }
+        });
     }
 }
