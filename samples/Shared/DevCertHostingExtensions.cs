@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -73,13 +74,10 @@ public static class DevCertHostingExtensions
 
     private static async Task<(bool, string CertFilePath, string CertKeyFilPath)> TryExportDevCertificateAsync(IDistributedApplicationBuilder builder, ILogger logger)
     {
-        // Exports the ASP.NET Core HTTPS development certificate & private key to PEM files using 'dotnet dev-certs https' to a temporary
-        // directory and returns the path.
-        // TODO: Check if we're running on a platform that already has the cert and key exported to a file (e.g. macOS) and just use those instead.
-        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
-        var tempDir = GetOrCreateAppHostTempSubdirectory(builder);
-        var certExportPath = Path.Combine(tempDir, "dev-cert.pem");
-        var certKeyExportPath = Path.Combine(tempDir, "dev-cert.key");
+        // Exports the ASP.NET Core HTTPS development certificate & private key to PEM files using 'dotnet dev-certs https' to a directory and returns the path.
+        var certDir = GetOrCreateAppHostCertDirectory(builder);
+        var certExportPath = Path.Combine(certDir, "dev-cert.pem");
+        var certKeyExportPath = Path.Combine(certDir, "dev-cert.key");
 
         if (File.Exists(certExportPath) && File.Exists(certKeyExportPath))
         {
@@ -100,10 +98,10 @@ public static class DevCertHostingExtensions
             File.Delete(certKeyExportPath);
         }
 
-        if (!Directory.Exists(tempDir))
+        if (!Directory.Exists(certDir))
         {
-            logger.LogTrace("Creating directory to export dev cert to '{ExportDir}'", tempDir);
-            Directory.CreateDirectory(tempDir);
+            logger.LogTrace("Creating directory to export dev cert to '{ExportDir}'", certDir);
+            Directory.CreateDirectory(certDir);
         }
 
         string[] args = ["dev-certs", "https", "--export-path", $"\"{certExportPath}\"", "--format", "Pem", "--no-password"];
@@ -183,31 +181,42 @@ public static class DevCertHostingExtensions
         }
     }
 
-    private static string GetOrCreateAppHostTempSubdirectory(IDistributedApplicationBuilder builder)
+    private static string GetOrCreateAppHostCertDirectory(IDistributedApplicationBuilder builder)
     {
-        // Create a temp directory with a name that is unique to the application and does not change across restarts.
+        // TODO: Check if we're running on a platform that already has the cert and key exported to a file (e.g. macOS) and just use those instead.
+        // macOS: Path.Combine(
+        //          Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aspnet", "dev-certs", "https"),
+        //          "aspnetcore-localhost-{certificate.Thumbprint}.pfx");
+        // linux: CurrentUser/Root store
 
-        var appName = Sanitize(builder.Environment.ApplicationName).ToLowerInvariant();
-        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
-        var dirName = $"aspire.{appName}.{appNameHash}";
+        // Create a directory in the project's /obj dir or TMP to store the exported certificate and key
+        var projectDir = builder.AppHostAssembly?.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(a => a.Key == "apphostprojectpath")
+            ?.Value;
+        var objDir = builder.AppHostAssembly?.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(a => a.Key == "apphostprojectbasentermediateoutputpath")
+            ?.Value;
+        var dirPath = projectDir is not null && objDir is not null
+            ? Path.Combine(projectDir, objDir, "aspire")
+            : Path.Combine(Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName);
 
-        // Determine the parent directory to create the temp directory in.
-        var tempDir = Directory.CreateTempSubdirectory(dirName);
-        var parentDir = tempDir.Parent ?? throw new InvalidOperationException("User temp directory could not be determined.");
-
-        // Check if the final directory already exists.
-        var fullDirPath = Path.Combine(parentDir.FullName, dirName);
-
-        if (!Directory.Exists(fullDirPath))
+        if (!Directory.Exists(dirPath))
         {
-            // Rename the temp directory to the final directory name so that it's stable across restarts.
-            Directory.Move(tempDir.FullName, fullDirPath);
+            // Create the directory
+            Directory.CreateDirectory(dirPath);
         }
 
-        return fullDirPath;
+        return dirPath;
     }
 
-    private static char[] _invalidPathChars = Path.GetInvalidPathChars();
+    private static string GetAppHostSpecificTempDirPrefix(IDistributedApplicationBuilder builder)
+    {
+        var appName = Sanitize(builder.Environment.ApplicationName).ToLowerInvariant();
+        var appNameHash = builder.Configuration["AppHost:Sha256"]![..10].ToLowerInvariant();
+        return $"aspire.{appName}.{appNameHash}";
+    }
+
+    private static readonly char[] _invalidPathChars = Path.GetInvalidPathChars();
 
     private static string Sanitize(string name)
     {
