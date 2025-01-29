@@ -1,4 +1,8 @@
-﻿@inject BasketServiceClient BasketClient
+﻿@using System.Diagnostics
+@using AspireShop.Chaos
+@using Microsoft.AspNetCore.Mvc
+@inject ChaosProvider ChaosProvider
+@inject BasketServiceClient BasketClient
 @inject NavigationManager Navigation
 
 <div class="justify-content-end">
@@ -26,6 +30,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await ChaosProvider.PonderChaosAsync();
+
         (customerBasket, basketIsAvailable) = await BasketClient.GetBasketAsync("user");
 
         await BasketAvailabilityChanged.InvokeAsync(basketIsAvailable);
