@@ -8,9 +8,7 @@
       "applicationUrl": "http://localhost:5276",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "RANDOM_CHAOS": "true",
-        "OTEL_EXPORTER_OTLP_UPSTREAM_ENDPOINT": "https://otlp.iapm.app",
-        "OTEL_EXPORTER_OTLP_UPSTREAM_HEADERS": "API-Key=if-9ff70597-72ec-4c30-b110-98d190acdbfd"
+        "RANDOM_CHAOS": "true"
       }
     },
     "https": {
@@ -20,9 +18,7 @@
       "applicationUrl": "https://localhost:7276;http://localhost:5276",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "RANDOM_CHAOS": "true",
-        "OTEL_EXPORTER_OTLP_UPSTREAM_ENDPOINT": "https://otlp.iapm.app",
-        "OTEL_EXPORTER_OTLP_UPSTREAM_HEADERS": "API-Key=if-9ff70597-72ec-4c30-b110-98d190acdbfd"
+        "RANDOM_CHAOS": "true"
       }
     }
   }
