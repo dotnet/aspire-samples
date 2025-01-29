@@ -198,7 +198,7 @@ public static class DevCertHostingExtensions
             ?.Value;
         var dirPath = projectDir is not null && objDir is not null
             ? Path.Combine(projectDir, objDir, "aspire")
-            : Path.Combine(Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName);
+            : Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName;
 
         if (!Directory.Exists(dirPath))
         {
