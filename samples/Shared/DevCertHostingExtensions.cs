@@ -190,12 +190,9 @@ public static class DevCertHostingExtensions
         // linux: CurrentUser/Root store
 
         // Create a directory in the project's /obj dir or TMP to store the exported certificate and key
-        var projectDir = builder.AppHostAssembly?.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .FirstOrDefault(a => a.Key == "apphostprojectpath")
-            ?.Value;
-        var objDir = builder.AppHostAssembly?.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .FirstOrDefault(a => a.Key == "apphostprojectbasentermediateoutputpath")
-            ?.Value;
+        var assemblyMetadata = builder.AppHostAssembly?.GetCustomAttributes<AssemblyMetadataAttribute>();
+        var projectDir = GetMetadataValue(assemblyMetadata, "AppHostProjectPath");
+        var objDir = GetMetadataValue(assemblyMetadata, "AppHostProjectBaseIntermediateOutputPath");
         var dirPath = projectDir is not null && objDir is not null
             ? Path.Combine(projectDir, objDir, "aspire")
             : Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName;
@@ -208,6 +205,9 @@ public static class DevCertHostingExtensions
 
         return dirPath;
     }
+
+    private static string? GetMetadataValue(IEnumerable<AssemblyMetadataAttribute>? assemblyMetadata, string key) =>
+        assemblyMetadata?.FirstOrDefault(a => string.Equals(a.Key, key, StringComparison.OrdinalIgnoreCase))?.Value;
 
     private static string GetAppHostSpecificTempDirPrefix(IDistributedApplicationBuilder builder)
     {

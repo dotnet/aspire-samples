@@ -2,7 +2,7 @@
   <Target Name="EmbedAppHostIntermediateOutputPath" BeforeTargets="GetAssemblyAttributes">
     <ItemGroup>
       <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-        <_Parameter1>apphostprojectbasentermediateoutputpath</_Parameter1>
+        <_Parameter1>apphostprojectbaseintermediateoutputpath</_Parameter1>
         <_Parameter2>$(BaseIntermediateOutputPath)</_Parameter2>
       </AssemblyAttribute>
     </ItemGroup>
