@@ -9,10 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Aspire.StackExchange.Redis" Version="9.0.0" />
-    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AspireShop.BasketBus\AspireShop.BasketBus.csproj" />
+    <ProjectReference Include="..\AspireShop.BasketService\AspireShop.BasketService.csproj" />
+    <ProjectReference Include="..\AspireShop.Chaos\AspireShop.Chaos.csproj" />
     <ProjectReference Include="..\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

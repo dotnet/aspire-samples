@@ -5,10 +5,21 @@ using AspireShop.BasketService.Repositories;
 using RabbitMQ.Client;
 using System.Data.Common;
 using System.Text;
+using OpenTelemetry.Context.Propagation;
+using OpenTelemetry;
+using System.Diagnostics;
+using AspireShop.BasketBus;
 
 namespace AspireShop.BasketService;
 
-public class BasketService(IBasketRepository repository, ILogger<BasketService> logger, IConnection connection)
+/// <summary>
+/// 
+/// </summary>
+/// <param name="repository"></param>
+/// <param name="logger"></param>
+/// <param name="connection"></param>
+/// <remarks>See https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/examples/MicroserviceExample/Utils/Messaging/MessageSender.cs</remarks>
+public class BasketService(IBasketRepository repository, ILogger<BasketService> logger, IBus bus)
     : Basket.BasketBase
 {
     public override async Task<CustomerBasketResponse> GetBasketById(BasketRequest request, ServerCallContext context)
@@ -36,13 +47,7 @@ public class BasketService(IBasketRepository repository, ILogger<BasketService> 
             throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer id {request.BuyerId} does not exist"));
         }
 
-        using var channel = connection.CreateModel();
-        
-        var queue = "interest";
-        const string message = "Hello World!";
-        var body = Encoding.UTF8.GetBytes(message);
-
-        channel.BasicPublish(exchange: string.Empty, queue, body: body);
+        await bus.PublishAsync(customerBasket);
 
         return MapToCustomerBasketResponse(response);
     }

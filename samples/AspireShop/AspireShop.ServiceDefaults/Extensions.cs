@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspireShop.ServiceDefaults;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -50,7 +51,9 @@ public static class Extensions
             })
             .WithTracing(tracing =>
             {
-                tracing.AddSource(builder.Environment.ApplicationName)
+                tracing
+                    .AddSource(builder.Environment.ApplicationName)
+                    .AddSource(SharedActivitySource.ActivitySourceName)
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
                         tracing.Filter = httpContext =>
