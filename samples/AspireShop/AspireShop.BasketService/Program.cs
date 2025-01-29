@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddRedisClient("basketcache");
+builder.AddRabbitMQClient(connectionName: "messaging");
 
 builder.Services.AddGrpc();
 builder.Services.AddGrpcHealthChecks();

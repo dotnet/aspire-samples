@@ -1,11 +1,14 @@
-using Grpc.Core;
+﻿using Grpc.Core;
 using AspireShop.GrpcBasket;
 using AspireShop.BasketService.Models;
 using AspireShop.BasketService.Repositories;
+using RabbitMQ.Client;
+using System.Data.Common;
+using System.Text;
 
 namespace AspireShop.BasketService;
 
-public class BasketService(IBasketRepository repository, ILogger<BasketService> logger)
+public class BasketService(IBasketRepository repository, ILogger<BasketService> logger, IConnection connection)
     : Basket.BasketBase
 {
     public override async Task<CustomerBasketResponse> GetBasketById(BasketRequest request, ServerCallContext context)
@@ -32,6 +35,14 @@ public class BasketService(IBasketRepository repository, ILogger<BasketService> 
         {
             throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer id {request.BuyerId} does not exist"));
         }
+
+        using var channel = connection.CreateModel();
+        
+        var queue = "interest";
+        const string message = "Hello World!";
+        var body = Encoding.UTF8.GetBytes(message);
+
+        channel.BasicPublish(exchange: string.Empty, queue, body: body);
 
         return MapToCustomerBasketResponse(response);
     }

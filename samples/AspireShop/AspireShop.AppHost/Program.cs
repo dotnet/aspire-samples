@@ -12,7 +12,9 @@ if (builder.ExecutionContext.IsRunMode)
 
 var catalogDb = postgres.AddDatabase("catalogdb");
 
-var rabbitmq = builder.AddRabbitMQ("messaging");
+var rabbitmq = builder.AddRabbitMQ("messaging")
+    .WithDataVolume(isReadOnly: false)
+    .WithManagementPlugin();
 
 var basketCache = builder.AddRedis("basketcache")
     .WithDataVolume()
@@ -30,11 +32,19 @@ var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("cat
 
 var basketService = builder.AddProject<Projects.AspireShop_BasketService>("basketservice")
     .WithReference(basketCache)
-    .WaitFor(basketCache);
+    .WithReference(rabbitmq)
+    .WaitFor(basketCache)
+    .WaitFor(rabbitmq);
+
+//workers are not referenced as they not dependencies of anything
+builder.AddProject<Projects.AspireShop_BasketWorker>("basketworker")
+    .WithReference(basketCache)
+    .WithReference(rabbitmq)
+    .WaitFor(basketCache)
+    .WaitFor(rabbitmq);
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
     .WithExternalHttpEndpoints()
-    .WithReference(rabbitmq)
     .WithReference(basketService)
     .WithReference(catalogService)
     .WaitFor(catalogService);
