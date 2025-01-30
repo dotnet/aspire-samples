@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,9 +18,19 @@ public static class DevCertHostingExtensions
     /// Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
     /// </remarks>
     public static IResourceBuilder<TResource> RunWithHttpsDevCertificate<TResource>(
-        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string certPasswordOrKeyEnv, Action<string, string>? onSuccessfulExport = null)
+        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string? certPasswordOrKeyEnv, Action<string, string?>? onSuccessfulExport = null)
         where TResource : IResourceWithEnvironment
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(certFileEnv);
+        if (certificateFileFormat is CertificateFileFormat.PfxWithPassword && string.IsNullOrWhiteSpace(certPasswordOrKeyEnv))
+        {
+            throw new ArgumentException("The environment variable name for the certificate password must be provided when exporting a PFX certificate with a password.", nameof(certPasswordOrKeyEnv));
+        }
+        if (certificateFileFormat is CertificateFileFormat.Pem && string.IsNullOrWhiteSpace(certPasswordOrKeyEnv))
+        {
+            throw new ArgumentException("The environment variable name for the certificate key file must be provided when exporting a PEM certificate.", nameof(certPasswordOrKeyEnv));
+        }
+
         if (builder.ApplicationBuilder.ExecutionContext.IsRunMode && builder.ApplicationBuilder.Environment.IsDevelopment())
         {
             builder.ApplicationBuilder.Eventing.Subscribe<BeforeStartEvent>(async (e, ct) =>
@@ -30,7 +39,7 @@ public static class DevCertHostingExtensions
 
                 // Export the ASP.NET Core HTTPS development certificate & private key to files and configure the resource to use them via
                 // the specified environment variables.
-                var (exported, certPath, certKeyPath) = await TryExportDevCertificateAsync(certificateFileFormat, builder.ApplicationBuilder, logger);
+                var (exported, certPath, certPasswordOrKeyPath) = await TryExportDevCertificateAsync(certificateFileFormat, builder.ApplicationBuilder, logger);
 
                 if (!exported)
                 {
@@ -38,44 +47,59 @@ public static class DevCertHostingExtensions
                     return;
                 }
 
+                var certPassword = certificateFileFormat is CertificateFileFormat.PfxWithPassword ? certPasswordOrKeyPath : null;
+
                 if (builder.Resource is ContainerResource containerResource)
                 {
                     // Bind-mount the certificate files into the container.
                     const string DEV_CERT_BIND_MOUNT_DEST_DIR = "/dev-certs";
 
                     var certFileName = Path.GetFileName(certPath);
-                    var certKeyFileName = Path.GetFileName(certKeyPath);
+                    var certKeyFileName = certificateFileFormat is CertificateFileFormat.Pem ? Path.GetFileName(certPasswordOrKeyPath) : null;
 
                     var bindSource = Path.GetDirectoryName(certPath) ?? throw new UnreachableException();
 
                     var certFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certFileName}";
-                    var certKeyFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}";
+                    var certKeyFileDest = certKeyFileName is not null ? $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}" : null;
                     
                     var containerBuilder = builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
-                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true);
-                    if (certPfxFileEnv is not null && certPasswordEnv is not null)
+                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true)
+                        .WithEnvironment(certFileEnv, certFileDest);
+
+                    if (certPasswordOrKeyEnv is not null)
                     {
-                        containerBuilder
-                            .WithEnvironment(certPfxFileEnv, certFileDest)
-                            .WithEnvironment(certPasswordEnv, "password");;
-                    }
-                    else
-                    {
-                        containerBuilder
-                            .WithEnvironment(certFileEnv, certFileDest)
-                            .WithEnvironment(certKeyFileEnv, certKeyFileDest);
+                        if (certPassword is not null)
+                        {
+                            containerBuilder.WithEnvironment(certPasswordOrKeyEnv, certPassword);
+                        }
+                        else if (certKeyFileDest is not null)
+                        {
+                            containerBuilder.WithEnvironment(certPasswordOrKeyEnv, certKeyFileDest);
+                        }
                     }
                 }
                 else
                 {
-                    builder
-                        .WithEnvironment(certFileEnv, certPath)
-                        .WithEnvironment(certKeyFileEnv, certKeyPath);
+                    // Set environment variable for the certificate file.
+                    builder.WithEnvironment(certFileEnv, certPath);
+
+                    // Set environment variable for the certificate password or key file.
+                    if (certPasswordOrKeyEnv is not null)
+                    {
+                        if (certPassword is not null)
+                        {
+                            builder.WithEnvironment(certPasswordOrKeyEnv, certPassword);
+                        }
+                        else if (certPasswordOrKeyPath is not null)
+                        {
+                            builder.WithEnvironment(certPasswordOrKeyEnv, certPasswordOrKeyPath);
+                        }
+                    }
                 }
 
                 if (onSuccessfulExport is not null)
                 {
-                    onSuccessfulExport(certPath, certKeyPath);
+                    onSuccessfulExport(certPath, certPasswordOrKeyPath);
                 }
             });
         }
@@ -87,37 +111,63 @@ public static class DevCertHostingExtensions
     {
         // Exports the ASP.NET Core HTTPS development certificate using 'dotnet dev-certs https' to a directory and returns the path.
         var certDir = GetOrCreateAppHostCertDirectory(builder);
-        var certExportPath = Path.Join(certDir, certFileMode == CertificateFileFormat.Pem ? "dev-cert.pem" : "dev-cert.pfx");
-        var certKeyExportPath = Path.Join(certDir, "dev-cert.key");
+        var certExportPath = Path.Join(certDir, certFileMode switch
+            {
+                CertificateFileFormat.Pem =>"dev-cert.pem",
+                CertificateFileFormat.Pfx => "dev-cert.pfx",
+                CertificateFileFormat.PfxWithPassword => "dev-cert-pw.pfx",
+                _ => throw new ArgumentOutOfRangeException(nameof(certFileMode)),
+            });
+        var certKeyExportPath = certFileMode is CertificateFileFormat.Pem ? Path.Join(certDir, "dev-cert.key") : null;
+        const string passwordName = "dev-cert-password";
 
-        if (certFileMode is CertificateFileFormat.Pfx or CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))
+        if (certFileMode is CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))
         {
-            // Certificate already exported, return the path and password (if requested).
+            // Certificate already exported, return the path and password.
             logger.LogDebug("Using previously exported dev cert PFX file '{CertPath}'", certExportPath);
-            // TODO: Get password from user secrets
-            return (true, certExportPath, "password", null);
-        }
-
-        if (File.Exists(certExportPath) && (certFileMode == CertificateFileFormat.Pfx || File.Exists(certKeyExportPath)))
-        {
-            // Certificate already exported, return the path.
-            logger.LogDebug("Using previously exported dev cert files '{CertPath}' and '{CertKeyPath}'", certExportPath, certKeyExportPath);
-            return (true, certExportPath, certKeyExportPath);
-        }
-
-        if (File.Exists(certExportPath))
-        {
-            logger.LogTrace("Deleting previously exported dev cert file '{CertPath}'", certExportPath);
+            var passwordValue = builder.Configuration[$"Parameters:{passwordName}"];
+            if (!string.IsNullOrEmpty(passwordValue))
+            {
+                return (true, certExportPath, passwordValue);
+            }
+            logger.LogWarning($"The dev cert password is required but was not found in the configuration with key 'Parameters:{passwordName}'. Deleting existing dev cert file and re-exporting.");
             File.Delete(certExportPath);
         }
-
-        if (File.Exists(certKeyExportPath))
+        else if (certFileMode is CertificateFileFormat.Pfx & File.Exists(certExportPath))
         {
-            logger.LogTrace("Deleting previously exported dev cert key file '{CertKeyPath}'", certKeyExportPath);
-            File.Delete(certKeyExportPath);
+            // Certificate already exported, return the path.
+            logger.LogDebug("Using previously exported dev cert PFX file '{CertPath}'", certExportPath);
+            return (true, certExportPath, null);
+        }
+        else if (certFileMode == CertificateFileFormat.Pem)
+        {
+            if (File.Exists(certExportPath) && File.Exists(certKeyExportPath))
+            {
+                // Certificate already exported, return the path.
+                logger.LogDebug("Using previously exported dev cert PEM file '{CertPath}' and key file '{CertKeyPath}'", certExportPath, certKeyExportPath);
+                return (true, certExportPath, certKeyExportPath);
+            }
+
+            if (File.Exists(certExportPath))
+            {
+                logger.LogTrace("Previously exported key file is present but dev cert file '{CertPath}' is missing. Deleting dev cert file and re-exporting.", certExportPath);
+                File.Delete(certExportPath);
+            }
+
+            if (File.Exists(certKeyExportPath))
+            {
+                logger.LogTrace("Previously exported dev cert file is present but key file '{CertKeyPath}' is missing. Deleting key file and re-exporting.", certKeyExportPath);
+                File.Delete(certKeyExportPath);
+            }
         }
 
-        string[] args = ["dev-certs", "https", "--export-path", $"\"{certExportPath}\"", "--format", "Pem", "--no-password"];
+        var generatedPassword = certFileMode is CertificateFileFormat.PfxWithPassword
+            ? ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, passwordName).Default?.GetDefaultValue()
+                ?? throw new InvalidOperationException($"The default value for the parameter '{passwordName}' was not set.")
+            : null;
+        var passwordArgs = generatedPassword is null ? "--no-password" : $"--password \"{generatedPassword}\"";
+        var formatArg = certFileMode is CertificateFileFormat.Pem ? "Pem" : "Pfx";
+        string[] args = ["dev-certs", "https", "--export-path", $"\"{certExportPath}\"", "--format", formatArg, passwordArgs];
         var argsString = string.Join(' ', args);
 
         logger.LogTrace("Running command to export dev cert: {ExportCmd}", $"dotnet {argsString}");
@@ -156,7 +206,13 @@ public static class DevCertHostingExtensions
             var timeout = TimeSpan.FromSeconds(5);
             var exited = exportProcess.WaitForExit(timeout);
 
-            if (exited && File.Exists(certExportPath) && File.Exists(certKeyExportPath))
+            if (exited && certFileMode is CertificateFileFormat.Pfx or CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))
+            {
+                logger.LogDebug("Dev cert exported to '{CertPath}'", certExportPath);
+                return (true, certExportPath, certFileMode is CertificateFileFormat.PfxWithPassword ? generatedPassword : null);
+            }
+
+            if (exited && certFileMode is CertificateFileFormat.Pem && File.Exists(certExportPath) && File.Exists(certKeyExportPath))
             {
                 logger.LogDebug("Dev cert exported to '{CertPath}' and '{CertKeyPath}'", certExportPath, certKeyExportPath);
                 return (true, certExportPath, certKeyExportPath);
