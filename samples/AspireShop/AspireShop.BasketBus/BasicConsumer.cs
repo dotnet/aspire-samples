@@ -33,7 +33,7 @@ namespace AspireShop.BasketBus
             
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (_logger.IsEnabled(LogLevel.Information))
+                if (_logger.IsEnabled(LogLevel.Debug))
                 {
                     _logger.LogDebug("Consumer running at: {time}", DateTimeOffset.Now);
                 }
