@@ -18,7 +18,7 @@ public static class DevCertHostingExtensions
     /// Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
     /// </remarks>
     public static IResourceBuilder<TResource> RunWithHttpsDevCertificate<TResource>(
-        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string? certPasswordOrKeyEnv, Action<string, string?>? onSuccessfulExport = null)
+        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string? certPasswordOrKeyEnv, Func<IServiceProvider, string, string?, Task>? onSuccessfulExport = null)
         where TResource : IResourceWithEnvironment
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(certFileEnv);
@@ -102,7 +102,7 @@ public static class DevCertHostingExtensions
 
                 if (onSuccessfulExport is not null)
                 {
-                    onSuccessfulExport(certPath, certPasswordOrKeyPath);
+                    await onSuccessfulExport(e.Services, certPath, certPasswordOrKeyPath);
                 }
             });
         }
@@ -110,7 +110,10 @@ public static class DevCertHostingExtensions
         return builder;
     }
 
-    private static async Task<(bool, string CertFilePath, string? CertPasswordOrKeyFilePath)> TryExportDevCertificateAsync(CertificateFileFormat certFileMode, IDistributedApplicationBuilder builder, ILogger logger)
+    /// <summary>
+    /// Tries to export the ASP.NET Core HTTPS development certificate to a file for the current app host and returns the details.
+    /// </summary>
+    public static async Task<(bool ExportSuccessful, string CertFilePath, string? CertPasswordOrKeyFilePath)> TryExportDevCertificateAsync(CertificateFileFormat certFileMode, IDistributedApplicationBuilder builder, ILogger logger)
     {
         // Exports the ASP.NET Core HTTPS development certificate using 'dotnet dev-certs https' to a directory and returns the path.
         var certDir = GetOrCreateAppHostCertDirectory(builder);
