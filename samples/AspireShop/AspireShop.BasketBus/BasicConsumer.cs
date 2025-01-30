@@ -35,7 +35,7 @@ namespace AspireShop.BasketBus
             {
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    _logger.LogInformation("Consumer running at: {time}", DateTimeOffset.Now);
+                    _logger.LogDebug("Consumer running at: {time}", DateTimeOffset.Now);
                 }
                 await Task.Delay(1000, stoppingToken);
             }
