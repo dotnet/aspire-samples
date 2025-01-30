@@ -14,19 +14,27 @@ const config = {
     httpsRedirectPort: process.env['HTTPS_REDIRECT_PORT'] ?? (process.env['HTTPS_PORT'] ?? 8443),
     certFile: process.env['HTTPS_CERT_FILE'] ?? '',
     certKeyFile: process.env['HTTPS_CERT_KEY_FILE'] ?? '',
+    certPfxFile: process.env['HTTPS_CERT_PFX_FILE'] ?? '',
+    certPfxFilePassword: process.env['HTTPS_CERT_PFX_FILE_PASSWORD'] ?? '',
     cacheAddress: process.env['ConnectionStrings__cache'] ?? '',
     apiServer: process.env['services__weatherapi__https__0'] ?? process.env['services__weatherapi__http__0']
 };
 console.log(`config: ${JSON.stringify(config)}`);
 
 // Setup HTTPS options
-const httpsOptions = fs.existsSync(config.certFile) && fs.existsSync(config.certKeyFile)
+const httpsOptions = fs.existsSync(config.certPfxFile)
     ? {
-        cert: fs.readFileSync(config.certFile),
-        key: fs.readFileSync(config.certKeyFile),
+        pfx: fs.readFileSync(config.certPfxFile),
+        passphrase: config.certPfxFilePassword,
         enabled: true
     }
-    : { enabled: false };
+    : fs.existsSync(config.certFile) && fs.existsSync(config.certKeyFile)
+        ? {
+            cert: fs.readFileSync(config.certFile),
+            key: fs.readFileSync(config.certKeyFile),
+            enabled: true
+        }
+        : { enabled: false };
 
 // Setup connection to Redis cache
 const passwordPrefix = ',password=';

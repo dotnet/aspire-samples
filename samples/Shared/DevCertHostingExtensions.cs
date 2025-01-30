@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +19,7 @@ public static class DevCertHostingExtensions
     /// Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
     /// </remarks>
     public static IResourceBuilder<TResource> RunWithHttpsDevCertificate<TResource>(
-        this IResourceBuilder<TResource> builder, string certFileEnv, string certKeyFileEnv, Action<string, string>? onSuccessfulExport = null)
+        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string certPasswordOrKeyEnv, Action<string, string>? onSuccessfulExport = null)
         where TResource : IResourceWithEnvironment
     {
         if (builder.ApplicationBuilder.ExecutionContext.IsRunMode && builder.ApplicationBuilder.Environment.IsDevelopment())
@@ -29,7 +30,7 @@ public static class DevCertHostingExtensions
 
                 // Export the ASP.NET Core HTTPS development certificate & private key to files and configure the resource to use them via
                 // the specified environment variables.
-                var (exported, certPath, certKeyPath) = await TryExportDevCertificateAsync(builder.ApplicationBuilder, logger);
+                var (exported, certPath, certKeyPath) = await TryExportDevCertificateAsync(certificateFileFormat, builder.ApplicationBuilder, logger);
 
                 if (!exported)
                 {
@@ -49,11 +50,21 @@ public static class DevCertHostingExtensions
 
                     var certFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certFileName}";
                     var certKeyFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}";
-
-                    builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
-                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true)
-                        .WithEnvironment(certFileEnv, certFileDest)
-                        .WithEnvironment(certKeyFileEnv, certKeyFileDest);
+                    
+                    var containerBuilder = builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
+                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true);
+                    if (certPfxFileEnv is not null && certPasswordEnv is not null)
+                    {
+                        containerBuilder
+                            .WithEnvironment(certPfxFileEnv, certFileDest)
+                            .WithEnvironment(certPasswordEnv, "password");;
+                    }
+                    else
+                    {
+                        containerBuilder
+                            .WithEnvironment(certFileEnv, certFileDest)
+                            .WithEnvironment(certKeyFileEnv, certKeyFileDest);
+                    }
                 }
                 else
                 {
@@ -72,14 +83,22 @@ public static class DevCertHostingExtensions
         return builder;
     }
 
-    private static async Task<(bool, string CertFilePath, string CertKeyFilPath)> TryExportDevCertificateAsync(IDistributedApplicationBuilder builder, ILogger logger)
+    private static async Task<(bool, string CertFilePath, string? CertPasswordOrKeyFilePath)> TryExportDevCertificateAsync(CertificateFileFormat certFileMode, IDistributedApplicationBuilder builder, ILogger logger)
     {
-        // Exports the ASP.NET Core HTTPS development certificate & private key to PEM files using 'dotnet dev-certs https' to a directory and returns the path.
+        // Exports the ASP.NET Core HTTPS development certificate using 'dotnet dev-certs https' to a directory and returns the path.
         var certDir = GetOrCreateAppHostCertDirectory(builder);
-        var certExportPath = Path.Combine(certDir, "dev-cert.pem");
-        var certKeyExportPath = Path.Combine(certDir, "dev-cert.key");
+        var certExportPath = Path.Join(certDir, certFileMode == CertificateFileFormat.Pem ? "dev-cert.pem" : "dev-cert.pfx");
+        var certKeyExportPath = Path.Join(certDir, "dev-cert.key");
 
-        if (File.Exists(certExportPath) && File.Exists(certKeyExportPath))
+        if (certFileMode is CertificateFileFormat.Pfx or CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))
+        {
+            // Certificate already exported, return the path and password (if requested).
+            logger.LogDebug("Using previously exported dev cert PFX file '{CertPath}'", certExportPath);
+            // TODO: Get password from user secrets
+            return (true, certExportPath, "password", null);
+        }
+
+        if (File.Exists(certExportPath) && (certFileMode == CertificateFileFormat.Pfx || File.Exists(certKeyExportPath)))
         {
             // Certificate already exported, return the path.
             logger.LogDebug("Using previously exported dev cert files '{CertPath}' and '{CertKeyPath}'", certExportPath, certKeyExportPath);
@@ -96,12 +115,6 @@ public static class DevCertHostingExtensions
         {
             logger.LogTrace("Deleting previously exported dev cert key file '{CertKeyPath}'", certKeyExportPath);
             File.Delete(certKeyExportPath);
-        }
-
-        if (!Directory.Exists(certDir))
-        {
-            logger.LogTrace("Creating directory to export dev cert to '{ExportDir}'", certDir);
-            Directory.CreateDirectory(certDir);
         }
 
         string[] args = ["dev-certs", "https", "--export-path", $"\"{certExportPath}\"", "--format", "Pem", "--no-password"];
@@ -194,14 +207,11 @@ public static class DevCertHostingExtensions
         var projectDir = GetMetadataValue(assemblyMetadata, "AppHostProjectPath");
         var objDir = GetMetadataValue(assemblyMetadata, "AppHostProjectBaseIntermediateOutputPath");
         var dirPath = projectDir is not null && objDir is not null
-            ? Path.Combine(projectDir, objDir, "aspire")
+            ? Path.Join(projectDir, objDir, "aspire")
             : Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName;
 
-        if (!Directory.Exists(dirPath))
-        {
-            // Create the directory
-            Directory.CreateDirectory(dirPath);
-        }
+        // Create the directory
+        Directory.CreateDirectory(dirPath);
 
         return dirPath;
     }
@@ -222,14 +232,19 @@ public static class DevCertHostingExtensions
     {
         return string.Create(name.Length, name, static (s, name) =>
         {
-            var nameSpan = name.AsSpan();
-
-            for (var i = 0; i < nameSpan.Length; i++)
+            for (var i = 0; i < name.Length; i++)
             {
-                var c = nameSpan[i];
+                var c = name[i];
 
-                s[i] = Array.IndexOf(_invalidPathChars, c) == -1 ? c : '_';
+                s[i] = _invalidPathChars.Contains(c) ? '_' : c;
             }
         });
     }
+}
+
+public enum CertificateFileFormat
+{
+    Pfx,
+    PfxWithPassword,
+    Pem,
 }
