@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AspireShop.Chaos\AspireShop.Chaos.csproj" />
     <ProjectReference Include="..\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj" />
   </ItemGroup>
 

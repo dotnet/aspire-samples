@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspireShop.ServiceDefaults;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
@@ -48,7 +51,9 @@ public static class Extensions
             })
             .WithTracing(tracing =>
             {
-                tracing.AddSource(builder.Environment.ApplicationName)
+                tracing
+                    .AddSource(builder.Environment.ApplicationName)
+                    .AddSource(SharedActivitySource.ActivitySourceName)
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
                         tracing.Filter = httpContext =>
@@ -68,10 +73,41 @@ public static class Extensions
     {
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
-        if (useOtlpExporter)
+        var useOtlpUpstreamExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_UPSTREAM_ENDPOINT"]);
+        
+        void ConfigureUpstreamExporter(OtlpExporterOptions options)
+        {
+            if (string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_UPSTREAM_ENDPOINT"]))
+            {
+                return;
+            }
+
+            options.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_UPSTREAM_ENDPOINT"]!);
+            options.Headers = builder.Configuration["OTEL_EXPORTER_OTLP_UPSTREAM_HEADERS"];
+        }
+
+        //use simple extension
+        if (useOtlpExporter && !useOtlpUpstreamExporter)
         {
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
+
         }
+        //use other extension for Aspire Dashboard but also prepare for the upstream exporter
+        //avoid the exception about: Signal-specific AddOtlpExporter methods and the cross-cutting UseOtlpExporter method being invoked on the same IServiceCollection is not supported.
+        else if (useOtlpExporter && useOtlpUpstreamExporter)
+        {
+            builder.Services.ConfigureOpenTelemetryLoggerProvider(o => o.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryTracerProvider(o => o.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryMeterProvider(o => o.AddOtlpExporter());
+        }
+        
+        if (useOtlpUpstreamExporter)
+        {
+            builder.Services.ConfigureOpenTelemetryLoggerProvider(o => o.AddOtlpExporter(ConfigureUpstreamExporter));
+            builder.Services.ConfigureOpenTelemetryTracerProvider(o => o.AddOtlpExporter(ConfigureUpstreamExporter));
+            builder.Services.ConfigureOpenTelemetryMeterProvider(o => o.AddOtlpExporter(ConfigureUpstreamExporter));
+        }
+
 
         return builder;
     }

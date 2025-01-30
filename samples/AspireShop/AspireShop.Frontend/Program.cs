@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using AspireShop.Chaos;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using AspireShop.Frontend.Components;
 using AspireShop.Frontend.Services;
 using AspireShop.GrpcBasket;
@@ -15,6 +16,8 @@ var isHttps = builder.Configuration["DOTNET_LAUNCH_PROFILE"] == "https";
 
 builder.Services.AddSingleton<BasketServiceClient>()
     .AddGrpcServiceReference<Basket.BasketClient>($"{(isHttps ? "https" : "http")}://basketservice", failureStatus: HealthStatus.Degraded);
+
+builder.Services.AddSingleton<ChaosProvider>();
 
 builder.Services.AddRazorComponents();
 
