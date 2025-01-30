@@ -16,7 +16,6 @@
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0" />
     <Compile Include="..\..\Shared\DevCertHostingExtensions.cs" Link="DevCertHostingExtensions.cs" />
-    <Compile Include="..\..\Shared\UseDevCertAnnotation.cs" Link="UseDevCertAnnotation.cs" />
   </ItemGroup>
 
   <ItemGroup>
