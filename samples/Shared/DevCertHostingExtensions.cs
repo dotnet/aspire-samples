@@ -33,6 +33,9 @@ public static class DevCertHostingExtensions
 
         if (builder.ApplicationBuilder.ExecutionContext.IsRunMode && builder.ApplicationBuilder.Environment.IsDevelopment())
         {
+            // This event callback will run before the application starts. If multiple resources are running with the dev cert and thus multiples of this callback are registered,
+            // the call to TryExportDevCertificateAsync will ensure that the required certificate formats will only be exported once, each, as required. The callbacks are run
+            // seqentially in order so no need to lock or synchronize access.
             builder.ApplicationBuilder.Eventing.Subscribe<BeforeStartEvent>(async (e, ct) =>
             {
                 var logger = e.Services.GetRequiredService<ResourceLoggerService>().GetLogger(builder.Resource);

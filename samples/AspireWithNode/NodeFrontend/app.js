@@ -12,10 +12,10 @@ const config = {
     httpPort: process.env['PORT'] ?? 8080,
     httpsPort: process.env['HTTPS_PORT'] ?? 8443,
     httpsRedirectPort: process.env['HTTPS_REDIRECT_PORT'] ?? (process.env['HTTPS_PORT'] ?? 8443),
+    certPfxFile: process.env['HTTPS_CERT_PFX_FILE'] ?? '',
+    certPassword: process.env['HTTPS_CERT_PASSWORD'] ?? '',
     certFile: process.env['HTTPS_CERT_FILE'] ?? '',
     certKeyFile: process.env['HTTPS_CERT_KEY_FILE'] ?? '',
-    certPfxFile: process.env['HTTPS_CERT_PFX_FILE'] ?? '',
-    certPfxFilePassword: process.env['HTTPS_CERT_PFX_FILE_PASSWORD'] ?? '',
     cacheAddress: process.env['ConnectionStrings__cache'] ?? '',
     apiServer: process.env['services__weatherapi__https__0'] ?? process.env['services__weatherapi__http__0']
 };
@@ -25,7 +25,7 @@ console.log(`config: ${JSON.stringify(config)}`);
 const httpsOptions = fs.existsSync(config.certPfxFile)
     ? {
         pfx: fs.readFileSync(config.certPfxFile),
-        passphrase: config.certPfxFilePassword,
+        passphrase: config.certPassword,
         enabled: true
     }
     : fs.existsSync(config.certFile) && fs.existsSync(config.certKeyFile)
