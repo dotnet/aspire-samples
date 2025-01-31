@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Hosting;
 
