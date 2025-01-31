@@ -8,6 +8,12 @@ namespace Aspire.Hosting;
 
 public static class DevCertHostingExtensions
 {
+    public const string DEV_CERT_BIND_MOUNT_DEST_DIR = "/dev-certs";
+    public const string DEV_CERT_FILE_NAME_PFX = "dev-cert.pfx";
+    public const string DEV_CERT_FILE_NAME_PFX_WITH_PASSWORD = "dev-cert-pass.pfx";
+    public const string DEV_CERT_FILE_NAME_PEM = "dev-cert.pem";
+    public const string DEV_CERT_FILE_NAME_KEY = "dev-cert.key";
+
     /// <summary>
     /// Injects the ASP.NET Core HTTPS developer certificate into the resource via the specified environment variables when
     /// <paramref name="builder"/>.<see cref="IResourceBuilder{T}.ApplicationBuilder">ApplicationBuilder</see>.<see cref="IDistributedApplicationBuilder.ExecutionContext">ExecutionContext</see>.<see cref="DistributedApplicationExecutionContext.IsRunMode">IsRunMode</see><c> == true</c>.<br/>
@@ -18,19 +24,9 @@ public static class DevCertHostingExtensions
     /// Use <see cref="ResourceBuilderExtensions.WithHttpsEndpoint{TResource}"/> to configure an HTTPS endpoint.
     /// </remarks>
     public static IResourceBuilder<TResource> RunWithHttpsDevCertificate<TResource>(
-        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string certFileEnv, string? certPasswordOrKeyEnv, Func<IServiceProvider, string, string?, Task>? onSuccessfulExport = null)
+        this IResourceBuilder<TResource> builder, CertificateFileFormat certificateFileFormat, string? certFileEnv, string? certPasswordOrKeyEnv, Func<IServiceProvider, string, string?, Task>? onSuccessfulExport = null)
         where TResource : IResourceWithEnvironment
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(certFileEnv);
-        if (certificateFileFormat is CertificateFileFormat.PfxWithPassword && string.IsNullOrWhiteSpace(certPasswordOrKeyEnv))
-        {
-            throw new ArgumentException("The environment variable name for the certificate password must be provided when exporting a PFX certificate with a password.", nameof(certPasswordOrKeyEnv));
-        }
-        if (certificateFileFormat is CertificateFileFormat.Pem && string.IsNullOrWhiteSpace(certPasswordOrKeyEnv))
-        {
-            throw new ArgumentException("The environment variable name for the certificate key file must be provided when exporting a PEM certificate.", nameof(certPasswordOrKeyEnv));
-        }
-
         if (builder.ApplicationBuilder.ExecutionContext.IsRunMode && builder.ApplicationBuilder.Environment.IsDevelopment())
         {
             // This event callback will run before the application starts. If multiple resources are running with the dev cert and thus multiples of this callback are registered,
@@ -55,8 +51,6 @@ public static class DevCertHostingExtensions
                 if (builder.Resource is ContainerResource containerResource)
                 {
                     // Bind-mount the certificate files into the container.
-                    const string DEV_CERT_BIND_MOUNT_DEST_DIR = "/dev-certs";
-
                     var certFileName = Path.GetFileName(certPath);
                     var certKeyFileName = certificateFileFormat is CertificateFileFormat.Pem ? Path.GetFileName(certPasswordOrKeyPath) : null;
 
@@ -64,10 +58,14 @@ public static class DevCertHostingExtensions
 
                     var certFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certFileName}";
                     var certKeyFileDest = certKeyFileName is not null ? $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}" : null;
-                    
+
                     var containerBuilder = builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
-                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true)
-                        .WithEnvironment(certFileEnv, certFileDest);
+                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true);
+
+                    if (!string.IsNullOrEmpty(certFileEnv))
+                    {
+                        containerBuilder.WithEnvironment(certFileEnv, certFileDest);
+                    }
 
                     if (certPasswordOrKeyEnv is not null)
                     {
@@ -84,7 +82,10 @@ public static class DevCertHostingExtensions
                 else
                 {
                     // Set environment variable for the certificate file.
-                    builder.WithEnvironment(certFileEnv, certPath);
+                    if (!string.IsNullOrEmpty(certFileEnv))
+                    {
+                        builder.WithEnvironment(certFileEnv, certPath);
+                    }
 
                     // Set environment variable for the certificate password or key file.
                     if (certPasswordOrKeyEnv is not null)
@@ -119,12 +120,12 @@ public static class DevCertHostingExtensions
         var certDir = GetOrCreateAppHostCertDirectory(builder);
         var certExportPath = Path.Join(certDir, certFileMode switch
             {
-                CertificateFileFormat.Pem =>"dev-cert.pem",
-                CertificateFileFormat.Pfx => "dev-cert.pfx",
-                CertificateFileFormat.PfxWithPassword => "dev-cert-pw.pfx",
+                CertificateFileFormat.Pem => DEV_CERT_FILE_NAME_PEM,
+                CertificateFileFormat.Pfx => DEV_CERT_FILE_NAME_PFX,
+                CertificateFileFormat.PfxWithPassword => DEV_CERT_FILE_NAME_PFX_WITH_PASSWORD,
                 _ => throw new ArgumentOutOfRangeException(nameof(certFileMode)),
             });
-        var certKeyExportPath = certFileMode is CertificateFileFormat.Pem ? Path.Join(certDir, "dev-cert.key") : null;
+        var certKeyExportPath = certFileMode is CertificateFileFormat.Pem ? Path.Join(certDir, DEV_CERT_FILE_NAME_KEY) : null;
         const string passwordName = "dev-cert-password";
 
         if (certFileMode is CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))

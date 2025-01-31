@@ -37,18 +37,22 @@ const httpsOptions = fs.existsSync(config.certPfxFile)
         : { enabled: false };
 
 // Setup connection to Redis cache
-const passwordPrefix = ',password=';
-let cacheConfig = {
-    url: `redis://${config.cacheAddress}`
-};
-
-const cachePasswordIndex = config.cacheAddress.indexOf(passwordPrefix);
-if (cachePasswordIndex > 0) {
-    cacheConfig = {
-        url: `redis://${config.cacheAddress.substring(0, cachePasswordIndex)}`,
-        password: config.cacheAddress.substring(cachePasswordIndex + passwordPrefix.length)
+let cacheOptions = {};
+config.cacheAddress.split(',').forEach(setting => {
+    const parts = setting.split('=');
+    if (parts.length === 2) {
+        const key = parts[0].toLowerCase();
+        const value = parts[1];
+        cacheOptions[key] = value;
+    } else if (parts.length === 1) {
+        cacheOptions['url'] = setting;
     }
-}
+});
+
+let cacheConfig = {
+    url: `${ cacheOptions.ssl ? "rediss" : "redis" }://${cacheOptions.url}`,
+    password: cacheOptions.password
+};
 
 const cache = createClient(cacheConfig);
 cache.on('error', err => console.error('Redis Client Error', err));
