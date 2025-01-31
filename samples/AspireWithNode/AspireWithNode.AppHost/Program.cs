@@ -2,7 +2,8 @@
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+var cache = builder.AddRedis("cache")
+    .RunWithHttpsDevCertificate();
 
 var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weatherapi");
 
@@ -20,7 +21,7 @@ var launchProfile = builder.Configuration["DOTNET_LAUNCH_PROFILE"] ??
 
 if (builder.Environment.IsDevelopment() && launchProfile == "https")
 {
-    frontend.RunWithHttpsDevCertificate("HTTPS_CERT_FILE", "HTTPS_CERT_KEY_FILE");
+    frontend.RunWithHttpsDevCertificate(CertificateFileFormat.PfxWithPassword, "HTTPS_CERT_PFX_FILE", "HTTPS_CERT_PASSWORD");
 }
 
 builder.Build().Run();
