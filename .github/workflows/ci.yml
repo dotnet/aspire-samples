@@ -98,8 +98,8 @@ jobs:
     - name: Copy dcp logs
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: >
-        cp -r /tmp/dcp/logs ./TestResults/dcp/logs
-        cp -r ${TEMP}/dcp/logs ./TestResults/dcp/logs
+        cp -r /tmp/dcp/logs ./TestResults
+        cp -r ${TEMP}/dcp/logs ./TestResults
 
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
