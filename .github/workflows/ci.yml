@@ -99,7 +99,6 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: |
         cp -r /tmp/dcp/logs ./TestResults
-        cp -r ${TEMP}/dcp/logs ./TestResults
 
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
