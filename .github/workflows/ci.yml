@@ -101,7 +101,7 @@ jobs:
       run: |
         mkdir -p ./TestResults/dcplogs
         cp -r /tmp/dcp/logs ./TestResults/dcplogs
-        cp /tmp/aspire.* ./TestResults/dcplogs
+        cp -r /tmp/aspire.* ./TestResults/dcplogs
 
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
