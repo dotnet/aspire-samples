@@ -2,8 +2,8 @@
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache")
-    .RunWithHttpsDevCertificate();
+var cache = builder.AddRedis("cache");
+    //.RunWithHttpsDevCertificate();
 
 var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weatherapi");
 
