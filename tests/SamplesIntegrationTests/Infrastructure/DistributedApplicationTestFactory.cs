@@ -29,6 +29,15 @@ internal static class DistributedApplicationTestFactory
         builder.WithRandomVolumeNames();
         builder.WithContainersLifetime(ContainerLifetime.Session);
 
+        var loggerForwarder = builder.Services
+            .Where(sd => string.Equals(sd.ImplementationType?.Name, "ResourceLoggerForwarderService", StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault();
+        if (loggerForwarder is not null)
+        {
+            builder.Services.Remove(loggerForwarder);
+            builder.Services.Insert(0, loggerForwarder);
+        }
+
         builder.Services.AddLogging(logging =>
         {
             logging.ClearProviders();
