@@ -270,7 +270,7 @@ public static class DevCertHostingExtensions
         var projectDir = GetMetadataValue(assemblyMetadata, "AppHostProjectPath");
         var objDir = GetMetadataValue(assemblyMetadata, "AppHostProjectBaseIntermediateOutputPath");
         var dirPath = projectDir is not null && objDir is not null
-            ? Path.Join(projectDir, objDir, "aspire")
+            ? Path.Join(projectDir, objDir, "aspire", "dev-certs")
             : Directory.CreateTempSubdirectory(GetAppHostSpecificTempDirPrefix(builder)).FullName;
 
         // Create the directory
