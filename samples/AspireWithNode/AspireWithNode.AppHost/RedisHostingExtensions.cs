@@ -25,11 +25,11 @@ internal static class RedisHostingExtensions
                     context.Args.Add("--tls-port");
                     context.Args.Add(builder.Resource.PrimaryEndpoint.TargetPort.ToString()!);
                     context.Args.Add("--tls-cert-file");
-                    context.Args.Add($"\"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}\"");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
                     context.Args.Add("--tls-key-file");
-                    context.Args.Add($"\"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_KEY}\"");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_KEY}");
                     context.Args.Add("--tls-ca-cert-file");
-                    context.Args.Add($"\"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}\"");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
                     context.Args.Add("--tls-auth-clients");
                     context.Args.Add("no");
                 });
