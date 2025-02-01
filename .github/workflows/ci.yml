@@ -97,7 +97,7 @@ jobs:
 
     - name: Copy dcp logs
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
-      run: >
+      run: |
         cp -r /tmp/dcp/logs ./TestResults
         cp -r ${TEMP}/dcp/logs ./TestResults
 
