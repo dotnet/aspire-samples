@@ -30,6 +30,8 @@ jobs:
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
       ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
       SuppressNETCoreSdkPreviewMessage: true
+      DCP_DIAGNOSTICS_LOG_LEVEL: debug
+      DCP_DIAGNOSTICS_LOG_FOLDER: ./TestResults/dcp/logs
     steps:
     - uses: actions/checkout@v4
 
@@ -93,7 +95,7 @@ jobs:
         RunConfiguration.CollectSourceInformation=true
       env:
         DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
-    
+
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
