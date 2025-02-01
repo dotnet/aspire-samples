@@ -96,7 +96,7 @@ jobs:
         DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
 
     - name: Copy dcp logs
-      if: matrix.os == 'ubuntu-latest'
+      if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: >
         cp -r /tmp/dcp/logs ./TestResults/dcp/logs
         cp -r ${TEMP}/dcp/logs ./TestResults/dcp/logs
