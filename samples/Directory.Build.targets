@@ -1,0 +1,11 @@
+<Project>
+  <!-- Embed the path to /obj so that hosting integrations can write files to re-use between runs there -->
+  <Target Name="EmbedAppHostIntermediateOutputPath" BeforeTargets="GetAssemblyAttributes">
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>apphostprojectbaseintermediateoutputpath</_Parameter1>
+        <_Parameter2>$(BaseIntermediateOutputPath)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+</Project>
