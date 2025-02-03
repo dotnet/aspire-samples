@@ -59,8 +59,8 @@ public static class DevCertHostingExtensions
                     var certFileDest = $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certFileName}";
                     var certKeyFileDest = certKeyFileName is not null ? $"{DEV_CERT_BIND_MOUNT_DEST_DIR}/{certKeyFileName}" : null;
 
-                    var containerBuilder = builder.ApplicationBuilder.CreateResourceBuilder(containerResource)
-                        .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true);
+                    var containerBuilder = builder.ApplicationBuilder.CreateResourceBuilder(containerResource);
+                    //    .WithBindMount(bindSource, DEV_CERT_BIND_MOUNT_DEST_DIR, isReadOnly: true);
 
                     if (!string.IsNullOrEmpty(certFileEnv))
                     {
