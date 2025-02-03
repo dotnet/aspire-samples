@@ -44,7 +44,7 @@ public class ThumbnailGenerator(ILogger<ThumbnailGenerator> logger,
         var targetWidth = (int)(originalBitmap.Width * scale);
 
         using var resizedBitmap = originalBitmap.Resize(
-            new SKImageInfo(targetWidth, TargetHeight), SKFilterQuality.High);
+            new SKImageInfo(targetWidth, TargetHeight), new SKSamplingOptions (SKCubicResampler.Mitchell));
 
         using var image = SKImage.FromBitmap(resizedBitmap);
 
