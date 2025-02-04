@@ -216,12 +216,25 @@ public static class DevCertHostingExtensions
             if (exited && certFileMode is CertificateFileFormat.Pfx or CertificateFileFormat.PfxWithPassword && File.Exists(certExportPath))
             {
                 logger.LogDebug("Dev cert exported to '{CertPath}'", certExportPath);
+
+                if (!OperatingSystem.IsWindows())
+                {
+                    File.SetUnixFileMode(certExportPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+                }
+
                 return (true, certExportPath, certFileMode is CertificateFileFormat.PfxWithPassword ? generatedPassword : null);
             }
 
             if (exited && certFileMode is CertificateFileFormat.Pem && File.Exists(certExportPath) && File.Exists(certKeyExportPath))
             {
                 logger.LogDebug("Dev cert exported to '{CertPath}' and '{CertKeyPath}'", certExportPath, certKeyExportPath);
+
+                if (!OperatingSystem.IsWindows())
+                {
+                    File.SetUnixFileMode(certExportPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+                    File.SetUnixFileMode(certKeyExportPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+                }
+
                 return (true, certExportPath, certKeyExportPath);
             }
 
@@ -275,6 +288,12 @@ public static class DevCertHostingExtensions
 
         // Create the directory
         Directory.CreateDirectory(dirPath);
+
+        // Need to grant read access to the dir on unix like systems.
+        if (!OperatingSystem.IsWindows())
+        {
+            File.SetUnixFileMode(dirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+        }
 
         return dirPath;
     }

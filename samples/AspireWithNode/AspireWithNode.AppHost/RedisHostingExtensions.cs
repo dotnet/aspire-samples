@@ -15,24 +15,24 @@ internal static class RedisHostingExtensions
             DevCertHostingExtensions.RunWithHttpsDevCertificate(builder, CertificateFileFormat.Pem, "TLS_CERT_FILE", "TLS_KEY_FILE", (services, certFilePath, certPasswordOrKeyPath) =>
             {
                 // This callback is invoked during the BeforeStartEvent phase if the certificate is successfully exported.
-                //builder.WithConnectionStringRedirection(new RedisTlsConnectionString(builder.Resource));
+                builder.WithConnectionStringRedirection(new RedisTlsConnectionString(builder.Resource));
 
                 // Configure Redis to use the ASP.NET Core HTTPS development certificate.
-                //builder.WithArgs(context =>
-                //{
-                //    context.Args.Add("--port");
-                //    context.Args.Add("0");
-                //    context.Args.Add("--tls-port");
-                //    context.Args.Add(builder.Resource.PrimaryEndpoint.TargetPort.ToString()!);
-                //    context.Args.Add("--tls-cert-file");
-                //    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
-                //    context.Args.Add("--tls-key-file");
-                //    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_KEY}");
-                //    context.Args.Add("--tls-ca-cert-file");
-                //    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
-                //    context.Args.Add("--tls-auth-clients");
-                //    context.Args.Add("no");
-                //});
+                builder.WithArgs(context =>
+                {
+                    context.Args.Add("--port");
+                    context.Args.Add("0");
+                    context.Args.Add("--tls-port");
+                    context.Args.Add(builder.Resource.PrimaryEndpoint.TargetPort.ToString()!);
+                    context.Args.Add("--tls-cert-file");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
+                    context.Args.Add("--tls-key-file");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_KEY}");
+                    context.Args.Add("--tls-ca-cert-file");
+                    context.Args.Add($"{DevCertHostingExtensions.DEV_CERT_BIND_MOUNT_DEST_DIR}/{DevCertHostingExtensions.DEV_CERT_FILE_NAME_PEM}");
+                    context.Args.Add("--tls-auth-clients");
+                    context.Args.Add("no");
+                });
 
                 return Task.CompletedTask;
             });
