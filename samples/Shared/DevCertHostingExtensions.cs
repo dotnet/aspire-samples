@@ -290,10 +290,10 @@ public static class DevCertHostingExtensions
         Directory.CreateDirectory(dirPath);
 
         // Need to grant read access to the dir on unix like systems.
-        if (!OperatingSystem.IsWindows())
-        {
-            File.SetUnixFileMode(dirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
-        }
+        //if (!OperatingSystem.IsWindows())
+        //{
+        //    File.SetUnixFileMode(dirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+        //}
 
         return dirPath;
     }
