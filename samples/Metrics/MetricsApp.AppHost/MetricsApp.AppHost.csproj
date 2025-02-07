@@ -13,7 +13,7 @@
   <ItemGroup>
     <Compile Include="..\..\Shared\DevCertHostingExtensions.cs" Link="DevCertHostingExtensions.cs" />
 
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0-preview.1.25078.3" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0-preview.1.25106.5" />
 
     <ProjectReference Include="..\MetricsApp\MetricsApp.csproj" />
   </ItemGroup>
