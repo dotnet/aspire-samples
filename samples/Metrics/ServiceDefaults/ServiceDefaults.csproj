@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.12" />
 
     <!-- Microsoft.Extensions -->
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.2.0" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
     
     <!-- Open Telemetry -->
