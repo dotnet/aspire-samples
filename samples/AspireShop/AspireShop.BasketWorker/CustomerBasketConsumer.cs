@@ -20,7 +20,7 @@ public class CustomerBasketConsumer : BasicConsumer<CustomerBasket>
         await _chaosProvider.PonderChaosAsync();
             
         // Simulate some work
-        Thread.Sleep(1000);
+        await Task.Delay(1000);
     }
 
 
