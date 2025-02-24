@@ -25,9 +25,10 @@ namespace AspireShop.Chaos
 
             try
             {
-                if (new Random(Guid.NewGuid().GetHashCode()).Next(0, 100) == 0)
+                int randomValue = new Random(Guid.NewGuid().GetHashCode()).Next(0, 100);
+                if (randomValue == 0)
                 {
-                    throw new Exception("Random Chaos");
+                    throw new Exception($"Random Chaos occurred with random value: {randomValue}");
                 }
 
                 return Task.CompletedTask;
