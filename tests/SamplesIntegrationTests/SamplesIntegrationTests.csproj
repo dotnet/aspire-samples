@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0-preview.1.25106.5" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.1.0-preview.1.25106.5" />
-    <PackageReference Include="Aspire.Hosting.Testing" Version="9.1.0-preview.1.25106.5" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.1.0-preview.1.25106.5" />
-    <PackageReference Include="Aspire.Hosting.Python" Version="9.1.0-preview.1.25106.5" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.1.0" />
 
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
