@@ -12,8 +12,6 @@
     <PackageReference Include="Microsoft.Orleans.Clustering.Redis" Version="9.1.2" />
     <PackageReference Include="Microsoft.Orleans.Persistence.Redis" Version="9.1.2" />
     <PackageReference Include="Microsoft.Orleans.Server" Version="9.1.2" />
-    
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
