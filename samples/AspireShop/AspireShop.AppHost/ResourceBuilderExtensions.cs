@@ -7,14 +7,14 @@ internal static class ResourceBuilderExtensions
     /// <summary>
     /// Adds a command to the resource that sends an HTTP request to the specified path.
     /// </summary>
-    public static IResourceBuilder<TResource> WithHttpsCommand<TResource>(this IResourceBuilder<TResource> builder,
+    public static IResourceBuilder<TResource> WithHttpCommand<TResource>(this IResourceBuilder<TResource> builder,
         string path,
         string displayName,
-        HttpMethod? method = default,
         string? endpointName = default,
+        HttpMethod? method = default,
         string? iconName = default)
         where TResource : IResourceWithEndpoints
-        => WithHttpCommandImpl(builder, path, displayName, endpointName ?? "https", method, "https", iconName);
+        => WithHttpCommandImpl(builder, path, displayName, endpointName is not null ? [endpointName] : ["https", "http"], method, iconName);
 
     /// <summary>
     /// Adds a command to the resource that sends an HTTP request to the specified path.
@@ -22,26 +22,25 @@ internal static class ResourceBuilderExtensions
     public static IResourceBuilder<TResource> WithHttpCommand<TResource>(this IResourceBuilder<TResource> builder,
         string path,
         string displayName,
+        string[] endpointNames,
         HttpMethod? method = default,
-        string? endpointName = default,
         string? iconName = default)
         where TResource : IResourceWithEndpoints
-        => WithHttpCommandImpl(builder, path, displayName, endpointName ?? "http", method, "http", iconName);
+        => WithHttpCommandImpl(builder, path, displayName, endpointNames, method, iconName);
 
     private static IResourceBuilder<TResource> WithHttpCommandImpl<TResource>(this IResourceBuilder<TResource> builder,
         string path,
         string displayName,
-        string endpointName,
+        string[] endpointNames,
         HttpMethod? method,
-        string expectedScheme,
-        string? iconName = default)
+        string? iconName)
         where TResource : IResourceWithEndpoints
     {
         method ??= HttpMethod.Post;
 
         var endpoints = builder.Resource.GetEndpoints();
-        var endpoint = endpoints.FirstOrDefault(e => string.Equals(e.EndpointName, endpointName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new DistributedApplicationException($"Could not create HTTP command for resource '{builder.Resource.Name}' as no endpoint named '{endpointName}' was found.");
+        var endpoint = endpoints.FirstOrDefault(e => endpointNames.Contains(e.EndpointName, StringComparer.OrdinalIgnoreCase))
+            ?? throw new DistributedApplicationException($"Could not create HTTP command for resource '{builder.Resource.Name}' as no endpoint with one of the following names was found: '{string.Join(", ", endpointNames)}'");
 
         var commandName = $"http-{method.Method.ToLowerInvariant()}-request";
 
@@ -50,11 +49,6 @@ internal static class ResourceBuilderExtensions
             if (!endpoint.IsAllocated)
             {
                 return new ExecuteCommandResult { Success = false, ErrorMessage = "Endpoints are not yet allocated." };
-            }
-
-            if (!string.Equals(endpoint.Scheme, expectedScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                return new ExecuteCommandResult { Success = false, ErrorMessage = $"The endpoint named '{endpointName}' on resource '{builder.Resource.Name}' does not have the expected scheme of '{expectedScheme}'." };
             }
 
             var uri = new UriBuilder(endpoint.Url) { Path = path }.Uri;
