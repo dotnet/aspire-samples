@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Orleans.Persistence.Redis" Version="9.0.1" />
     <PackageReference Include="Microsoft.Orleans.Server" Version="9.0.1" />
     
-    <PackageReference Include="System.Text.Json" Version="9.0.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
