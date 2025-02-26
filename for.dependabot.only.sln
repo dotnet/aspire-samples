@@ -17,14 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.Frontend", "samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.ServiceDefaults", "samples\AspireShop\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj", "{9F8BE5D7-566D-446C-A867-84A2F6EF3609}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithDapr.ApiService", "samples\AspireWithDapr\AspireWithDapr.ApiService\AspireWithDapr.ApiService.csproj", "{D3CA0BA5-6327-433B-92D6-0AB9211C38FA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithDapr.AppHost", "samples\AspireWithDapr\AspireWithDapr.AppHost\AspireWithDapr.AppHost.csproj", "{84D8CAB9-3776-4374-8F09-D87249C9BEE1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithDapr.ServiceDefaults", "samples\AspireWithDapr\AspireWithDapr.ServiceDefaults\AspireWithDapr.ServiceDefaults.csproj", "{1014EAF3-752D-4891-8CB8-1CDF5407D9B7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithDapr.Web", "samples\AspireWithDapr\AspireWithDapr.Web\AspireWithDapr.Web.csproj", "{37B564AE-1922-4441-8263-980E183E1A0C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.AppHost", "samples\AspireWithJavaScript\AspireJavaScript.AppHost\AspireJavaScript.AppHost.csproj", "{9932E9F8-85C4-4978-BE21-DF665C0CACCF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.MinimalApi", "samples\AspireWithJavaScript\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj", "{68732D90-7FEE-426F-9921-07675EA78E41}"
@@ -104,16 +96,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireShop.ServiceDefaults", "AspireShop.ServiceDefaults", "{9F7A3A02-2B28-496D-B2AB-955EF2E029DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireShop", "AspireShop", "{C14A33A9-EE13-4AD8-B14A-A702C3965715}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithDapr.ApiService", "AspireWithDapr.ApiService", "{424ABEA8-79A0-4E9E-AD7E-50DEA8C190CF}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithDapr.AppHost", "AspireWithDapr.AppHost", "{2CACF027-33F1-4B01-B2BD-EFD0D57D9967}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithDapr.ServiceDefaults", "AspireWithDapr.ServiceDefaults", "{3659241D-F13D-466B-A9B8-7918CBEE7782}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithDapr.Web", "AspireWithDapr.Web", "{F4AC819D-918A-4C9A-8AA5-C032ED31C752}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithDapr", "AspireWithDapr", "{421079A5-D123-4684-87A2-F943FF4C2449}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireJavaScript.AppHost", "AspireJavaScript.AppHost", "{C266F0C0-41C1-4A2F-A276-8D4CF52490C4}"
 EndProject

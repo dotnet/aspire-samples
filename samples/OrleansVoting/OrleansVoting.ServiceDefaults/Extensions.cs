@@ -50,7 +50,6 @@ public static class Extensions
             .WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation()
-                       .AddGrpcClientInstrumentation()
                        .AddHttpClientInstrumentation()
                        .AddSource("Microsoft.Orleans.Application")
                        .AddSource("Microsoft.Orleans.Runtime");
