@@ -20,7 +20,7 @@ var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>(
     .WithReference(catalogDb)
     .WaitFor(catalogDb)
     .WithHttpHealthCheck("/health")
-    .WithHttpsCommand("/reset-db", "Reset Database", iconName: "DatabaseLightning");
+    .WithHttpCommand("/reset-db", "Reset Database", iconName: "DatabaseLightning");
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
     .WithReference(catalogDb)

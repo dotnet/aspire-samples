@@ -49,7 +49,6 @@ public static class Extensions
             .WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation()
-                       .AddGrpcClientInstrumentation()
                        .AddHttpClientInstrumentation();
             });
 

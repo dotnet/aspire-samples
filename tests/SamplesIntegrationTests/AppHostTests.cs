@@ -12,19 +12,22 @@ namespace SamplesIntegrationTests;
 
 public class AppHostTests(ITestOutputHelper testOutput)
 {
+    private static readonly TimeSpan BuildStopTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan StartStopTimeout = TimeSpan.FromSeconds(120);
+
     [Theory]
     [MemberData(nameof(AppHostAssemblies))]
     public async Task AppHostRunsCleanly(string appHostPath)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
-        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
+        await using var app = await appHost.BuildAsync().WaitAsync(BuildStopTimeout);
 
-        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
-        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(StartStopTimeout);
+        await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
+        await app.StopAsync().WaitAsync(BuildStopTimeout);
     }
 
     [Theory]
@@ -37,10 +40,10 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHostPath = $"{appHostName}.dll";
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
-        await using var app = await appHost.BuildAsync().WaitAsync(TimeSpan.FromSeconds(15));
+        await using var app = await appHost.BuildAsync().WaitAsync(BuildStopTimeout);
 
-        await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(120));
-        await app.WaitForResourcesAsync().WaitAsync(TimeSpan.FromSeconds(120));
+        await app.StartAsync().WaitAsync(StartStopTimeout);
+        await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
 
         if (testEndpoints.WaitForResources?.Count > 0)
         {
@@ -102,7 +105,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
         app.EnsureNoErrorsLogged();
 
-        await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(15));
+        await app.StopAsync().WaitAsync(BuildStopTimeout);
     }
 
     public static TheoryData<string> AppHostAssemblies()
@@ -121,10 +124,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 // Can't send non-gRPC requests over non-TLS connection to the BasketService unless client is manually configured to use HTTP/2
                 //{ "basketservice", ["/alive", "/health"] },
                 { "frontend", ["/alive", "/health", "/"] }
-            }),
-            new TestEndpoints("AspireWithDapr.AppHost", new() {
-                { "apiservice", ["/alive", "/health", "/weatherforecast"] },
-                { "webfrontend", ["/alive", "/health", "/", "/weather"] }
             }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
                 { "weatherapi", ["/alive", "/health", "/weatherforecast", "/swagger"] },

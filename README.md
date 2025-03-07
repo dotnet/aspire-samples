@@ -17,7 +17,6 @@ Sample highlights include:
 - [Integrating a Node.js app](./samples/AspireWithNode)
 - [Integrating frontend apps using React, Vue, Angular, etc.](./samples/AspireWithJavaScript)
 - [Integrating a Go app using a Dockerfile](./samples/ContainerBuild)
-- [Integrating Dapr](./samples/AspireWithDapr)
 - [Integrating Orleans](./samples/OrleansVoting)
 - [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
 - [Working with and initializing database containers](./samples/DatabaseContainers)
