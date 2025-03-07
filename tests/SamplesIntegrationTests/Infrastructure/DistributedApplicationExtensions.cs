@@ -215,9 +215,7 @@ public static partial class DistributedApplicationExtensions
                     // Container resources tend to write to stderr for various reasons so only assert projects and executables
                     (ProjectResource or ExecutableResource)
                     // Node & Python resources tend to have modules that write to stderr so ignore them
-                    and not (NodeAppResource or PythonAppResource)
-                // Dapr resources write to stderr about deprecated --components-path flag
-                && !resource.Name.EndsWith("-dapr-cli");
+                    and not (NodeAppResource or PythonAppResource);
 #pragma warning restore ASPIREHOSTINGPYTHON001
         }
     }

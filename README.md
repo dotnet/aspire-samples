@@ -17,7 +17,6 @@ Sample highlights include:
 - [Integrating a Node.js app](./samples/AspireWithNode)
 - [Integrating frontend apps using React, Vue, Angular, etc.](./samples/AspireWithJavaScript)
 - [Integrating a Go app using a Dockerfile](./samples/ContainerBuild)
-- [Integrating Dapr](./samples/AspireWithDapr)
 - [Integrating Orleans](./samples/OrleansVoting)
 - [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
 - [Working with and initializing database containers](./samples/DatabaseContainers)
@@ -46,7 +45,7 @@ The code is not intended for operational deployment. Users should exercise cauti
 
 ## Contributing
 
-We welcome contributions to this repository of samples related to official .NET Aspire features and integrations (i.e. those pieces who's code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
+We welcome contributions to this repository of samples related to official .NET Aspire features and integrations (i.e. those pieces whose code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
 
 ## Code of conduct
 

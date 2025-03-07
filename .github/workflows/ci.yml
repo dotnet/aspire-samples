@@ -33,12 +33,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Dapr tool installer
-      uses: dapr/setup-dapr@v2
-      with:
-        version: '1.14.1'
-      id: install-dapr
-
     - name: Install Azure Functions Core Tools
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -46,14 +40,6 @@ jobs:
         sudo dpkg -i packages-microsoft-prod.deb
         sudo apt-get update
         sudo apt-get install azure-functions-core-tools-4
-
-    - name: Initialize Dapr (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
-
-    - name: Initialize Dapr (Windows)
-      if: matrix.os == 'windows-latest'
-      run: ${{ steps.install-dapr.outputs.dapr-path }} init --slim
 
     - name: Install .NET SDK (global.json)
       uses: actions/setup-dotnet@v4
@@ -77,8 +63,6 @@ jobs:
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
-      env:
-        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
 
     - name: Test
       id: test
@@ -91,8 +75,6 @@ jobs:
         --results-directory ./TestResults --blame
         -- 
         RunConfiguration.CollectSourceInformation=true
-      env:
-        DAPR_CLI_PATH: ${{ steps.install-dapr.outputs.dapr-path }}
     
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
