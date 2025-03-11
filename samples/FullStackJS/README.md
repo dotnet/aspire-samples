@@ -23,7 +23,7 @@ The solution consists of three key areas:
 
 ## Pre-requisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Node.js](https://nodejs.org) - at least version 20.7.0
 - **Optional** [Visual Studio 2022 17.12](https://visualstudio.microsoft.com/vs/)
