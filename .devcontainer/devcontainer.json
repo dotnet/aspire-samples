@@ -37,8 +37,5 @@
 		}
 	},
 	"onCreateCommand": "dotnet restore",
-	"postStartCommand": "dotnet dev-certs https --trust",
-	"remoteEnv": {
-		"PATH": "${containerEnv:PATH}:/workspaces/aspire/artifacts/bin/Aspire.Cli/Debug/net8.0/"
-	}
+	"postStartCommand": "dotnet dev-certs https --trust"
 }
