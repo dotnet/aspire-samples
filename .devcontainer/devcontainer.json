@@ -24,7 +24,8 @@
 				"ms-dotnettools.csdevkit",
 				"ms-azuretools.vscode-bicep",
 				"ms-azuretools.azure-dev",
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"GitHub.copilot-chat"				
 			],
 			"settings": {
 				"remote.autoForwardPorts": true,
@@ -36,6 +37,6 @@
 			}
 		}
 	},
-	"onCreateCommand": "dotnet restore",
+"dotnet new install Aspire.ProjectTemplates::9.1.0 --force",
 	"postStartCommand": "dotnet dev-certs https --trust"
 }
