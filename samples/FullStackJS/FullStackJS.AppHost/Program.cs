@@ -7,7 +7,7 @@ var api = builder.AddNpmApp("api", "../api")
                  .WithExternalHttpEndpoints()
                  .PublishAsDockerFile();
 
-_ = builder.Environment.IsDevelopment()
+_ = builder.ExecutionContext.IsPublishMode
     ? api.WithHttpEndpoint(env: "PORT")
     : api.WithHttpsEndpoint(env: "PORT");
 
