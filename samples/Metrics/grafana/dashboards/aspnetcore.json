@@ -707,7 +707,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(increase(http_server_request_duration_seconds_count{job=~\"$job\", instance=~\"$instance\"}[$__range]))",
+          "expr": "sum(ceil(increase(http_server_request_duration_seconds_count{job=~\"$job\", instance=~\"$instance\"}[$__range])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -777,7 +777,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(increase(http_server_request_duration_seconds_count{job=~\"$job\", instance=~\"$instance\", error_type!=\"\"}[$__range]))",
+          "expr": "sum(ceil(increase(http_server_request_duration_seconds_count{job=~\"$job\", instance=~\"$instance\", error_type!=\"\"}[$__range])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -990,8 +990,8 @@
                 "value": [
                   {
                     "targetBlank": false,
-                    "title": "Test",
-                    "url": "/d/NagEsjE4z/asp-net-core-endpoint-details?var-route=${__data.fields.http_route}&var-method=${__data.fields.http_request_method}&${__url_time_range}"
+                    "title": "${__data.fields.http_request_method} ${__data.fields.http_route}",
+                    "url": "/d/NagEsjE4z/asp-net-core-endpoint-details?${job:queryparam}&${instance:queryparam}&var-route=${__data.fields.http_route}&var-method=${__data.fields.http_request_method}&${__url_time_range}"
                   }
                 ]
               }
@@ -1164,8 +1164,9 @@
                 "id": "links",
                 "value": [
                   {
-                    "title": "",
-                    "url": "/d/NagEsjE4z/asp-net-core-endpoint-details?var-route=${__data.fields.http_route}&var-method=${__data.fields.http_request_method}&${__url_time_range}"
+                    "targetBlank": false,
+                    "title": "${__data.fields.http_request_method} ${__data.fields.http_route}",
+                    "url": "/d/NagEsjE4z/asp-net-core-endpoint-details?${job:queryparam}&${instance:queryparam}&var-route=${__data.fields.http_route}&var-method=${__data.fields.http_request_method}&${__url_time_range}"
                   }
                 ]
               }
