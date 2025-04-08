@@ -20,11 +20,12 @@ var catalogDbManager = builder.AddProject<Projects.AspireShop_CatalogDbManager>(
     .WithReference(catalogDb)
     .WaitFor(catalogDb)
     .WithHttpHealthCheck("/health")
-    .WithHttpCommand("/reset-db", "Reset Database", iconName: "DatabaseLightning");
+    .WithHttpCommand("/reset-db", "Reset Database", commandOptions: new() { IconName = "DatabaseLightning" });
 
 var catalogService = builder.AddProject<Projects.AspireShop_CatalogService>("catalogservice")
     .WithReference(catalogDb)
-    .WaitFor(catalogDbManager);
+    .WaitFor(catalogDbManager)
+    .WithHttpHealthCheck("/health");
 
 var basketService = builder.AddProject<Projects.AspireShop_BasketService>("basketservice")
     .WithReference(basketCache)
@@ -32,6 +33,7 @@ var basketService = builder.AddProject<Projects.AspireShop_BasketService>("baske
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
     .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/health")
     .WithReference(basketService)
     .WithReference(catalogService)
     .WaitFor(catalogService);
