@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0-preview.1.25208.17" />
 
@@ -10,6 +10,12 @@
     <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>a664d119-7412-4e3e-8b8d-19191387b8f1</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\DatabaseContainers.ApiService\data\sqlserver\init.sql" Link="init.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DatabaseContainers.ApiService\DatabaseContainers.ApiService.csproj" />

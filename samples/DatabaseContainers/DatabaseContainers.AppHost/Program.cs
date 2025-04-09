@@ -44,8 +44,9 @@ var sqlserver = builder.AddSqlServer("sqlserver")
     .WithLifetime(ContainerLifetime.Persistent);
 
 // Add the database to the application model so that it can be referenced by other resources.
+var initScriptPath = Path.Join(Path.GetDirectoryName(typeof(Program).Assembly.Location), "init.sql");
 var addressBookDb = sqlserver.AddDatabase("AddressBook")
-    .WithCreationScript(File.ReadAllText("../DatabaseContainers.ApiService/data/sqlserver/init.sql"));
+    .WithCreationScript(File.ReadAllText(initScriptPath));
 
 builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
     .WithReference(todosDb)
