@@ -33,6 +33,8 @@ var basketService = builder.AddProject<Projects.AspireShop_BasketService>("baske
 
 builder.AddProject<Projects.AspireShop_Frontend>("frontend")
     .WithExternalHttpEndpoints()
+    .WithUrlForEndpoint("https", url => url.DisplayText = "Online Store (HTTPS)")
+    .WithUrlForEndpoint("http", url => url.DisplayText = "Online Store (HTTP)")
     .WithHttpHealthCheck("/health")
     .WithReference(basketService)
     .WithReference(catalogService)
