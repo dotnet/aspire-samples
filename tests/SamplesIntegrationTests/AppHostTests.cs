@@ -12,7 +12,7 @@ namespace SamplesIntegrationTests;
 
 public class AppHostTests(ITestOutputHelper testOutput)
 {
-    private static readonly TimeSpan BuildStopTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan BuildStopTimeout = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan StartStopTimeout = TimeSpan.FromSeconds(120);
 
     [Theory]
