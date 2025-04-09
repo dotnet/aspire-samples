@@ -12,6 +12,9 @@ namespace Microsoft.Extensions.Hosting;
 
 public static class Extensions
 {
+    private const string HealthEndpointPath = "/health";
+    private const string AlivenessEndpointPath = "/alive";
+
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
     {
         builder.ConfigureOpenTelemetry();
@@ -55,8 +58,15 @@ public static class Extensions
                     tracing.SetSampler(new AlwaysOnSampler());
                 }
 
-                tracing.AddAspNetCoreInstrumentation()
-                       .AddHttpClientInstrumentation();
+                tracing
+                    .AddSource(builder.Environment.ApplicationName)
+                    .AddAspNetCoreInstrumentation(tracing =>
+                        // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
+                        tracing.Filter = httpContext =>
+                            !(httpContext.Request.Path.StartsWithSegments(HealthEndpointPath)
+                              || httpContext.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                    )
+                    .AddHttpClientInstrumentation();
             });
 
         builder.AddOpenTelemetryExporters();
@@ -105,10 +115,10 @@ public static class Extensions
             .WithRequestTimeout(policyName: "HealthChecks");
 
         // All health checks must pass for app to be considered ready to accept traffic after starting
-        healthChecks.MapHealthChecks("/health");
+        healthChecks.MapHealthChecks(HealthEndpointPath);
 
         // Only health checks tagged with the "live" tag must pass for app to be considered alive
-        healthChecks.MapHealthChecks("/alive", new()
+        healthChecks.MapHealthChecks(AlivenessEndpointPath, new()
         {
             Predicate = r => r.Tags.Contains("live")
         });

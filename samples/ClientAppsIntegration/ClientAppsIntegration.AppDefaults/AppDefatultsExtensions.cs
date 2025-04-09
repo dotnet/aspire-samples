@@ -37,12 +37,15 @@ public static class AppDefaultsExtensions
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
-                metrics.AddHttpClientInstrumentation()
-                       .AddRuntimeInstrumentation();
+                metrics
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation();
             })
             .WithTracing(tracing =>
             {
-                tracing.AddHttpClientInstrumentation();
+                tracing
+                    .AddSource(builder.Environment.ApplicationName)
+                    .AddHttpClientInstrumentation();
             });
 
         builder.AddOpenTelemetryExporters();
