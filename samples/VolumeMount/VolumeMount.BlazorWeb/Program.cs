@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using VolumeMount.BlazorWeb.Components;
 using VolumeMount.BlazorWeb.Components.Account;
 using VolumeMount.BlazorWeb.Data;
@@ -11,17 +10,9 @@ builder.AddServiceDefaults();
 
 builder.AddAzureBlobClient("BlobConnection");
 builder.AddNpgsqlDbContext<PostgresDbContext>("postgres");
+builder.AddSqlServerDbContext<ApplicationDbContext>("sqldb");
 
 // Add services to the container.
-builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("sqldb"), sqlOptions =>
-    {
-        sqlOptions.ExecutionStrategy(c => new RetryingSqlServerRetryingExecutionStrategy(c));
-    }));
-builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
-    // Disable Aspire default retries as we're using a custom execution strategy
-    settings.DisableRetry = true);
-
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

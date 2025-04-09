@@ -5,16 +5,16 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire persistent volume mount sample"
+name: ".NET Aspire persistent volume sample"
 urlFragment: "aspire-volume-mount"
-description: "An example demonstrating how to configure a local SQL Server container to use a persistent volume mount in .NET Aspire."
+description: "An example demonstrating how to configure a local SQL Server container to use a persistent volume in .NET Aspire."
 ---
 
-# Persistent Volume Mount
+# Persistent Volume
 
-This sample demonstrates how to configure a SQL Server container to use a persistent volume mount in .NET Aspire, so that the data is persisted across app launches. This method can be used to persist data across instances of other container types configured in .NET Aspire apps too, e.g. PostgreSQL, Redis, etc.
+This sample demonstrates how to configure a SQL Server container to use a persistent volume in .NET Aspire, so that the data is persisted across app launches. This method can be used to persist data across instances of other container types configured in .NET Aspire apps too, e.g. PostgreSQL, Redis, etc.
 
-The app consists of a single service, **VolumeMount.BlazorWeb**, that is configured with a SQL Server container instance via the AppHost project. PostgreSQL and Azure Storage data services are also configured in the AppHost and Blazor projects for demonstration and experimentation purposes. This Blazor Web app has been setup to use ASP.NET Core Identity for local user account registration and authentication, including the new [Blazor identity UI](https://devblogs.microsoft.com/dotnet/whats-new-with-identity-in-dotnet-8/#the-blazor-identity-ui). Using a persistent volume mount means that user accounts created when running locally are persisted across launches of the app.
+The app consists of a single service, **VolumeMount.BlazorWeb**, that is configured with a SQL Server container instance via the AppHost project. PostgreSQL and Azure Storage data services are also configured in the AppHost and Blazor projects for demonstration and experimentation purposes. This Blazor Web app has been setup to use ASP.NET Core Identity for local user account registration and authentication, including [Blazor identity UI](https://devblogs.microsoft.com/dotnet/whats-new-with-identity-in-dotnet-8/#the-blazor-identity-ui). Using a persistent volume means that user accounts created when running locally are persisted across launches of the app.
 
 ![Screenshot of the account login page on the web front](./images/volume-mount-frontend-login.png)
 
@@ -34,11 +34,11 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
 
 1. The first time you run the app, you'll receieve an error indicating that a password for the SQL Server container has not been configured. To configure a password, set the `sqlpassword` key in the User Secrets store of the `VolumeMount.AppHost` project using the `dotnet user-secrets` command in the AppHost project directory:
 
-    ```
+    ```shell
     dotnet user-secrets set sqlpassword <password>
     ```
 
-    A stable password is required when using a persistent volume mount for SQL Server data, rather than the default auto-generated password.
+    A stable password is required when using a persistent volume for SQL Server data, rather than the default auto-generated password.
 
 1. Once a password is configured, run the `VolumeMount.AppHost` project again and navigate to the URL for the `VolumeMount.BlazorWeb` from the dashboard.
 
@@ -64,7 +64,7 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
 
 1. Once logged in, click the "Logout" link in the left-hand navigation menu to log out of the site, and then stop the app, followed by starting it again, and verifying that the account you just created can still be used to login to the site once restarted, indicating that the database was using the persistent volume to store the data. You can verify the named volume existance using the Docker CLI too (`docker volume ls`):
 
-    ```
+    ```shell
     > docker volume ls -f name=sqlserver
     DRIVER    VOLUME NAME
     local     VolumeMount.sqlserver.data
