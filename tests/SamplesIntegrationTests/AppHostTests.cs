@@ -112,7 +112,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
     {
         var appHostAssemblies = GetSamplesAppHostAssemblyPaths();
         var theoryData = new TheoryData<string, bool>();
-        return new(appHostAssemblies.Select(p => Path.GetRelativePath(AppContext.BaseDirectory, p)));
+        return [.. appHostAssemblies.Select(p => Path.GetRelativePath(AppContext.BaseDirectory, p))];
     }
 
     public static TheoryData<TestEndpoints> TestEndpoints() =>
