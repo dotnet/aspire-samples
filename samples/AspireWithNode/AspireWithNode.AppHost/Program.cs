@@ -15,8 +15,7 @@ var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
-var launchProfile = builder.Configuration["DOTNET_LAUNCH_PROFILE"] ??
-                    builder.Configuration["AppHost:DefaultLaunchProfileName"]; // work around https://github.com/dotnet/aspire/issues/5093
+var launchProfile = builder.Configuration["DOTNET_LAUNCH_PROFILE"];
 
 if (builder.Environment.IsDevelopment() && launchProfile == "https")
 {
