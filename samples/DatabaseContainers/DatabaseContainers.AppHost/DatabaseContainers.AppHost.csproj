@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0-preview.1.25208.5" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0-preview.1.25208.17" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0-preview.1.25208.5" />
-    <PackageReference Include="Aspire.Hosting.MySql" Version="9.2.0-preview.1.25208.5" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.2.0-preview.1.25208.5" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.2.0-preview.1.25208.5" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0-preview.1.25208.17" />
+    <PackageReference Include="Aspire.Hosting.MySql" Version="9.2.0-preview.1.25208.17" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.2.0-preview.1.25208.17" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.2.0-preview.1.25208.17" />
   </ItemGroup>
 
 </Project>
