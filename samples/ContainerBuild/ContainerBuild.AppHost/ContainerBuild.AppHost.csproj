@@ -7,7 +7,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>7f1af01c-67f3-44ee-af56-b1e02e4bfcbd</UserSecretsId>
   </PropertyGroup>
 
