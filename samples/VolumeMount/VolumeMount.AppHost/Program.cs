@@ -6,11 +6,11 @@ var sqlserver = builder.AddSqlServer("sqlserver")
 
 var sqlDatabase = sqlserver.AddDatabase("sqldb");
 
-var postgresserver = builder.AddPostgres("postgresserver")
+var postgresServer = builder.AddPostgres("postgresserver")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var postgresDatabase = postgresserver.AddDatabase("postgres");
+var postgresDatabase = postgresServer.AddDatabase("postgres");
 
 var blobs = builder.AddAzureStorage("Storage")
     // Use the Azurite storage emulator for local development

@@ -35,15 +35,15 @@ This sample runs the Aspire dashboard from a Docker container. It requires Docke
 The following command starts the Aspire dashboard in a Docker container:
 
 ``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.6
+docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:9.1
 ```
 
 The docker command:
 
-* Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard` image.
-* The container has two ports:
-  * Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
-  * Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
+- Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard` image.
+- The container has two ports:
+  - Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
+  - Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
 
 > [!NOTE]
 > The dashboard currently only supports the [OTLP/gRPC protocol](https://opentelemetry.io/docs/specs/otlp/#otlpgrpc). Apps sending telemetry to the dashboard must be configured to use the `grpc` protocol. There are a couple of options for configuring apps:
@@ -72,7 +72,7 @@ To download and run the sample, follow these steps:
     3. Choose the <kbd>F5</kbd> key to run with debugging, or <kbd>Ctrl</kbd>+<kbd>F5</kbd> keys to run the project without debugging.
 3. From the command line:
    1. Navigate to the folder that holds the sample code.
-   2. At the command line, type [`dotnet run`](https://docs.microsoft.com/dotnet/core/tools/dotnet-run).
+   2. At the command line, type [`dotnet run`](https://learn.microsoft.com/dotnet/core/tools/dotnet-run).
 
 Run the .NET app by executing the following at the command prompt (opened to the base directory of the sample):
 

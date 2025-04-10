@@ -30,8 +30,13 @@ jobs:
       DOTNET_INSTALL_DIR: ${{ matrix.os == 'ubuntu-latest' && '' || 'dotnet' }}
       ASPIRE_ALLOW_UNSECURED_TRANSPORT: true
       SuppressNETCoreSdkPreviewMessage: true
+      DCP_DIAGNOSTICS_LOG_LEVEL: 'debug'
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  
+    - name: Install Docker (latest version)
+      if: matrix.os == 'ubuntu-latest'
+      uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 #v4.3.0
 
     - name: Install Azure Functions Core Tools
       if: matrix.os == 'ubuntu-latest'
@@ -75,6 +80,12 @@ jobs:
         --results-directory ./TestResults --blame
         -- 
         RunConfiguration.CollectSourceInformation=true
+
+    - name: Copy DCP logs
+      if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
+      run: |
+        mkdir -p ./TestResults/DCPLogs
+        cp -r /tmp/dcp/logs/* ./TestResults/DCPLogs
     
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'

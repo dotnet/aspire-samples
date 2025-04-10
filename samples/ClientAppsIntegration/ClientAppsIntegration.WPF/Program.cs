@@ -9,9 +9,7 @@ internal static class Program
 
         builder.AddAppDefaults();
 
-        var scheme = builder.Environment.IsDevelopment() ? "http" : "https";
-        builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new($"{scheme}://apiservice"));
-
+        builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new("https+http://apiservice"));
         builder.Services.AddSingleton<App>();
         builder.Services.AddSingleton<MainWindow>();
 

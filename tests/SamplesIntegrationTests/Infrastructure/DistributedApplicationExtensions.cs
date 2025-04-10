@@ -114,11 +114,10 @@ public static partial class DistributedApplicationExtensions
     /// </remarks>
     public static async Task WaitForResourcesAsync(this DistributedApplication app, IEnumerable<string>? targetStates = null, CancellationToken cancellationToken = default)
     {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WaitForResourcesAsync));
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger($"{nameof(SamplesIntegrationTests)}.{nameof(WaitForResourcesAsync)}");
 
         targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-        var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
         var resourceTasks = new Dictionary<string, Task<(string Name, string State)>>();
 
@@ -170,7 +169,7 @@ public static partial class DistributedApplicationExtensions
 
         async Task<(string Name, string State)> GetResourceWaitTask(string resourceName, IEnumerable<string> targetStates, CancellationToken cancellationToken)
         {
-            var state = await resourceNotificationService.WaitForResourceAsync(resourceName, targetStates, cancellationToken);
+            var state = await app.ResourceNotifications.WaitForResourceAsync(resourceName, targetStates, cancellationToken);
             return (resourceName, state);
         }
     }

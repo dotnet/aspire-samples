@@ -57,6 +57,9 @@ The `DatabaseMigrations.MigrationService` project contains the EF Core migration
         - `dotnet ef` is run in this location because it will be used as the default target project for the new migration and the tool will run the startup code in `Program.cs` to find and configure the context to be used.
       - Creates the migration named `MyNewMigration` in the `DatabaseMigrations.MigrationService` project.
 
+    > [!NOTE]
+    > Other EF Core providers can impose different requirements for creating migrations. For example, the Npgsql provider requires a well-formed connection string to be present in the application's configuration, e.g. the `appsettings.Development.json` file, for the `DbContext` the migrations are being created for. The connection string need not be to an actual database, but it must be able to be successfully parsed. The SQL Server provider does not have this requirement.
+
 3. View the new migration files in the `DatabaseMigrations.ApiModel` project.
 
 > [!NOTE]
