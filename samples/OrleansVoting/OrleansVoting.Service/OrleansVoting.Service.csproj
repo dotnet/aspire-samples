@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="9.2.0-preview.1.25208.17" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="9.2.0" />
 
     <PackageReference Include="Microsoft.Orleans.Clustering.Redis" Version="9.1.2" />
     <PackageReference Include="Microsoft.Orleans.Persistence.Redis" Version="9.1.2" />
