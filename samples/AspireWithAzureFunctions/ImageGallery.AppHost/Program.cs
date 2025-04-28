@@ -1,20 +1,14 @@
-﻿using Aspire.Hosting.Azure;
-using Azure.Provisioning;
-using Azure.Provisioning.Storage;
+﻿using Azure.Provisioning.Storage;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+builder.AddAzureContainerAppEnvironment("env");
 
 var storage = builder.AddAzureStorage("storage").RunAsEmulator()
     .ConfigureInfrastructure((infrastructure) =>
     {
         var storageAccount = infrastructure.GetProvisionableResources().OfType<StorageAccount>().FirstOrDefault(r => r.BicepIdentifier == "storage")
             ?? throw new InvalidOperationException($"Could not find configured storage account with name 'storage'");
-
-        // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
-        var principalTypeParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalType, typeof(string));
-        var principalIdParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalId, typeof(string));
-        infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageAccountContributor, principalTypeParameter, principalIdParameter));
-        infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageBlobDataOwner, principalTypeParameter, principalIdParameter));
 
         // Ensure that public access to blobs is disabled
         storageAccount.AllowBlobPublicAccess = false;
@@ -26,6 +20,11 @@ var functions = builder.AddAzureFunctionsProject<Projects.ImageGallery_Functions
                        .WithReference(queues)
                        .WithReference(blobs)
                        .WaitFor(storage)
+                       .WithRoleAssignments(storage,
+                            // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
+                            StorageBuiltInRole.StorageAccountContributor, StorageBuiltInRole.StorageBlobDataOwner,
+                            // Queue Data Contributor role is required to send messages to the queue
+                            StorageBuiltInRole.StorageQueueDataContributor)
                        .WithHostStorage(storage);
 
 builder.AddProject<Projects.ImageGallery_FrontEnd>("frontend")
