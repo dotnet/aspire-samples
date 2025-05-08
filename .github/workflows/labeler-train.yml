@@ -1,3 +1,8 @@
+# Workflow template imported and updated from:
+# https://github.com/dotnet/issue-labeler/wiki/Onboarding
+#
+# See labeler.md for more information
+#
 # Train the Issues and Pull Requests models for label prediction
 name: "Labeler: Training"
 
@@ -25,8 +30,6 @@ on:
           - "Train Model"
           - "Test Model"
 
-      repository:
-        description: "The org/repo to download data from. Defaults to the current repository."
       limit:
         description: "Max number of items to download for training/testing the model (newest items are used). Defaults to the max number of pages times the page size."
         type: number
@@ -43,7 +46,7 @@ on:
 
 env:
   CACHE_KEY: ${{ inputs.cache_key_suffix }}
-  REPOSITORY: ${{ inputs.repository || github.repository }}
+  REPOSITORY: ${{ github.repository }}
   LABEL_PREFIX: "area-"
   THRESHOLD: "0.40"
   LIMIT: ${{ inputs.limit }}
