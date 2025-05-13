@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.2.0" />
-    <PackageReference Include="Aspire.Hosting.Testing" Version="9.2.0" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.2.0" />
-    <PackageReference Include="Aspire.Hosting.Python" Version="9.2.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0-preview.1.25262.13" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="9.3.0-preview.1.25262.13" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="9.3.0-preview.1.25262.13" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.3.0-preview.1.25262.13" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.3.0-preview.1.25262.13" />
 
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -47,8 +47,7 @@
   </ItemGroup>
 
   <!-- This target forces a manual restore of the projects referenced as they're not added to the solution so VS won't do it by default -->
-  <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' "
-      Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
+  <Target Name="CommandLineRestoreMyself" BeforeTargets="CollectPackageReferences" Condition=" '$(RestoreMyself)' == 'True' " Inputs="@(ThisProject)" Outputs="$(ProjectAssetsFile)">
     <Message Importance="High" Text="Forcing a command-line restore of $(MSBuildThisFile)" />
     <MSBuild Targets="Restore" Projects="@(ThisProject)" Properties="RestoreMyself='false'" />
   </Target>
