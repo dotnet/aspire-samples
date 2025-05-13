@@ -123,6 +123,10 @@ public static partial class DistributedApplicationExtensions
 
         foreach (var resource in applicationModel.Resources)
         {
+            if (resource is IResourceWithoutLifetime)
+            {
+                continue;
+            }
             resourceTasks[resource.Name] = GetResourceWaitTask(resource.Name, targetStates, cancellationToken);
         }
 
