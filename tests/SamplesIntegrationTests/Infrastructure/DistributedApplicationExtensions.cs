@@ -116,7 +116,7 @@ public static partial class DistributedApplicationExtensions
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger($"{nameof(SamplesIntegrationTests)}.{nameof(WaitForResourcesAsync)}");
 
-        targetStates ??= [KnownResourceStates.Running, KnownResourceStates.Hidden, ..KnownResourceStates.TerminalStates];
+        targetStates ??= [KnownResourceStates.Running, ..KnownResourceStates.TerminalStates];
         var applicationModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         var resourceTasks = new Dictionary<string, Task<(string Name, string State)>>();
