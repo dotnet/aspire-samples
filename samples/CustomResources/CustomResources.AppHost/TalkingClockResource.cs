@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Logging;
@@ -60,6 +60,19 @@ public static class TalkingClockExtensions
             await notification.PublishUpdateAsync(resource.TickHand, s => s with
             {
                 StartTimeStamp = DateTime.UtcNow,
+                State = KnownResourceStates.Running // Use an Aspire well-known state.
+            });
+            await notification.PublishUpdateAsync(resource.TockHand, s => s with
+            {
+                StartTimeStamp = DateTime.UtcNow,
+                State = KnownResourceStates.Running // Use an Aspire well-known state.
+            });
+
+            await Task.Delay(1000, token); // Simulate a delay before starting the main loop.
+
+            await notification.PublishUpdateAsync(resource.TickHand, s => s with
+            {
+                StartTimeStamp = DateTime.UtcNow,
                 State = "Wating on clock tick" // Custom state string for the tick hand.
             });
             await notification.PublishUpdateAsync(resource.TockHand, s => s with
@@ -67,6 +80,8 @@ public static class TalkingClockExtensions
                 StartTimeStamp = DateTime.UtcNow,
                 State = "Wating on clock tock" // Custom state string for the tockhand.
             });
+
+            await Task.Delay(1000, token);
 
             // Enter the main loop that runs as long as cancellation is not requested.
             while (!token.IsCancellationRequested)
