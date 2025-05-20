@@ -7,17 +7,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>00d08ee4-b2e0-4d12-827c-d131fda1c6f6</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.3.0" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
-    <Compile Include="..\..\Shared\DevCertHostingExtensions.cs" Link="DevCertHostingExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj" />
   </ItemGroup>
 
 </Project>
