@@ -10,6 +10,7 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.71.0" />
     <PackageReference Include="Aspire.StackExchange.Redis" Version="13.0.2" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.14.0-beta.1" />
   </ItemGroup>
 
   <ItemGroup>
