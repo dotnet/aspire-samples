@@ -14,6 +14,7 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.6" />
     <ProjectReference Include="..\AspireShop.BasketService\AspireShop.BasketService.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogService\AspireShop.CatalogService.csproj" />

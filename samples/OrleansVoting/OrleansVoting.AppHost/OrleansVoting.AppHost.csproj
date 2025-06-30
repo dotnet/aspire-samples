@@ -13,6 +13,7 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.Orleans" Version="9.3.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
