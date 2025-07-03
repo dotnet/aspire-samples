@@ -16,6 +16,7 @@
     <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
     <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.3.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
