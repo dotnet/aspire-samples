@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.3.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.7" />
 
     <ProjectReference Include="..\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj" />
     <ProjectReference Include="..\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj" />
