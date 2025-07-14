@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.AddAzureBlobClient("BlobConnection");
+builder.AddAzureBlobServiceClient("BlobConnection");
 builder.AddNpgsqlDbContext<PostgresDbContext>("postgres");
 builder.AddSqlServerDbContext<ApplicationDbContext>("sqldb");
 
