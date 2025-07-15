@@ -11,8 +11,8 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.AddAzureBlobClient("blobs");
-builder.AddAzureQueueClient("queues");
+builder.AddAzureBlobServiceClient("blobs");
+builder.AddAzureQueueServiceClient("queues");
 
 builder.Services.AddSingleton<QueueMessageHandler>();
 builder.Services.AddHostedService<StorageWorker>();
