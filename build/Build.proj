@@ -15,7 +15,12 @@
     <Target Name="BuildSamples" BeforeTargets="Build">
         <Message Text="Building @(SampleSln->Count()) samples" Importance="High" />
 
-        <MSBuild Projects="@(SampleSln)" Targets="Restore" />
+        <PropertyGroup>
+          <RestorePackagesPath Condition="'$(NoRestoreCache)' == 'true'">$(MSBuildThisFileDirectory)../.packages</RestorePackagesPath>
+          <RestoreNoHttpCache Condition="'$(RestoreNoHttpCache)' == '' and '$(NoRestoreCache)' == 'true'">true</RestoreNoHttpCache>
+        </PropertyGroup>
+
+        <MSBuild Projects="@(SampleSln)" Targets="Restore" Properties="RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
         <MSBuild Projects="@(SampleSln)" Targets="Build" BuildInParallel="True" />
 
         <Message Text="@(SampleSln->Count()) samples successfully built" Importance="High" />

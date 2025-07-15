@@ -1,3 +1,3 @@
 @ECHO OFF
 
-dotnet build .\build\Build.proj
+dotnet build .\build\Build.proj %*
