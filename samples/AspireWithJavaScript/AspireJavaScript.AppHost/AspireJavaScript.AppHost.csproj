@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.7" />
     <ProjectReference Include="..\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj" />
   </ItemGroup>
 
