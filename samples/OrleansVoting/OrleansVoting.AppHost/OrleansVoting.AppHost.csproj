@@ -16,6 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.7" />
     <ProjectReference Include="..\OrleansVoting.Service\OrleansVoting.Service.csproj" />
   </ItemGroup>
 
