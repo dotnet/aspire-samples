@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0" />
     <ProjectReference Include="..\AspireJavaScript.ServiceDefaults\AspireJavaScript.ServiceDefaults.csproj" />
   </ItemGroup>
 
