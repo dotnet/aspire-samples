@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-dotnet build ./build/Build.proj
+dotnet build ./build/Build.proj "$@"
