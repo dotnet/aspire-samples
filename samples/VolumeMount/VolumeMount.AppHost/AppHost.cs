@@ -15,7 +15,7 @@ var postgresDatabase = postgresServer.AddDatabase("postgres");
 var blobs = builder.AddAzureStorage("Storage")
     // Use the Azurite storage emulator for local development
     .RunAsEmulator(emulator => emulator.WithDataVolume())
-    .AddBlobService("BlobConnection");
+    .AddBlobs("BlobConnection");
 
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
     .WithReference(sqlDatabase)

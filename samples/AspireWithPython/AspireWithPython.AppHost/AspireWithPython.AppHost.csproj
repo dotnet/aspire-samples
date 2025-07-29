@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0-preview.1.25364.4" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0-preview.1.25364.4" />
-    <PackageReference Include="Aspire.Hosting.Python" Version="9.4.0-preview.1.25364.4" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="9.4.0" />
   </ItemGroup>
 
   <!-- Properties, Items, and targets to ensure Python apps are initialized -->

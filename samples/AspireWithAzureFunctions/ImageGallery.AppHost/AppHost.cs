@@ -13,8 +13,8 @@ var storage = builder.AddAzureStorage("storage").RunAsEmulator()
         // Ensure that public access to blobs is disabled
         storageAccount.AllowBlobPublicAccess = false;
     });
-var blobs = storage.AddBlobService("blobs");
-var queues = storage.AddQueueService("queues");
+var blobs = storage.AddBlobs("blobs");
+var queues = storage.AddQueues("queues");
 
 var functions = builder.AddAzureFunctionsProject<Projects.ImageGallery_Functions>("functions")
                        .WithReference(queues)
