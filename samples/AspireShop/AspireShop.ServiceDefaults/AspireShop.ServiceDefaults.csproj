@@ -23,8 +23,8 @@
     <!-- Health checks -->
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
     
-    <PackageReference Include="Grpc.HealthCheck" Version="2.70.0" />
-    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.70.0" />
+    <PackageReference Include="Grpc.HealthCheck" Version="2.71.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.71.0" />
   </ItemGroup>
 
 </Project>
