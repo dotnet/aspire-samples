@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.7" />
     <ProjectReference Include="..\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj" />
     <ProjectReference Include="..\ImageGallery.Functions\ImageGallery.Functions.csproj" />
   </ItemGroup>
