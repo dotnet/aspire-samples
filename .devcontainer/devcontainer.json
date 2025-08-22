@@ -7,7 +7,11 @@
 		"ghcr.io/devcontainers/features/docker-in-docker": {},
 		"ghcr.io/dotnet/aspire-devcontainer-feature/dotnetaspire:1": {},
 		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/devcontainers/features/python:1": {}
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/devcontainers/features/dotnet:2": {
+			"version": "none",
+			"aspNetCoreRuntimeVersions": "8.0"
+		}
 	},
 	"hostRequirements": {
 		"cpus": 8,
@@ -19,7 +23,7 @@
 			"extensions": [
 				"ms-azuretools.azure-dev",
 				"GitHub.copilot",
-				"GitHub.copilot-chat"				
+				"GitHub.copilot-chat"
 			],
 			"settings": {
 				"remote.autoForwardPorts": true,
