@@ -17,7 +17,7 @@ builder.Services.AddOpenTelemetry()
                 // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
                 options.Enrich = (activity, command) =>
                 {
-                    if (command.Command == "PING")
+                    if (string.Equals(command.Command, "PING", StringComparison.OrdinalIgnoreCase))
                     {
                         activity.IsAllDataRequested = false;
                         activity.ActivityTraceFlags = ActivityTraceFlags.None;
