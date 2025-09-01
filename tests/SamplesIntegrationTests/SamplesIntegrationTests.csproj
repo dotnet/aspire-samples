@@ -25,7 +25,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
 
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.8.0" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.5.1" />
   </ItemGroup>
 
