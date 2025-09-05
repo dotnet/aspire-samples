@@ -11,11 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.1" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.4.1" />
-    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.4.0" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.4.0" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.4.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.4.2" />
   </ItemGroup>
 
   <ItemGroup>
