@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Azure" Version="9.4.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.8" />
     <ProjectReference Include="..\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj" />
     <ProjectReference Include="..\ImageGallery.Functions\ImageGallery.Functions.csproj" />
   </ItemGroup>
