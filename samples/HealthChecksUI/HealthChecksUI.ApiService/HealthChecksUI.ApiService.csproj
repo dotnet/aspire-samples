@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
     <ProjectReference Include="..\HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj" />
   </ItemGroup>
 

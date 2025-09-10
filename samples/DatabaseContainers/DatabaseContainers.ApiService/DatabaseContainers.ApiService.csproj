@@ -16,6 +16,8 @@
     <PackageReference Include="Aspire.Npgsql" Version="9.4.1" />
     <PackageReference Include="Aspire.MySqlConnector" Version="9.4.1" />
     <PackageReference Include="Dapper" Version="2.1.66" />
+  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9" />
+  <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
   </ItemGroup>
 
