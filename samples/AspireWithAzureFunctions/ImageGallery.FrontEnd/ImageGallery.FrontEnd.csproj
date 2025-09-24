@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.4.0" />
-    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.4.0" />
+    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.5.0" />
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.5.0" />
   </ItemGroup>
 
   <ItemGroup>
