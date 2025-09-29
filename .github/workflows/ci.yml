@@ -47,7 +47,7 @@ jobs:
         sudo apt-get install azure-functions-core-tools-4
 
     - name: Install .NET SDK (global.json)
-      uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4.3.0
+      uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
       with:
         global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
         dotnet-version: | 
