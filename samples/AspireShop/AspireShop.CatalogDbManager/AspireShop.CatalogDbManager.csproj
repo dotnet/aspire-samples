@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9" />
     <ProjectReference Include="..\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogDb\AspireShop.CatalogDb.csproj" />
   </ItemGroup>
