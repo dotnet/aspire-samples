@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <SamplesDir>$(MSBuildThisFileDirectory)../samples/</SamplesDir>
