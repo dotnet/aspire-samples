@@ -11,14 +11,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" Version="9.5.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.5.1" />
     <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="9.5.0-preview.1.25474.7" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="9.5.1" />
     <ProjectReference Include="..\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj" />
     <ProjectReference Include="..\ImageGallery.Functions\ImageGallery.Functions.csproj" />
   </ItemGroup>
