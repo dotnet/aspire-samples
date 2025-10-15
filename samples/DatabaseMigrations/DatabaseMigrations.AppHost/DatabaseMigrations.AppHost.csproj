@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.10" />
     <ProjectReference Include="..\DatabaseMigrations.ApiService\DatabaseMigrations.ApiService.csproj" />
     <ProjectReference Include="..\DatabaseMigrations.MigrationService\DatabaseMigrations.MigrationService.csproj" />
   </ItemGroup>
