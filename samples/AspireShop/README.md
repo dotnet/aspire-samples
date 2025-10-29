@@ -5,14 +5,14 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire Shop sample"
+name: "Aspire Shop sample"
 urlFragment: "aspire-shop"
-description: "An example shop app written with .NET Aspire."
+description: "An example shop app written with Aspire."
 ---
 
 # Aspire Shop
 
-![Screenshot of the web front end the .NET Aspire Shop sample](./images/aspireshop-frontend-complete.png)
+![Screenshot of the web front end the .Aspire Shop sample](./images/aspireshop-frontend-complete.png)
 
 The app consists of four services:
 
@@ -25,12 +25,17 @@ The app also includes a class library project, **AspireShop.ServiceDefaults**, t
 
 ## Pre-requisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- **Optional** [Visual Studio 2022 17.10](https://visualstudio.microsoft.com/vs/preview/)
+- **Optional** [VS Code](https://code.visualstudio.com/)
+- **Optional** [Visual Studio 2026](https://visualstudio.microsoft.com/vs/preview/)
 
 ## Running the app
 
-If using Visual Studio, open the solution file `AspireShop.sln` and launch/debug the `AspireShop.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
+
+If using VS Code, open this directory as a workspace.
+
+If using Visual Studio, open the solution file `AspireShop.slnx` and launch/debug the `AspireShop.AppHost` project.
 
 If using the .NET CLI, run `dotnet run` from the `AspireShop.AppHost` directory.
