@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="AspireJavaScript.AppHost/AspireJavaScript.AppHost.csproj" />
+  <Project Path="AspireJavaScript.MinimalApi/AspireJavaScript.MinimalApi.csproj" />
+  <Project Path="AspireJavaScript.ServiceDefaults/AspireJavaScript.ServiceDefaults.csproj" />
+</Solution>
