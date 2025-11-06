@@ -23,7 +23,7 @@ The sample consists of two apps:
 ## Prerequisites
 
 - [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
-- [Node.js](https://nodejs.org) - at least version 24.11.0
+- [Node.js](https://nodejs.org) - at least version 22.21.1
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Running the app
