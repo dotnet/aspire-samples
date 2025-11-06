@@ -7,11 +7,6 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
     .WithHttpHealthCheck("/health");
 
 builder.AddNodeApp("frontend", "../NodeFrontend", "./app.js")
-    // .WithArgs(c =>
-    // {
-    //     c.Args.Insert(0, "--import");
-    //     c.Args.Insert(1, "./instrumentation.js");
-    // })
     .WithNpm()
     .WithRunScript("dev")
     .WithBuildScript("build")

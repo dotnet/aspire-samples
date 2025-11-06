@@ -4,12 +4,12 @@
   "type": "module",
   "main": "app.js",
   "engines": {
-    "node": ">=24.11"
+    "node": ">=22.21.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch --import ./instrumentation.js app.js",
-    "start": "node --import ./instrumentation.js app.js",
+    "dev": "node --watch app.js",
+    "start": "node app.js",
     "build": "genversion --esm --semi --property name,version version.js"
   },
   "dependencies": {

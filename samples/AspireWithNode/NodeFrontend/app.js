@@ -1,3 +1,6 @@
+// Import instrumentation first - MUST be before any other imports
+import './instrumentation.js';
+
 import http from 'node:http';
 import https from 'node:https';
 import fs from 'node:fs';
