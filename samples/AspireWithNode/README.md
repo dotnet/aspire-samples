@@ -18,7 +18,7 @@ This sample demonstrates integrating a Node.js app and an ASP.NET Core HTTP API 
 The sample consists of two apps:
 
 - **NodeFrontend**: This is a simple Express-based Node.js app that renders a table of weather forecasts retrieved from a backend API and utilizes a Redis cache.
-- **AspireWithNode.AspNetCoreApi**: This is an HTTP API that returns randomly generated weather forecast data.
+- **AspireWithNode.AspNetCoreApi**: This is an ASP.NET Core HTTP API that returns randomly generated weather forecast data.
 
 ## Prerequisites
 
