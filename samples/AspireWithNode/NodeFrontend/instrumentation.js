@@ -46,7 +46,7 @@ export function createLogger(category = 'nodefrontend') {
         level: 'info', // This is the min level, anything lower won't be sent
         format: winston.format.json(),
         defaultMeta: { 
-            category: category
+            category: category // This doesn't flow to the category in OTLP logs but it's here to ensure it's captured
         },
         transports: [
             new winston.transports.Console({
