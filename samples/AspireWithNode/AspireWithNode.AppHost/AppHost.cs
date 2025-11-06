@@ -9,7 +9,6 @@ var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weat
 builder.AddNodeApp("frontend", "../NodeFrontend", "./app.js")
     .WithNpm()
     .WithRunScript("dev")
-    .WithBuildScript("build")
     .WithHttpEndpoint(port: 5223, env: "PORT")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")

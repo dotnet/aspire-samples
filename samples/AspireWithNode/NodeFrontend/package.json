@@ -9,8 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch app.js",
-    "start": "node app.js",
-    "build": "genversion --esm --semi --property name,version version.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
@@ -31,8 +30,5 @@
     "pug": "^3.0.3",
     "redis": "^4.7.1",
     "winston": "^3.17.0"
-  },
-  "devDependencies": {
-    "genversion": "^3.2.0"
   }
 }
