@@ -45,6 +45,7 @@ if (otlpServer) {
         }),
         instrumentations: [
             new HttpInstrumentation(),
+            // BUG: The Express instrumentation doesn't currently work for some reason
             new ExpressInstrumentation(),
             new UndiciInstrumentation(),
             new RedisInstrumentation()
