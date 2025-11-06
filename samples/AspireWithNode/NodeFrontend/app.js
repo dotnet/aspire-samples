@@ -1,14 +1,11 @@
 // Import instrumentation first - MUST be before any other imports
-import './instrumentation.js';
+import { createLogger } from './instrumentation.js';
 
 import http from 'node:http';
 import https from 'node:https';
 import fs from 'node:fs';
 import express from 'express';
 import { createClient } from 'redis';
-import winston from 'winston';
-import { OpenTelemetryTransportV3 } from '@opentelemetry/winston-transport';
-import { name, version } from './version.js';
 
 // Read configuration from environment variables
 const config = {
@@ -32,32 +29,18 @@ const httpsOptions = fs.existsSync(config.certFile) && fs.existsSync(config.cert
     }
     : { enabled: false };
 
+const startupLogger = createLogger('nodefrontend.startup');
+startupLogger.info('Application starting', { httpsEnabled: httpsOptions.enabled });
+
 // Setup connection to Redis cache
 let cacheConfig = {
     url: config.cacheUri
 };
-
-// Setup Winston logger with OpenTelemetry transport
-const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    defaultMeta: { service: name },
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            )
-        }),
-        new OpenTelemetryTransportV3()
-    ]
-});
-
 const cache = config.cacheUri ? createClient(cacheConfig) : null;
 if (cache) {
-    cache.on('error', err => logger.error('Redis Client Error', { error: err }));
+    cache.on('error', err => startupLogger.error('Redis Client Error', { error: err }));
     await cache.connect();
-    logger.info('Connected to Redis cache');
+    startupLogger.info('Connected to Redis cache');
 }
 
 // Setup express app
@@ -71,6 +54,7 @@ function httpsRedirect(req, res, next) {
     }
     // Redirect to HTTPS
     const redirectTo = new URL(`https://${config.httpsRedirectHost}:${config.httpsRedirectPort}${req.url}`);
+    const logger = createLogger('nodefrontend.httpsRedirect');
     logger.info('Redirecting to HTTPS', { url: redirectTo.toString() });
     res.redirect(redirectTo);
 }
@@ -79,6 +63,7 @@ if (httpsOptions.enabled) {
 }
 
 app.get('/', async (req, res) => {
+    const logger = createLogger('nodefrontend.getForecastsEndpoint');
     if (cache) {
         const cachedForecasts = await cache.get('forecasts');
         if (cachedForecasts) {
@@ -104,6 +89,7 @@ app.set('view engine', 'pug');
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
+    const logger = createLogger('nodefrontend.healthEndpoint');
     try {
         const apiServerHealthAddress = `${config.apiServer}/health`;
         logger.info('Health check - fetching API health', { url: apiServerHealthAddress });
@@ -130,6 +116,7 @@ app.get('/health', async (req, res) => {
 
 // Liveness endpoint
 app.get('/alive', (req, res) => {
+    const logger = createLogger('nodefrontend.aliveEndpoint');
     logger.info('Liveness check');
     res.status(200).send('Healthy');
 });
@@ -139,7 +126,7 @@ const httpServer = http.createServer(app);
 const httpsServer = httpsOptions.enabled ? https.createServer(httpsOptions, app) : null;
 
 httpServer.listen(config.httpPort, () => {
-    logger.info('HTTP server started', {
+    startupLogger.info('HTTP server started', {
         type: 'HTTP',
         port: config.httpPort,
         address: httpServer.address()
@@ -148,7 +135,7 @@ httpServer.listen(config.httpPort, () => {
 
 if (httpsServer) {
     httpsServer.listen(config.httpsPort, () => {
-        logger.info('HTTPS server started', {
+        startupLogger.info('HTTPS server started', {
             type: 'HTTPS',
             port: config.httpsPort,
             address: httpsServer.address()
@@ -168,6 +155,7 @@ async function gracefulShutdown(signal) {
     if (isShuttingDown) return;
     isShuttingDown = true;
 
+    const logger = createLogger('nodefrontend.shutdown');
     logger.info(`Received ${signal}, starting graceful shutdown`);
 
     // Close servers
