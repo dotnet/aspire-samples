@@ -1,10 +1,11 @@
 import http from 'node:http';
 import https from 'node:https';
 import fs from 'node:fs';
-import fetch from 'node-fetch';
 import express from 'express';
-import { createTerminus, HealthCheckError } from '@godaddy/terminus';
 import { createClient } from 'redis';
+import winston from 'winston';
+import { OpenTelemetryTransportV3 } from '@opentelemetry/winston-transport';
+import { name, version } from './version.js';
 
 // Read configuration from environment variables
 const config = {
@@ -12,12 +13,12 @@ const config = {
     httpPort: process.env['PORT'] ?? 8080,
     httpsPort: process.env['HTTPS_PORT'] ?? 8443,
     httpsRedirectPort: process.env['HTTPS_REDIRECT_PORT'] ?? (process.env['HTTPS_PORT'] ?? 8443),
+    httpsRedirectHost: process.env.HOST ?? 'localhost',
     certFile: process.env['HTTPS_CERT_FILE'] ?? '',
     certKeyFile: process.env['HTTPS_CERT_KEY_FILE'] ?? '',
-    cacheAddress: process.env['ConnectionStrings__cache'] ?? '',
+    cacheUri: process.env['CACHE_URI'] ?? '',
     apiServer: process.env['services__weatherapi__https__0'] ?? process.env['services__weatherapi__http__0']
 };
-console.log(`config: ${JSON.stringify(config)}`);
 
 // Setup HTTPS options
 const httpsOptions = fs.existsSync(config.certFile) && fs.existsSync(config.certKeyFile)
@@ -29,22 +30,32 @@ const httpsOptions = fs.existsSync(config.certFile) && fs.existsSync(config.cert
     : { enabled: false };
 
 // Setup connection to Redis cache
-const passwordPrefix = ',password=';
 let cacheConfig = {
-    url: `redis://${config.cacheAddress}`
+    url: config.cacheUri
 };
 
-const cachePasswordIndex = config.cacheAddress.indexOf(passwordPrefix);
-if (cachePasswordIndex > 0) {
-    cacheConfig = {
-        url: `redis://${config.cacheAddress.substring(0, cachePasswordIndex)}`,
-        password: config.cacheAddress.substring(cachePasswordIndex + passwordPrefix.length)
-    }
-}
+// Setup Winston logger with OpenTelemetry transport
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: { service: name },
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple()
+            )
+        }),
+        new OpenTelemetryTransportV3()
+    ]
+});
 
-const cache = createClient(cacheConfig);
-cache.on('error', err => console.error('Redis Client Error', err));
-await cache.connect();
+const cache = config.cacheUri ? createClient(cacheConfig) : null;
+if (cache) {
+    cache.on('error', err => logger.error('Redis Client Error', { error: err }));
+    await cache.connect();
+    logger.info('Connected to Redis cache');
+}
 
 // Setup express app
 const app = express();
@@ -56,8 +67,8 @@ function httpsRedirect(req, res, next) {
         return next();
     }
     // Redirect to HTTPS
-    const redirectTo = new URL(`https://${process.env.HOST ?? 'localhost'}:${config.httpsRedirectPort}${req.url}`);
-    console.log(`Redirecting to ${redirectTo}`);
+    const redirectTo = new URL(`https://${config.httpsRedirectHost}:${config.httpsRedirectPort}${req.url}`);
+    logger.info('Redirecting to HTTPS', { url: redirectTo.toString() });
     res.redirect(redirectTo);
 }
 if (httpsOptions.enabled) {
@@ -65,15 +76,22 @@ if (httpsOptions.enabled) {
 }
 
 app.get('/', async (req, res) => {
-    const cachedForecasts = await cache.get('forecasts');
-    if (cachedForecasts) {
-        res.render('index', { forecasts: JSON.parse(cachedForecasts) });
-        return;
+    if (cache) {
+        const cachedForecasts = await cache.get('forecasts');
+        if (cachedForecasts) {
+            logger.info('Cache hit for forecasts');
+            res.render('index', { forecasts: JSON.parse(cachedForecasts) });
+            return;
+        }
     }
 
+    logger.info('Cache miss - fetching from API', { apiServer: config.apiServer });
     const response = await fetch(`${config.apiServer}/weatherforecast`);
     const forecasts = await response.json();
-    await cache.set('forecasts', JSON.stringify(forecasts), { 'EX': 5 });
+    if (cache) {
+        await cache.set('forecasts', JSON.stringify(forecasts), { 'EX': 30 }); // Cache for 30 seconds
+        logger.info('Forecasts cached for 30 seconds');
+    }
     res.render('index', { forecasts: forecasts });
 });
 
@@ -81,52 +99,109 @@ app.get('/', async (req, res) => {
 app.set('views', './views');
 app.set('view engine', 'pug');
 
-// Define health check callback
-async function healthCheck() {
-    const errors = [];
-    const apiServerHealthAddress = `${config.apiServer}/health`;
-    console.log(`Fetching ${apiServerHealthAddress}`);
+// Health check endpoint
+app.get('/health', async (req, res) => {
     try {
-        var response = await fetch(apiServerHealthAddress);
+        const apiServerHealthAddress = `${config.apiServer}/health`;
+        logger.info('Health check - fetching API health', { url: apiServerHealthAddress });
+        
+        const response = await fetch(apiServerHealthAddress);
         if (!response.ok) {
-            console.log(`Failed fetching ${apiServerHealthAddress}. ${response.status}`);
-            throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${response.status}`);
+            logger.error('API health check failed', { 
+                url: apiServerHealthAddress, 
+                status: response.status 
+            });
+            return res.status(503).send('Unhealthy');
         }
+        
+        logger.info('Health check passed');
+        res.status(200).send('Healthy');
     } catch (error) {
-        console.log(`Failed fetching ${apiServerHealthAddress}. ${error}`);
-        throw new HealthCheckError(`Fetching ${apiServerHealthAddress} failed with HTTP status: ${error}`);
-    }
-}
-
-// Start a server
-function startServer(server, port) {
-    if (server) {
-        const serverType = server instanceof https.Server ? 'HTTPS' : 'HTTP';
-
-        // Create the health check endpoint
-        createTerminus(server, {
-            signal: 'SIGINT',
-            healthChecks: {
-                '/health': healthCheck,
-                '/alive': () => { }
-            },
-            onSignal: async () => {
-                console.log('server is starting cleanup');
-                console.log('closing Redis connection');
-                await cache.disconnect();
-            },
-            onShutdown: () => console.log('cleanup finished, server is shutting down')
+        logger.error('API health check error', { 
+            url: `${config.apiServer}/health`, 
+            error: error.message 
         });
-
-        // Start the server
-        server.listen(port, () => {
-            console.log(`${serverType} listening on ${JSON.stringify(server.address())}`);
-        });
+        res.status(503).send('Unhealthy');
     }
-}
+});
 
+// Liveness endpoint
+app.get('/alive', (req, res) => {
+    logger.info('Liveness check');
+    res.status(200).send('Healthy');
+});
+
+// Start servers
 const httpServer = http.createServer(app);
 const httpsServer = httpsOptions.enabled ? https.createServer(httpsOptions, app) : null;
 
-startServer(httpServer, config.httpPort);
-startServer(httpsServer, config.httpsPort);
+httpServer.listen(config.httpPort, () => {
+    logger.info('HTTP server started', {
+        type: 'HTTP',
+        port: config.httpPort,
+        address: httpServer.address()
+    });
+});
+
+if (httpsServer) {
+    httpsServer.listen(config.httpsPort, () => {
+        logger.info('HTTPS server started', {
+            type: 'HTTPS',
+            port: config.httpsPort,
+            address: httpsServer.address()
+        });
+    });
+}
+
+// Register signal handlers
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Graceful shutdown handler
+let isShuttingDown = false;
+let cleanupDone = false;
+
+async function gracefulShutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    logger.info(`Received ${signal}, starting graceful shutdown`);
+
+    // Close servers
+    logger.info('Closing servers...');
+    const closePromises = [];
+    closePromises.push(closeServer(httpServer));
+    closePromises.push(closeServer(httpsServer));
+    await Promise.all(closePromises);
+    logger.info('All servers closed');
+
+    // Cleanup resources
+    if (!cleanupDone) {
+        cleanupDone = true;
+        if (cache) {
+            logger.info('Closing Redis connection');
+            try {
+                await cache.disconnect();
+                logger.info('Redis connection closed');
+            } catch (error) {
+                logger.error('Error closing Redis connection', { error: error.message });
+            }
+        }
+    }
+
+    logger.info('Graceful shutdown complete');
+    process.exit(0);
+
+    function closeServer(httpServer) {
+        if (!httpServer) return Promise.resolve();
+        const serverType = httpServer instanceof https.Server ? 'HTTPS' : 'HTTP'
+        logger.info(`Closing ${serverType} server...`);
+        return new Promise(resolve => {
+            httpServer.close(() => {
+                logger.info(`${serverType} server closed`);
+                resolve();
+            });
+            httpServer.closeAllConnections();
+        });
+    }
+}

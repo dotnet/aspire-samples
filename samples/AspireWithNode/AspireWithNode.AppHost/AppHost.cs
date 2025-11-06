@@ -1,25 +1,24 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
-var builder = DistributedApplication.CreateBuilder(args);
+var cache = builder.AddRedis("cache")
+    .WithRedisInsight();
 
-var cache = builder.AddRedis("cache");
+var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weatherapi")
+    .WithHttpHealthCheck("/health");
 
-var weatherapi = builder.AddProject<Projects.AspireWithNode_AspNetCoreApi>("weatherapi");
-
-var frontend = builder.AddNpmApp("frontend", "../NodeFrontend", "watch")
-    .WithReference(weatherapi)
-    .WaitFor(weatherapi)
-    .WithReference(cache)
-    .WaitFor(cache)
-    .WithHttpEndpoint(env: "PORT")
+builder.AddNodeApp("frontend", "../NodeFrontend", "./app.js")
+    // .WithArgs(c =>
+    // {
+    //     c.Args.Insert(0, "--import");
+    //     c.Args.Insert(1, "./instrumentation.js");
+    // })
+    .WithNpm()
+    .WithRunScript("dev")
+    .WithBuildScript("build")
+    .WithHttpEndpoint(port: 5223, env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
-
-var launchProfile = builder.Configuration["DOTNET_LAUNCH_PROFILE"];
-
-if (builder.Environment.IsDevelopment() && launchProfile == "https")
-{
-    frontend.RunWithHttpsDevCertificate("HTTPS_CERT_FILE", "HTTPS_CERT_KEY_FILE");
-}
+    .WithHttpHealthCheck("/health")
+    .WithReference(weatherapi).WaitFor(weatherapi)
+    .WithReference(cache).WaitFor(cache);
 
 builder.Build().Run();
