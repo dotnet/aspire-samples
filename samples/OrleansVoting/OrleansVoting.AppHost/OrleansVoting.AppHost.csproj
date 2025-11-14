@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <ProjectReference Include="..\OrleansVoting.Service\OrleansVoting.Service.csproj" />
   </ItemGroup>
 

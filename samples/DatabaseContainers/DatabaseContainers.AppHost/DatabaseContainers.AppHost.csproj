@@ -25,6 +25,8 @@
     <PackageReference Include="Aspire.Hosting.MySql" Version="9.5.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.5.0" />
     <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.5.0" />
+  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0" />
+  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
   </ItemGroup>
 
 </Project>

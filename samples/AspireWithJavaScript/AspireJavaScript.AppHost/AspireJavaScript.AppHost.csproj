@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <ProjectReference Include="..\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj" />
   </ItemGroup>
 
