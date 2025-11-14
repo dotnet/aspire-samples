@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0-preview.1.25528.8">
+<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.0-preview.1.25528.8" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0-preview.1.25528.8" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0" />
     <ProjectReference Include="..\AspireShop.BasketService\AspireShop.BasketService.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj" />
     <ProjectReference Include="..\AspireShop.CatalogService\AspireShop.CatalogService.csproj" />

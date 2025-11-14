@@ -24,7 +24,7 @@ The sample consists of two apps:
 ## Prerequisites
 
 - [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
-- [Python](https://www.python.org/) - at least version 3.12
+- [Python](https://www.python.org/) - at least version 3.13
 - [Node.js](https://nodejs.org) - at least version 22.21.1
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 

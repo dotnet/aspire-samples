@@ -14,6 +14,8 @@ internal static class Program
 
         builder.Services.AddHttpClient<WeatherApiClient>(client => client.BaseAddress = new("https+http://apiservice"));
 
+        HostEnvironment = builder.Environment;
+
         var app = builder.Build();
         Services = app.Services;
         app.Start();
@@ -26,5 +28,7 @@ internal static class Program
         app.StopAsync().GetAwaiter().GetResult();
     }
 
-    public static IServiceProvider Services { get; private set; } = default!;
+    internal static IServiceProvider Services { get; private set; } = default!;
+
+    internal static IHostEnvironment HostEnvironment { get; private set; } = default!;
 }

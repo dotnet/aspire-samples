@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.1.0-preview.1.25555.5">
+<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj" />
-    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.1.0-preview.1.25555.5" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.0-preview.1.25555.5" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0" />
   </ItemGroup>
 
 </Project>

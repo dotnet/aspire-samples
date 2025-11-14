@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -15,6 +16,7 @@ namespace ClientAppsIntegration.WPF;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private readonly ActivitySource _activitySource = new(Program.HostEnvironment?.ApplicationName ?? "");
     private readonly ILogger<MainWindow> _logger;
     private readonly WeatherApiClient _weatherApiClient;
     private readonly CancellationTokenSource _closingCts = new();
@@ -32,6 +34,8 @@ public partial class MainWindow : Window
 
     private async void btnLoad_Click(object sender, RoutedEventArgs e)
     {
+        using var activity = _activitySource.StartActivity("Load Weather", ActivityKind.Client);
+
         btnLoad.IsEnabled = false;
         pbLoading.Visibility = Visibility.Visible;
 
@@ -48,11 +52,16 @@ public partial class MainWindow : Window
         }
         catch (TaskCanceledException)
         {
-            return;
+            activity?.SetStatus(ActivityStatusCode.Error, "Operation was canceled");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading weather");
+            activity?.AddException(ex);
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error loading weather");
+            }
 
             dgWeather.Visibility = Visibility.Hidden;
             dgWeather.ItemsSource = null;
