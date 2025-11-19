@@ -6,12 +6,6 @@ var sqlserver = builder.AddSqlServer("sqlserver")
 
 var sqlDatabase = sqlserver.AddDatabase("sqldb");
 
-var postgresServer = builder.AddPostgres("postgresserver")
-    .WithDataVolume()
-    .WithLifetime(ContainerLifetime.Persistent);
-
-var postgresDatabase = postgresServer.AddDatabase("postgres");
-
 var blobs = builder.AddAzureStorage("Storage")
     // Use the Azurite storage emulator for local development
     .RunAsEmulator(emulator => emulator.WithDataVolume())
@@ -20,8 +14,6 @@ var blobs = builder.AddAzureStorage("Storage")
 builder.AddProject<Projects.VolumeMount_BlazorWeb>("blazorweb")
     .WithReference(sqlDatabase)
     .WaitFor(sqlDatabase)
-    .WithReference(postgresDatabase)
-    .WaitFor(postgresDatabase)
     .WithReference(blobs)
     .WaitFor(blobs);
 

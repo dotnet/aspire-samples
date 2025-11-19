@@ -5,14 +5,14 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire persistent volume sample"
+name: "Aspire persistent container volume sample"
 urlFragment: "aspire-volume-mount"
-description: "An example demonstrating how to configure a local SQL Server container to use a persistent volume in .NET Aspire."
+description: "An example demonstrating how to configure a local SQL Server container to use a persistent volume in Aspire."
 ---
 
 # Persistent Volume
 
-This sample demonstrates how to configure a SQL Server container to use a persistent volume in .NET Aspire, so that the data is persisted across app launches. This method can be used to persist data across instances of other container types configured in .NET Aspire apps too, e.g. PostgreSQL, Redis, etc.
+This sample demonstrates how to configure a SQL Server container to use a persistent volume in Aspire, so that the data is persisted across app launches. This method can be used to persist data across instances of other container types configured in Aspire apps too, e.g. PostgreSQL, Redis, etc.
 
 The app consists of a single service, **VolumeMount.BlazorWeb**, that is configured with a SQL Server container instance via the AppHost project. PostgreSQL and Azure Storage data services are also configured in the AppHost and Blazor projects for demonstration and experimentation purposes. This Blazor Web app has been setup to use ASP.NET Core Identity for local user account registration and authentication, including [Blazor identity UI](https://devblogs.microsoft.com/dotnet/whats-new-with-identity-in-dotnet-8/#the-blazor-identity-ui). Using a persistent volume means that user accounts created when running locally are persisted across launches of the app.
 
@@ -22,31 +22,26 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
 
 ## Pre-requisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- **Optional** [Visual Studio 2022 17.10](https://visualstudio.microsoft.com/vs/preview/)
+- [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Running the app
 
-1. If using Visual Studio, open the solution file `VolumeMount.sln` and launch/debug the `VolumeMount.AppHost` project.
+1. If using the Aspire CLI, run `aspire run` from this directory.
 
-    If using the .NET CLI, run `dotnet run` from the `VolumeMount.AppHost` directory.
+   If using VS Code, open this directory as a workspace and launch the `VolumeMount.AppHost` project using either the Aspire or C# debuggers.
 
-1. The first time you run the app, you'll receieve an error indicating that a password for the SQL Server container has not been configured. To configure a password, set the `sqlpassword` key in the User Secrets store of the `VolumeMount.AppHost` project using the `dotnet user-secrets` command in the AppHost project directory:
+   If using Visual Studio, open the solution file `VolumeMount.slnx` and launch/debug the `VolumeMount.AppHost` project.
 
-    ```shell
-    dotnet user-secrets set sqlpassword <password>
-    ```
+   If using the .NET CLI, run `dotnet run` from the `VolumeMount.AppHost` directory.
 
-    A stable password is required when using a persistent volume for SQL Server data, rather than the default auto-generated password.
-
-1. Once a password is configured, run the `VolumeMount.AppHost` project again and navigate to the URL for the `VolumeMount.BlazorWeb` from the dashboard.
+1. Navigate to the URL for the `VolumeMount.BlazorWeb` from the dashboard.
 
 1. From the home page, click the "Register" link and enter a email and password to create a local user:
 
     ![Screenshot of the account registration page on the web front end](./images/volume-mount-frontend-register.png)
 
-1. After a short while (30-60s) an error page will be displayed stating that the database is not initialized and suggesting that EF Core migration be run. Click the "Apply Migrations" button and once the button text changes to "Migrations Applied", refresh the browser and confirm the form resubmission when prompted by the browser:
+1. After a short while (5-15s) an error page will be displayed stating that the database is not initialized and suggesting that EF Core migration be run. Click the "Apply Migrations" button and once the button text changes to "Migrations Applied", refresh the browser and confirm the form resubmission when prompted by the browser:
 
     ![Screenshot of the database operation failed error page](./images/volume-mount-frontend-dbcontext-error.png)
 
@@ -67,5 +62,5 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
     ```shell
     > docker volume ls -f name=sqlserver
     DRIVER    VOLUME NAME
-    local     VolumeMount.sqlserver.data
+    local     volumemount.apphost-305a028ab1-sqlserver-data
     ```
