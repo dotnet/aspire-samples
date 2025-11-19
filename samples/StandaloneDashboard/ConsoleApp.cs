@@ -1,12 +1,63 @@
-﻿using System.Diagnostics;
+﻿#:package Microsoft.Extensions.Hosting@10.0.0
+#:package OpenTelemetry.Exporter.OpenTelemetryProtocol@1.14.0
+#:package OpenTelemetry.Extensions.Hosting@1.14.0
+#:package OpenTelemetry.Instrumentation.Http@1.14.0
+#:package OpenTelemetry.Instrumentation.Runtime@1.14.0
+#:property PublishAot=false
+
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace ConsoleApp;
+var builder = Host.CreateApplicationBuilder(args);
 
-public class NuGetDownloader(
+ConfigureOpenTelemetry(builder);
+
+builder.Services.AddHostedService<NuGetDownloader>();
+
+var host = builder.Build();
+host.Run();
+
+static IHostApplicationBuilder ConfigureOpenTelemetry(IHostApplicationBuilder builder)
+{
+    builder.Logging.AddOpenTelemetry(logging =>
+    {
+        logging.IncludeFormattedMessage = true;
+        logging.IncludeScopes = true;
+    });
+
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(c => c.AddService("ConsoleApp"))
+        .WithMetrics(metrics =>
+        {
+            metrics.AddHttpClientInstrumentation()
+                   .AddRuntimeInstrumentation();
+        })
+        .WithTracing(tracing =>
+        {
+            tracing.AddHttpClientInstrumentation();
+            tracing.AddSource(NuGetDownloader.ActivitySourceName);
+        });
+
+    // Use the OTLP exporter if the endpoint is configured.
+    var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+    if (useOtlpExporter)
+    {
+        builder.Services.AddOpenTelemetry().UseOtlpExporter();
+    }
+
+    return builder;
+}
+
+class NuGetDownloader(
     ILogger<NuGetDownloader> logger,
     IHostApplicationLifetime hostApplicationLifetime) : BackgroundService
 {
@@ -34,17 +85,17 @@ public class NuGetDownloader(
     {
         var httpClient = new HttpClient();
         var searchServiceUri = new UriBuilder(await GetSearchServiceUri())
-                               {
-                                   Query = $"skip=0&take={Uri.EscapeDataString(rowCount.ToString(CultureInfo.InvariantCulture))}"
-                               }.Uri;
+        {
+            Query = $"skip=0&take={Uri.EscapeDataString(rowCount.ToString(CultureInfo.InvariantCulture))}"
+        }.Uri;
 
-        logger.LogInformation("Getting top {PackageCount} packages: {SearchUrl}", rowCount, searchServiceUri);
+        logger.InformationLevel?.Log("Getting top {PackageCount} packages: {SearchUrl}", rowCount, searchServiceUri);
         var searchResults = await httpClient.GetFromJsonAsync<SearchResults>(searchServiceUri, cancellationToken)
-            ?? throw new InvalidOperationException("");
+            ?? throw new InvalidOperationException("Unexpected null search results.");
 
         foreach (var result in searchResults.Data)
         {
-            logger.LogInformation("Package: {Package} - {Description} ({TotalDownloads} downloads)", result.Id, result.Description, result.TotalDownloads);
+            logger.InformationLevel?.Log("Package: {Package} - {Description} ({TotalDownloads} downloads)", result.Id, result.Description, result.TotalDownloads);
         }
     }
 
@@ -92,5 +143,20 @@ public class NuGetDownloader(
         public string? Description { get; set; }
         public string[]? Authors { get; set; }
         public long TotalDownloads { get; set; }
+    }
+}
+
+static class LoggerExtensions
+{
+    extension(ILogger logger)
+    {
+        public LevelLogger? InformationLevel => logger.IsEnabled(LogLevel.Information) ? new(logger, LogLevel.Information) : null;
+        public LevelLogger? WarngingLevel => logger.IsEnabled(LogLevel.Warning) ? new(logger, LogLevel.Warning) : null;
+        public LevelLogger? ErrorLevel => logger.IsEnabled(LogLevel.Error) ? new(logger, LogLevel.Error) : null;
+    }
+
+    public struct LevelLogger(ILogger logger, LogLevel logLevel)
+    {
+        public readonly void Log(string message, params object?[] args) => logger.Log(logLevel, message, args);
     }
 }

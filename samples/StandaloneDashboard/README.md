@@ -26,7 +26,7 @@ This sample is a .NET console app that downloads data from [NuGet](https://nuget
 
 ## Sample prerequisites
 
-This sample is written in C# and targets .NET 8.0. It requires the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
+This sample is written in C# and targets .NET 10.0. It requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later.
 
 This sample runs the Aspire dashboard from a Docker container. It requires Docker to be installed.
 
@@ -35,7 +35,7 @@ This sample runs the Aspire dashboard from a Docker container. It requires Docke
 The following command starts the Aspire dashboard in a Docker container:
 
 ``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:9.1
+docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/aspire-dashboard:latest
 ```
 
 The docker command:
@@ -61,23 +61,18 @@ When the dashboard is run from a standalone container the login token is printed
 
 For more information about logging into the dashboard, see [Dashboard authentication](https://learn.microsoft.com/dotnet/aspire/fundamentals/dashboard/explore#dashboard-authentication).
 
-## Building the sample
+## Running the sample
 
 To download and run the sample, follow these steps:
 
 1. Clone the `dotnet/aspire-samples` repository.
-2. In Visual Studio (2022 or later):
-    1. On the menu bar, choose **File** > **Open** > **Project/Solution**.
-    2. Navigate to the folder that holds the sample code, and open the solution (.sln) file.
-    3. Choose the <kbd>F5</kbd> key to run with debugging, or <kbd>Ctrl</kbd>+<kbd>F5</kbd> keys to run the project without debugging.
-3. From the command line:
-   1. Navigate to the folder that holds the sample code.
-   2. At the command line, type [`dotnet run`](https://learn.microsoft.com/dotnet/core/tools/dotnet-run).
+2. Navigate to the folder that holds the sample code.
+3. At the command line, type [`dotnet run ConsoleApp.cs`](https://learn.microsoft.com/dotnet/core/tools/dotnet-run).
 
 Run the .NET app by executing the following at the command prompt (opened to the base directory of the sample):
 
 ``` bash
-dotnet run --project ConsoleApp
+dotnet run ConsoleApp.cs
 ```
 
 1. The console app launches, downloads information about the top NuGet packages and then exits.
@@ -88,4 +83,4 @@ dotnet run --project ConsoleApp
 
 ## Configure OpenTelemetry
 
-The telemetry export endpoint is configured with the `OTEL_EXPORTER_OTLP_ENDPOINT` setting. This value is set to `http://localhost:4317` in the sample's `Properties/launchSettings.json` file. Removing the `OTEL_EXPORTER_OTLP_ENDPOINT` value disables exporting telemetry.
+The telemetry export endpoint is configured with the `OTEL_EXPORTER_OTLP_ENDPOINT` setting. This value is set to `http://localhost:4317` in the sample's `ConsoleApp.run.json` file. Removing the `OTEL_EXPORTER_OTLP_ENDPOINT` value disables exporting telemetry.
