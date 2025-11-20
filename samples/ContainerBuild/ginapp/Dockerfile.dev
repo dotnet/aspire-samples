@@ -1,0 +1,14 @@
+# Development Dockerfile with Air for hot reload
+ARG GO_VERSION=1.24.2
+FROM golang:${GO_VERSION}
+
+WORKDIR /app
+
+# Install Air for hot reload
+RUN go install github.com/air-verse/air@latest
+
+# The source code will be bind mounted at runtime
+# We'll download dependencies on first build via Air
+# This ensures we always use the latest go.mod/go.sum from the bind mount
+
+CMD ["air", "-c", ".air.toml"]

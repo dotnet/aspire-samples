@@ -1,0 +1,11 @@
+{
+  "Parameters": {
+    "goversion": "1.24.2"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}
