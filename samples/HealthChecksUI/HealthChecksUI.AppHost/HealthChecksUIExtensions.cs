@@ -32,6 +32,19 @@ public static class HealthChecksUIExtensions
     }
 
     /// <summary>
+    /// Configures the host port the HealthChecksUI container will be exposed on.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="hostPort">The port to expose the container on.</param>
+    /// <returns>The builder.</returns>
+    public static IResourceBuilder<HealthChecksUIResource> WithHostPort(
+        this IResourceBuilder<HealthChecksUIResource> builder,
+        int hostPort)
+    {
+        return builder.WithEndpoint("http", e => e.Port = hostPort);
+    }
+
+    /// <summary>
     /// Adds a reference to a project that will be monitored by the HealthChecksUI container.
     /// </summary>
     /// <param name="builder">The builder.</param>
@@ -69,7 +82,9 @@ public static class HealthChecksUIExtensions
             // Add the health check endpoint if it doesn't exist
             if (!project.GetEndpoint(endpointName).Exists)
             {
-                project.WithHttpEndpoint(name: endpointName);
+                project.WithHttpEndpoint(
+                    name: endpointName,
+                    targetPort: builder.ApplicationBuilder.ExecutionContext.IsRunMode ? null : 8081);
             }
 
             return Task.CompletedTask;

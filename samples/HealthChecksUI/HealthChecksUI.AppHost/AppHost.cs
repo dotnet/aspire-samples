@@ -1,5 +1,7 @@
 ﻿var builder = DistributedApplication.CreateBuilder(args);
 
+builder.AddDockerComposeEnvironment("compose");
+
 var cache = builder.AddRedis("cache");
 
 var apiService = builder.AddProject<Projects.HealthChecksUI_ApiService>("apiservice")
@@ -15,7 +17,7 @@ var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
     .WithFriendlyUrls("Web Frontend")
     .WithExternalHttpEndpoints();
 
-builder.AddHealthChecksUI("healthchecksui", port: 7230)
+var healthChecksUI = builder.AddHealthChecksUI("healthchecksui")
     .WithReference(apiService)
     .WithReference(webFrontend)
     .WithFriendlyUrls("HealthChecksUI Dashboard", "http")
@@ -23,6 +25,11 @@ builder.AddHealthChecksUI("healthchecksui", port: 7230)
     // In a production environment, you should consider adding authentication to the ingress layer
     // to restrict access to the dashboard.
     .WithExternalHttpEndpoints();
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    healthChecksUI.WithHostPort(7230);
+}
 
 builder.Build().Run();
 
