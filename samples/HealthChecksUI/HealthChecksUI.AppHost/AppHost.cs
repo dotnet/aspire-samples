@@ -6,6 +6,7 @@ var cache = builder.AddRedis("cache");
 
 var apiService = builder.AddProject<Projects.HealthChecksUI_ApiService>("apiservice")
     .WithHttpHealthCheck("/health")
+    .WithHttpProbe(ProbeType.Liveness, "/alive")
     .WithFriendlyUrls(displayText: "API");
 
 var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
@@ -13,6 +14,7 @@ var webFrontend = builder.AddProject<Projects.HealthChecksUI_Web>("webfrontend")
     .WaitFor(cache)
     .WithReference(apiService)
     .WaitFor(apiService)
+    .WithHttpProbe(ProbeType.Liveness, "/alive")
     .WithHttpHealthCheck("/health")
     .WithFriendlyUrls("Web Frontend")
     .WithExternalHttpEndpoints();
@@ -21,6 +23,7 @@ var healthChecksUI = builder.AddHealthChecksUI("healthchecksui")
     .WithReference(apiService)
     .WithReference(webFrontend)
     .WithFriendlyUrls("HealthChecksUI Dashboard", "http")
+    .WithHttpProbe(ProbeType.Liveness, "/")
     // This will make the HealthChecksUI dashboard available from external networks when deployed.
     // In a production environment, you should consider adding authentication to the ingress layer
     // to restrict access to the dashboard.
