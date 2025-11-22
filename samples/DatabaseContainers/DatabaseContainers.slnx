@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../../Directory.Packages.props" />
+  </Folder>
+  <Project Path="DatabaseContainers.ApiService/DatabaseContainers.ApiService.csproj" />
+  <Project Path="DatabaseContainers.AppHost/DatabaseContainers.AppHost.csproj" />
+  <Project Path="DatabaseContainers.ServiceDefaults/DatabaseContainers.ServiceDefaults.csproj" />
+</Solution>
