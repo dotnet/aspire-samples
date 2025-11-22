@@ -86,8 +86,11 @@ public static class TalkingClockExtensions
             // Enter the main loop that runs as long as cancellation is not requested.
             while (!token.IsCancellationRequested)
             {
-                // Log the current time, associated with the resource.
-                log.LogInformation("The time is {time}", DateTime.UtcNow);
+                if (log.IsEnabled(LogLevel.Information))
+                {
+                    // Log the current time, associated with the resource.
+                    log.LogInformation("The time is {time}", DateTime.UtcNow);
+                }
 
                 // Publish a custom state update "Tick" using Aspire's ResourceStateSnapshot.
                 // This demonstrates using custom state strings and styles in the Aspire dashboard.
