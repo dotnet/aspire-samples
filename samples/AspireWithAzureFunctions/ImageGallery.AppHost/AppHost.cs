@@ -12,6 +12,14 @@ var storage = builder.AddAzureStorage("storage").RunAsEmulator()
 
         // Ensure that public access to blobs is disabled
         storageAccount.AllowBlobPublicAccess = false;
+    })
+    .WithUrls(c =>
+    {
+        // None of the URLs are usable in the browser so hide them from the summary page
+        foreach (var url in c.Urls)
+        {
+            url.DisplayLocation = UrlDisplayLocation.DetailsOnly;
+        }
     });
 var blobs = storage.AddBlobs("blobs");
 var queues = storage.AddQueues("queues");
@@ -25,12 +33,15 @@ var functions = builder.AddAzureFunctionsProject<Projects.ImageGallery_Functions
                             StorageBuiltInRole.StorageAccountContributor, StorageBuiltInRole.StorageBlobDataOwner,
                             // Queue Data Contributor role is required to send messages to the queue
                             StorageBuiltInRole.StorageQueueDataContributor)
-                       .WithHostStorage(storage);
+                       .WithHostStorage(storage)
+                       .WithUrlForEndpoint("http", u => u.DisplayText = "Functions App");
 
 builder.AddProject<Projects.ImageGallery_FrontEnd>("frontend")
        .WithReference(queues)
        .WithReference(blobs)
        .WaitFor(functions)
-       .WithExternalHttpEndpoints();
+       .WithExternalHttpEndpoints()
+       .WithUrlForEndpoint("https", u => u.DisplayText = "Frontend App")
+       .WithUrlForEndpoint("http", u => u.DisplayLocation = UrlDisplayLocation.DetailsOnly);
 
 builder.Build().Run();
