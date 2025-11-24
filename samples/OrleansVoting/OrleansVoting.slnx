@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="OrleansVoting.AppHost/OrleansVoting.AppHost.csproj" />
+  <Project Path="OrleansVoting.Service/OrleansVoting.Service.csproj" />
+  <Project Path="OrleansVoting.ServiceDefaults/OrleansVoting.ServiceDefaults.csproj" />
+</Solution>
