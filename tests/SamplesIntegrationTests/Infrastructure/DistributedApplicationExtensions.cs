@@ -318,7 +318,7 @@ public static partial class DistributedApplicationExtensions
 #else
         var configuration = "Release";
 #endif
-        var projectAssemblyPath = Path.Combine(projectDirectory, "bin", configuration, "net8.0", $"{projectName}.dll");
+        var projectAssemblyPath = Path.Combine(projectDirectory, "bin", configuration, "net10.0", $"{projectName}.dll");
         var projectAssembly = Assembly.LoadFrom(projectAssemblyPath);
         var dbContextTypes = projectAssembly.GetTypes().Where(t => DerivesFromDbContext(t));
 
