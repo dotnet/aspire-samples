@@ -75,7 +75,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       # Note that the space after the last double dash (--) is intentional
       run: >
-        dotnet test ./tests/SamplesTests.sln
+        dotnet test ./tests/SamplesTests.slnx
         --logger console --logger trx --logger html --logger GitHubActions
         --results-directory ./TestResults --blame
         -- 
