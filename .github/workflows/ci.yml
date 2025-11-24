@@ -85,7 +85,8 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: |
         mkdir -p ./TestResults/DCPLogs
-        cp -r /tmp/dcp/logs/* ./TestResults/DCPLogs
+        TEMP_DIR="${TMPDIR:-/tmp}"
+        cp -r "$TEMP_DIR/dcp/logs/"* ./TestResults/DCPLogs
     
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
