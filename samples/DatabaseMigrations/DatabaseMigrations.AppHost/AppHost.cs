@@ -1,9 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-var builder = DistributedApplication.CreateBuilder(args);
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlserver = builder.AddSqlServer("sqlserver")
+    .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db1 = sqlserver.AddDatabase("db1");

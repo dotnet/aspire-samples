@@ -29,7 +29,13 @@ The sample has three important projects:
 
 ## Sample prerequisites
 
-This sample is written in C# and targets .NET 8.0. It requires the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
+- [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
+- This sample is written in C# and targets .NET 10. It requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later.
+- The `dotnet ef` .NET tool is required. It can be installed by running the following in a terminal:
+
+    ```shell
+    dotnet tool install --global dotnet-ef
+    ```
 
 ## Create migration
 
@@ -67,9 +73,13 @@ The `DatabaseMigrations.MigrationService` project contains the EF Core migration
 
 ## Run the app
 
-If using Visual Studio, open the solution file `DatabaseMigrations.sln` and launch/debug the `DatabaseMigrations.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
 
-If using the .NET CLI, run `dotnet run` from the `DatabaseContainers.AppHost` directory.
+If using VS Code, open this directory as a workspace and launch the `DatabaseMigrations.AppHost` project using either the Aspire or C# debuggers.
+
+If using Visual Studio, open the solution file `DatabaseMigrations.slnx` and launch/debug the `DatabaseMigrations.AppHost` project.
+
+If using the .NET CLI, run `dotnet run` from the `DatabaseMigrations.AppHost` directory.
 
 When the app starts up, the `DatabaseMigrations.MigrationService` background worker runs migrations on the SQL Server container. The migration service:
 
