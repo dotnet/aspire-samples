@@ -67,6 +67,29 @@ jobs:
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
 
+    - name: Copy binlog files
+      if: always()
+      shell: pwsh
+      run: |
+        $binlogFiles = Get-ChildItem -Path . -Filter *.binlog -Recurse
+        if ($binlogFiles.Count -gt 0) {
+          New-Item -ItemType Directory -Force -Path ./BuildLogs
+          foreach ($file in $binlogFiles) {
+            Copy-Item -Path $file.FullName -Destination ./BuildLogs
+            Write-Host "Copied: $($file.FullName)"
+          }
+        } else {
+          Write-Host "No .binlog files found"
+        }
+
+    - name: Publish binlog files
+      if: always()
+      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+      with:
+        name: BuildLogs_${{ matrix.os }}
+        path: ./BuildLogs
+        if-no-files-found: ignore
+
     - name: Test
       id: test
       # We only test on Ubuntu because Windows agents don't support Docker with WSL
