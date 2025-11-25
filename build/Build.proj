@@ -30,20 +30,22 @@
 
     <ItemGroup>
       <!-- Build up list of samples to build -->
-      <SamplesToBuild Include="$(MSBuildThisFile)" TargetToRun="BuildSample"
+      <BuildsPerSample Include="$(MSBuildThisFile)"
                       AdditionalProperties="SamplePath=%(SampleSolutions.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
-      <SamplesToBuild Include="$(MSBuildThisFile)" TargetToRun="BuildSample"
+      <BuildsPerSample Include="$(MSBuildThisFile)"
                       AdditionalProperties="SamplePath=%(SingleFileAppHostFiles.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
-    <MSBuild Projects="@(SamplesToBuild)" Targets="%(SamplesToBuild.TargetToRun)" BuildInParallel="False" />
-    <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
+    <!-- Restore must be sequential to avoid package cache conflicts: https://github.com/NuGet/Home/issues/10935 (should be fixed in 10.0.200) -->
+    <MSBuild Projects="@(BuildsPerSample)" Targets="RestoreSample" BuildInParallel="False" /> 
+    <MSBuild Projects="@(BuildsPerSample)" Targets="BuildSample" BuildInParallel="True" Properties="PropertyToForceNewEval=true" />
+    <Message Text="@(BuildsPerSample->Count()) samples successfully built" Importance="High" />
   </Target>
 
   <!-- This target will be called by the MSBuild task in the BuildSamples target for each sample found.
-       It executes 'dotnet build Sample.slnx' or 'dotnet build apphost.cs' for each sample. -->
-  <Target Name="BuildSample">
+       It executes 'dotnet restore Sample.slnx' or 'dotnet restore apphost.cs' for each sample. -->
+  <Target Name="RestoreSample">
     <ItemGroup>
       <SampleToBuild Include="$(SamplePath)" />
       <RestoreArgs Include="dotnet;restore" />
@@ -52,14 +54,22 @@
       <RestoreArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
       <RestoreArgs Include="-bl:$([System.IO.Path]::GetFileNameWithoutExtension($([System.IO.Path]::GetDirectoryName(%(SampleToBuild.Identity)))))-restore-{}.binlog" Condition="%(SampleToBuild.Extension) == '.cs'" />
       <RestoreArgs Include="-bl:%(SampleToBuild.Filename)-restore-{}.binlog" Condition="%(SampleToBuild.Extension) != '.cs'" />
+    </ItemGroup>
+    <Exec Command="@(RestoreArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
+          StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
+  </Target>
+
+  <!-- This target will be called by the MSBuild task in the BuildSamples target for each sample found.
+       It executes 'dotnet build Sample.slnx' or 'dotnet build apphost.cs' for each sample. -->
+  <Target Name="BuildSample">
+    <ItemGroup>
+      <SampleToBuild Include="$(SamplePath)" />
       <BuildArgs Include="dotnet;build" />
       <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs'" />
       <BuildArgs Include="--no-restore" />
       <BuildArgs Include="-bl:$([System.IO.Path]::GetFileNameWithoutExtension($([System.IO.Path]::GetDirectoryName(%(SampleToBuild.Identity)))))-build-{}.binlog" Condition="%(SampleToBuild.Extension) == '.cs'" />
       <BuildArgs Include="-bl:%(SampleToBuild.Filename)-build-{}.binlog" Condition="%(SampleToBuild.Extension) != '.cs'" />
     </ItemGroup>
-    <Exec Command="@(RestoreArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
-          StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
     <Exec Command="@(BuildArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
           StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
   </Target>
