@@ -30,17 +30,17 @@
 
     <ItemGroup>
       <!-- Build up list of samples to build -->
-      <SamplesToBuild Include="$(MSBuildThisFile)"
+      <BuildsPerSample Include="$(MSBuildThisFile)"
                       AdditionalProperties="SamplePath=%(SampleSolutions.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
-      <SamplesToBuild Include="$(MSBuildThisFile)"
+      <BuildsPerSample Include="$(MSBuildThisFile)"
                       AdditionalProperties="SamplePath=%(SingleFileAppHostFiles.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
     <!-- Restore must be sequential to avoid package cache conflicts: https://github.com/NuGet/Home/issues/10935 (should be fixed in 10.0.200) -->
-    <MSBuild Projects="@(SamplesToBuild)" Targets="RestoreSample" BuildInParallel="False" /> 
-    <MSBuild Projects="@(SamplesToBuild)" Targets="BuildSample" BuildInParallel="True" Properties="PropertyToForceNewEval=true" />
-    <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
+    <MSBuild Projects="@(BuildsPerSample)" Targets="RestoreSample" BuildInParallel="False" /> 
+    <MSBuild Projects="@(BuildsPerSample)" Targets="BuildSample" BuildInParallel="True" Properties="PropertyToForceNewEval=true" />
+    <Message Text="@(BuildsPerSample->Count()) samples successfully built" Importance="High" />
   </Target>
 
   <!-- This target will be called by the MSBuild task in the BuildSamples target for each sample found.
