@@ -1,5 +1,5 @@
 # Stage 1: Build the Go program
-ARG GO_VERSION=1.24.2
+ARG GO_VERSION=1.25.4
 FROM golang:${GO_VERSION} AS builder
 WORKDIR /app
 
