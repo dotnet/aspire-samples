@@ -117,7 +117,6 @@ public class AppHostTests(ITestOutputHelper testOutput)
 
     public static TheoryData<TestEndpoints> TestEndpoints() =>
         new([
-            #if NET8_0
             new TestEndpoints("AspireShop.AppHost", new() {
                 { "catalogdbmanager", ["/alive", "/health"] },
                 { "catalogservice", ["/alive", "/health"] },
@@ -126,7 +125,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "frontend", ["/alive", "/health", "/"] }
             }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast", "/swagger"] },
+                { "weatherapi", ["/alive", "/health", "/weatherforecast", "/scalar"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
@@ -135,15 +134,17 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "weatherapi", ["/alive", "/health", "/weatherforecast"] },
                 { "frontend", ["/alive", "/health", "/"] }
             }),
-            new TestEndpoints("AspireWithPython.AppHost", new() {
-                { "instrumented-python-app", ["/"] }
-            }),
+            // Can't reference this AppHost directly as it's a file-based app now
+            //new TestEndpoints("AspireWithPython.AppHost", new() {
+            //    { "instrumented-python-app", ["/"] }
+            //}),
             new TestEndpoints("ClientAppsIntegration.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/weatherforecast"] }
             }),
-            new TestEndpoints("ContainerBuild.AppHost", new() {
-                { "ginapp", ["/"] }
-            }),
+            // Can't reference this AppHost directly as it's a file-based app now
+            //new TestEndpoints("ContainerBuild.AppHost", new() {
+            //    { "ginapp", ["/"] }
+            //}),
             new TestEndpoints("DatabaseContainers.AppHost", new() {
                 { "apiservice", ["/alive", "/health", "/todos", "/todos/1", "/catalog", "/catalog/1", "/addressbook", "/addressbook/1", "/swagger"] }
             }),
@@ -168,11 +169,9 @@ public class AppHostTests(ITestOutputHelper testOutput)
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/ApplyDatabaseMigrations", "/health", "/"] }
             }),
-            #elif NET9_0
             new TestEndpoints("ImageGallery.AppHost", new() {
                 { "frontend", ["/alive", "/health", "/"] }
             }),
-            #endif
         ]);
 
     private static IEnumerable<string> GetSamplesAppHostAssemblyPaths()

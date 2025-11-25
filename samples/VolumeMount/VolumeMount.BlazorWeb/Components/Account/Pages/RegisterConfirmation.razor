@@ -25,7 +25,7 @@
 }
 else
 {
-    <p>Please check your email to confirm your account.</p>
+    <p role="alert">Please check your email to confirm your account.</p>
 }
 
 @code {
@@ -46,6 +46,7 @@ else
         if (Email is null)
         {
             RedirectManager.RedirectTo("");
+            return;
         }
 
         var user = await UserManager.FindByEmailAsync(Email);

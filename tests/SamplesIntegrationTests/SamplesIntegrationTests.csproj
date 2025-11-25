@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -10,23 +10,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.Azure" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.Testing" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.0" />
-    <PackageReference Include="Aspire.Hosting.Python" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Azure" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="13.0.0" />
 
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
 
-    <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.2.0" />
-    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.5.1" />
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.7.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,15 +37,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+  <ItemGroup>
     <!-- Reference all sample AppHost projects in the repo -->
     <ProjectReference Include="../../samples/**/*.AppHost/*.AppHost.csproj" />
-    <ProjectReference Remove="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
-    <ThisProject Include="$(MSBuildThisFileFullPath)" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-    <ProjectReference Include="../../samples/AspireWithAzureFunctions/ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
     <ThisProject Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 

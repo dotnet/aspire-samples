@@ -5,14 +5,14 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire and Functions image gallery sample"
+name: "Aspire and Functions image gallery sample"
 urlFragment: "aspire-azure-functions-with-blob-triggers"
-description: "An example image gallery app written with .NET Aspire and Azure Functions."
+description: "An example image gallery app written with Aspire and Azure Functions."
 ---
 
 # Image Gallery
 
-![Screenshot of the web frontend the .NET Aspire with Azure Functions sample](./images/aspire-with-functions.png)
+![Screenshot of the web frontend the Aspire with Azure Functions sample](./images/aspire-with-functions.png)
 
 The app consists of two services:
 
@@ -23,13 +23,16 @@ The app also includes a class library project, **ImageGallery.ServiceDefaults**,
 
 ## Pre-requisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Azure Functions tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
-- **Optional** [Visual Studio 2022 17.12](https://visualstudio.microsoft.com/vs/preview/)
 
 ## Running the app
 
-If using Visual Studio, open the solution file `ImageGallery.sln` and launch/debug the `ImageGallery.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
+
+If using VS Code, open this directory as a workspace and launch the `ImageGallery.AppHost` project using either the Aspire or C# debuggers.
+
+If using Visual Studio, open the solution file `ImageGallery.slnx` and launch/debug the `ImageGallery.AppHost` project.
 
 If using the .NET CLI, run `dotnet run` from the `ImageGallery.AppHost` directory.

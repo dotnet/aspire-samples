@@ -5,32 +5,35 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire Shop sample"
+name: "Aspire Shop sample"
 urlFragment: "aspire-shop"
-description: "An example shop app written with .NET Aspire."
+description: "An example shop app written with Aspire."
 ---
 
 # Aspire Shop
 
-![Screenshot of the web front end the .NET Aspire Shop sample](./images/aspireshop-frontend-complete.png)
+![Screenshot of the web front end the Aspire Shop sample](./images/aspireshop-frontend-complete.png)
 
-The app consists of four services:
+The app consists of four .NET services:
 
-- **AspireShop.Frontend**: This is a Blazor app that displays a paginated catlog of products and allows users to add products to a shopping cart.
+- **AspireShop.Frontend**: This is an ASP.NET Core Blazor app that displays a paginated catlog of products and allows users to add products to a shopping cart.
 - **AspireShop.CatalogService**: This is an HTTP API that provides access to the catalog of products stored in a PostgreSQL database.
 - **AspireShop.CatalogDbManager**: This is an HTTP API that manages the initialization and updating of the catalog database.
 - **AspireShop.BasketService**: This is a gRPC service that provides access to the shopping cart stored in Redis.
 
-The app also includes a class library project, **AspireShop.ServiceDefaults**, that contains the service defaults used by the service projects.
+The app also includes a .NET class library project, **AspireShop.ServiceDefaults**, that contains the code-based defaults used by the .NET service projects.
 
-## Pre-requisites
+## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- **Optional** [Visual Studio 2022 17.10](https://visualstudio.microsoft.com/vs/preview/)
+- [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Running the app
 
-If using Visual Studio, open the solution file `AspireShop.sln` and launch/debug the `AspireShop.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
+
+If using VS Code, open this directory as a workspace and launch the `AspireShop.AppHost` project using either the Aspire or C# debuggers.
+
+If using Visual Studio, open the solution file `AspireShop.slnx` and launch/debug the `AspireShop.AppHost` project.
 
 If using the .NET CLI, run `dotnet run` from the `AspireShop.AppHost` directory.

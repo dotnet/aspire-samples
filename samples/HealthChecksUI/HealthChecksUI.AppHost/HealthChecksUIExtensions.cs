@@ -1,10 +1,13 @@
-﻿using Aspire.Hosting.Lifecycle;
+﻿using System.Diagnostics;
+using Aspire.Hosting.Lifecycle;
 using HealthChecksUI;
 
 namespace Aspire.Hosting;
 
 public static class HealthChecksUIExtensions
 {
+    private const string HEALTHCHECKSUI_URLS = "HEALTHCHECKSUI_URLS";
+
     /// <summary>
     /// Adds a HealthChecksUI container to the application model.
     /// </summary>
@@ -18,8 +21,6 @@ public static class HealthChecksUIExtensions
         string name,
         int? port = null)
     {
-        builder.Services.TryAddLifecycleHook<HealthChecksUILifecycleHook>();
-
         var resource = new HealthChecksUIResource(name);
 
         return builder
@@ -28,6 +29,19 @@ public static class HealthChecksUIExtensions
             .WithImageRegistry(HealthChecksUIDefaults.ContainerRegistry)
             .WithEnvironment(HealthChecksUIResource.KnownEnvVars.UiPath, "/")
             .WithHttpEndpoint(port: port, targetPort: HealthChecksUIDefaults.ContainerPort);
+    }
+
+    /// <summary>
+    /// Configures the host port the HealthChecksUI container will be exposed on.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="hostPort">The port to expose the container on.</param>
+    /// <returns>The builder.</returns>
+    public static IResourceBuilder<HealthChecksUIResource> WithHostPort(
+        this IResourceBuilder<HealthChecksUIResource> builder,
+        int hostPort)
+    {
+        return builder.WithEndpoint("http", e => e.Port = hostPort);
     }
 
     /// <summary>
@@ -47,8 +61,42 @@ public static class HealthChecksUIExtensions
         string endpointName = HealthChecksUIDefaults.EndpointName,
         string probePath = HealthChecksUIDefaults.ProbePath)
     {
-        var monitoredProject = new MonitoredProject(project, endpointName: endpointName, probePath: probePath);
-        builder.Resource.MonitoredProjects.Add(monitoredProject);
+        var index = builder.Resource.ProjectConfigIndex++;
+        probePath = probePath.TrimStart('/');
+
+        builder.WithEnvironment(c =>
+        {
+            var healthChecksEndpoint = project.GetEndpoint(endpointName);
+
+            // Set health check name
+            var nameEnvVarName = HealthChecksUIResource.KnownEnvVars.GetHealthCheckNameKey(index);
+            c.EnvironmentVariables[nameEnvVarName] = project.Resource.Name;
+
+            // Set health check URL
+            var urlEnvVarName = HealthChecksUIResource.KnownEnvVars.GetHealthCheckUriKey(index);
+            c.EnvironmentVariables[urlEnvVarName] = ReferenceExpression.Create($"{healthChecksEndpoint}/{probePath}");
+        });
+
+        builder.ApplicationBuilder.Eventing.Subscribe<BeforeStartEvent>((e, ct) =>
+        {
+            // Add the health check endpoint if it doesn't exist
+            if (!project.GetEndpoint(endpointName).Exists)
+            {
+                project.WithHttpEndpoint(
+                    name: endpointName,
+                    targetPort: builder.ApplicationBuilder.ExecutionContext.IsRunMode ? null : 8081);
+            }
+
+            return Task.CompletedTask;
+        });
+
+        project.WithEnvironment(c =>
+        {
+            // Set environment variable to configure the URLs the health check endpoint is accessible from
+            var healthChecksEndpoint = project.GetEndpoint(endpointName, KnownNetworkIdentifiers.DefaultAspireContainerNetwork);
+            var healthChecksEndpointsExpression = ReferenceExpression.Create($"{healthChecksEndpoint}/{probePath}");
+            c.EnvironmentVariables[HEALTHCHECKSUI_URLS] = healthChecksEndpointsExpression;
+        });
 
         return builder;
     }

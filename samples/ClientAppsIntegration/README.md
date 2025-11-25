@@ -5,14 +5,14 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire Client Apps Integration"
+name: "Aspire Client Apps Integration"
 urlFragment: "aspire-client-apps-integration"
-description: "An example of working with client apps (WinForms, WPF, etc.) in a .NET Aspire app."
+description: "An example of working with client apps (WinForms, WPF, etc.) in an Aspire app."
 ---
 
-# Working with client apps in a .NET Aspire application
+# Working with client apps in an Aspire application
 
-This sample demonstrates working with client apps such as WinForms, WPF, etc., in a .NET Aspire app, such that the client app is launched along with the AppHost project, can resolve services via service discovery, and logs, traces, and metrics via OpenTelemetry to the dashboard.
+This sample demonstrates working with client apps such as WinForms, WPF, etc., in an Aspire app, such that the client app is launched along with the AppHost project, can resolve services via service discovery, and logs, traces, and metrics are sent via OpenTelemetry to the dashboard.
 
 ![Screenshot of the WinForms app running and the Aspire dashboard behind it showing traces emitted from the client app.](./images/client-apps-dashboard-winforms.png)
 
@@ -25,13 +25,18 @@ The app is based on the Aspire Starter App template, with the following addition
 
 ## Pre-requisites
 
-- A Windows OS supported by .NET 8 (e.g. Windows 10/11)
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Visual Studio 2022 17.12](https://visualstudio.microsoft.com/vs/)
+- A Windows OS supported by .NET 10 (e.g. Windows 11)
+- [Aspire development environment](https://aspire.dev/get-stated/prerequisites/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Visual Studio 2026](https://visualstudio.microsoft.com/vs/)
 
 ## Running the app
 
-Using Visual Studio, open the solution file `ClientAppsIntegration.sln` and launch/debug the `ClientAppsIntegration.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
+
+If using Visual Studio, open the solution file `ClientAppsIntegration.slnx` and launch/debug the `ClientAppsIntegration.AppHost` project.
+
+If using the .NET CLI, run `dotnet run` from the `ClientAppsIntegration.AppHost` directory.
 
 In the launched WinForms and WPF app, click on "Load Weather" button to have the app call the backend weather API and populate the grid with the results. To explore the error condition behavior, check the "Force Error" checkbox and click on the "Load Weather" button again.
 

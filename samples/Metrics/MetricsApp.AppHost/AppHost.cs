@@ -3,22 +3,24 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var prometheus = builder.AddContainer("prometheus", "prom/prometheus", "v3.2.1")
-       .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
-       .WithArgs("--web.enable-otlp-receiver", "--config.file=/etc/prometheus/prometheus.yml")
-       .WithHttpEndpoint(targetPort: 9090, name: "http");
+    .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
+    .WithArgs("--web.enable-otlp-receiver", "--config.file=/etc/prometheus/prometheus.yml")
+    .WithHttpEndpoint(targetPort: 9090)
+    .WithUrlForEndpoint("http", u => u.DisplayText = "Prometheus Dashboard");
 
 var grafana = builder.AddContainer("grafana", "grafana/grafana")
-                     .WithBindMount("../grafana/config", "/etc/grafana", isReadOnly: true)
-                     .WithBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
-                     .WithEnvironment("PROMETHEUS_ENDPOINT", prometheus.GetEndpoint("http"))
-                     .WithHttpEndpoint(targetPort: 3000, name: "http");
+    .WithBindMount("../grafana/config", "/etc/grafana", isReadOnly: true)
+    .WithBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
+    .WithEnvironment("PROMETHEUS_ENDPOINT", prometheus.GetEndpoint("http"))
+    .WithHttpEndpoint(targetPort: 3000)
+    .WithUrlForEndpoint("http", u => u.DisplayText = "Grafana Dashboard");
 
 builder.AddOpenTelemetryCollector("otelcollector", "../otelcollector/config.yaml")
-       .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp");
+    .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp");
 
 builder.AddProject<Projects.MetricsApp>("app")
-       .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
+    .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"))
+    .WithUrlForEndpoint("https", u => u.DisplayText = "Instrumented App")
+    .WithUrlForEndpoint("http", u => u.DisplayLocation = UrlDisplayLocation.DetailsOnly);
 
-using var app = builder.Build();
-
-await app.RunAsync();
+builder.Build().Run();

@@ -54,6 +54,8 @@ builder.AddProject<Projects.DatabaseContainers_ApiService>("apiservice")
     .WithReference(catalogDb)
     .WaitFor(catalogDb)
     .WithReference(addressBookDb)
-    .WaitFor(addressBookDb);
+    .WaitFor(addressBookDb)
+    .WithHttpHealthCheck("/alive")
+    .WithHttpHealthCheck("/health");
 
 builder.Build().Run();

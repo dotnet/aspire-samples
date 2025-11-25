@@ -7,28 +7,31 @@ products:
 - dotnet
 - dotnet-aspire
 page_type: sample
-name: ".NET Aspire ASP.NET Core HealthChecksUI sample"
+name: "Aspire ASP.NET Core HealthChecksUI sample"
 urlFragment: "aspire-health-checks-ui"
-description: "An example of adding support for hosting the ASP.NET Core HealthChecksUI container with .NET Aspire."
+description: "An example of adding support for hosting the ASP.NET Core HealthChecksUI container with Aspire."
 ---
 
-# Configuring health checks & running the ASP.NET Core HealthChecksUI container with .NET Aspire
+# Configuring health checks & running the ASP.NET Core HealthChecksUI container with Aspire
 
-This sample demonstrates configuring [ASP.NET Core Health Checks](https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks) and running the [ASP.NET Core HealthChecksUI container](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/blob/master/doc/ui-docker.md) with .NET Aspire.
+This sample demonstrates configuring [ASP.NET Core Health Checks](https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks) and running the [ASP.NET Core HealthChecksUI container](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/blob/master/doc/ui-docker.md) with Aspire.
 
 ![Screenshot of the HealthChecksUI](./images/healthchecksui.png)
 
-The sample is based on the .NET Aspire Starter App project template and thus consists of a frontend Blazor app that communicates with a backend ASP.NET Core API service and a Redis cache.
+The sample is based on the Aspire Starter App project template and thus consists of a frontend Blazor app that communicates with a backend ASP.NET Core API service and a Redis cache.
 
-## Pre-requisites
+## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- An [Aspire-supported container runtime](https://aka.ms/dotnet/aspire/containers)
-- **Optional** [Visual Studio 2022 17.10+](https://visualstudio.microsoft.com/vs/preview/)
+- [Aspire development environment](https://aspire.dev/get-started/prerequisites/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ## Running the app
 
-If using Visual Studio, open the solution file `HealthChecksUI.sln` and launch/debug the `HealthChecksUI.AppHost` project.
+If using the Aspire CLI, run `aspire run` from this directory.
+
+If using VS Code, open this directory as a workspace and launch the `HealthChecksUI.AppHost` project using either the Aspire or C# debuggers.
+
+If using Visual Studio, open the solution file `HealthChecksUI.slnx` and launch/debug the `HealthChecksUI.AppHost` project.
 
 If using the .NET CLI, run `dotnet run` from the `HealthChecksUI.AppHost` directory.
 
@@ -36,7 +39,7 @@ From the Aspire dashboard, click on the endpoint URL for the `healthchecksui` re
 
 ## Details about the health checks endpoint configuration
 
-.NET Aspire Service Defaults projects configure [health checks and add health checks endpoints by default](https://learn.microsoft.com/dotnet/aspire/fundamentals/health-checks). However, the endpoints are not exposed in [non-development environments](https://learn.microsoft.com/dotnet/aspire/fundamentals/health-checks#non-development-environments) by default as doing so has security implications. This sample demonstrates how the default health checks endpoints can be customized to ensure they timeout if execution takes longer than expected, and that the results are cached so that repeated requests do not cause excessive load on the system.
+Aspire Service Defaults projects configure [health checks and add health checks endpoints by default](https://aspire.dev/fundamentals/health-checks/). However, the endpoints are not exposed in [non-development environments](https://aspire.dev/fundamentals/health-checks/#non-development-environments) by default as doing so has security implications. This sample demonstrates how the default health checks endpoints can be customized to ensure they timeout if execution takes longer than expected, and that the results are cached so that repeated requests do not cause excessive load on the system.
 
 The `AddDefaultHealthChecks` method in the `HealthChecksUI.ServiceDefaults` project adds and configures the [Output Caching](https://learn.microsoft.com/aspnet/core/performance/caching/output) and [Request Timeouts](https://learn.microsoft.com/aspnet/core/performance/timeouts) features of ASP.NET Core via named policies that are then applied to the health checks endpoints in the `MapDefaultEndpoints` method:
 
@@ -84,7 +87,7 @@ if (!string.IsNullOrWhiteSpace(healthChecksUrls))
 }
 ```
 
-When [deployed to Azure Container Apps (ACA) using the Azure Developer CLI (azd)](https://learn.microsoft.com/dotnet/aspire/deployment/azure/aca-deployment), the additional endpoint will be automatically configured to be only accessible from the internal network of the ACA environment (as an [additional ingress TCP port](https://learn.microsoft.com/azure/container-apps/ingress-overview#additional-tcp-ports)), while the main HTTP endpoint will be configured for [external access](https://learn.microsoft.com/azure/container-apps/ingress-overview#external-and-internal-ingress) via the ACA app ingress rules. This ensures that the detailed health checks endpoint isn't exposed to the public internet, while the main HTTP(S) endpoint is (due to the call to `WithExternalHttpEndpoints()` on the app's resource in the app host project).
+When [deployed to Azure Container Apps (ACA) using the Aspire CLI](https://aspire.dev/integrations/cloud/azure/overview/#publish-as-azure-container-app), the additional endpoint will be automatically configured to be only accessible from the internal network of the ACA environment (as an [additional ingress TCP port](https://learn.microsoft.com/azure/container-apps/ingress-overview#additional-tcp-ports)), while the main HTTP endpoint will be configured for [external access](https://learn.microsoft.com/azure/container-apps/ingress-overview#external-and-internal-ingress) via the ACA app ingress rules. This ensures that the detailed health checks endpoint isn't exposed to the public internet, while the main HTTP(S) endpoint is (due to the call to `WithExternalHttpEndpoints()` on the app's resource in the app host project).
 
 The diagram below illustrates the deployment of the sample app to Azure Container Apps with the HealthChecksUI container. You can see that there are **two** arraws pointing in to the `webfrontend` container, indicating the two separate ingress endpoints it's configured with, the main external HTTP(S) endpoint, and the addition internal TCP endpoint that the `healthchecksui` container is using to access the `/healthz` endpoint:
 
@@ -100,5 +103,3 @@ A key aspect of this sample is that the extensions demonstrate how custom overlo
 
 - The project resource is configured to expose an additional endpoint to host the detailed health checks endpoint on as well as receiving the path that endpoint should be available at (`/healthz` by default)
 - The HealthChecksUI resource is configured to add the project resource's detailed health check endpoint as an one to include in the set it monitors for health check status.
-
-The `HealthChecksUILifecycleHook` class does the bulk of the work to actually inspect the application model, discover the relevant resources, and configure them accordingly.

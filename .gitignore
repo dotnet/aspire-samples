@@ -61,6 +61,9 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Aspire output directory
+aspire-output/
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -435,3 +438,6 @@ FodyWeavers.xsd
 
 # Python virtual environment files
 **/.venv/*
+
+# tmp directory
+tmp/

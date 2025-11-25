@@ -36,7 +36,7 @@ jobs:
   
     - name: Install Docker (latest version)
       if: matrix.os == 'ubuntu-latest'
-      uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 #v4.3.0
+      uses: docker/setup-docker-action@efe9e3891a4f7307e689f2100b33a155b900a608 #v4.5.0
 
     - name: Install Azure Functions Core Tools
       if: matrix.os == 'ubuntu-latest'
@@ -58,7 +58,7 @@ jobs:
 
     - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
-        node-version: '20.x'
+        node-version: '24.x'
 
     - name: Install & trust dev-certs
       id: install-dev-certs
@@ -75,7 +75,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       # Note that the space after the last double dash (--) is intentional
       run: >
-        dotnet test ./tests/SamplesTests.sln
+        dotnet test ./tests/SamplesTests.slnx
         --logger console --logger trx --logger html --logger GitHubActions
         --results-directory ./TestResults --blame
         -- 
@@ -85,7 +85,8 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: |
         mkdir -p ./TestResults/DCPLogs
-        cp -r /tmp/dcp/logs/* ./TestResults/DCPLogs
+        TEMP_DIR="${TMPDIR:-/tmp}"
+        cp -r "$TEMP_DIR/dcp/logs/"* ./TestResults/DCPLogs
     
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'

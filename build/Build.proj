@@ -1,49 +1,79 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <SamplesDir>$(MSBuildThisFileDirectory)../samples/</SamplesDir>
+    <NodeModules>$(SamplesDir)**/node_modules/**/*.*</NodeModules>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SampleSolutions Include="$(SamplesDir)**/*.slnx" Exclude="$(NodeModules)" />
+    <AppHostProjects Include="$(SamplesDir)**/*.AppHost/*.AppHost.csproj" Exclude="$(NodeModules)" />
+    <CandidateSingleFileAppHostFiles Include="$(SamplesDir)**/apphost.cs" Exclude="$(NodeModules)" />
+  </ItemGroup>
+
+  <Target Name="BuildSamples" BeforeTargets="Build">
+    <Message Text="Building @(SampleSolutions->Count()) samples" Importance="High" />
+
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <SamplesDir>$(MSBuildThisFileDirectory)../samples/</SamplesDir>
-        <NodeModules>$(SamplesDir)**/node_modules/**/*.*</NodeModules>
+      <!-- Support building samples with a specific packages restore location & disabling HTTP cache to mimic CI -->
+      <RestorePackagesPath Condition="'$(NoRestoreCache)' == 'true'">$(MSBuildThisFileDirectory)../.packages</RestorePackagesPath>
+      <RestoreNoHttpCache Condition="'$(RestoreNoHttpCache)' == '' and '$(NoRestoreCache)' == 'true'">true</RestoreNoHttpCache>
     </PropertyGroup>
 
     <ItemGroup>
-        <SampleSln Include="$(SamplesDir)**/*.sln" />
-        <SampleSln Remove="$(NodeModules)" />
-        <AppHostProjects Include="$(SamplesDir)**/*.AppHost/*.AppHost.csproj" />
-        <AppHostProjects Remove="$(NodeModules)" />
+      <!-- Filter out any apphost.cs that's in a directory that also contains a .csproj file -->
+      <SingleFileAppHostFiles Include="@(CandidateSingleFileAppHostFiles)"
+                              ParentDir="%(CandidateSingleFileAppHostFiles.RootDir)%(CandidateSingleFileAppHostFiles.Directory)"
+                              Condition="$([System.IO.Directory]::GetFiles('%(CandidateSingleFileAppHostFiles.RootDir)%(CandidateSingleFileAppHostFiles.Directory)','*.csproj').Length) == 0" />
     </ItemGroup>
 
-    <Target Name="BuildSamples" BeforeTargets="Build">
-        <Message Text="Building @(SampleSln->Count()) samples" Importance="High" />
+    <ItemGroup>
+      <!-- Build up list of samples to build -->
+      <SamplesToBuild Include="$(MSBuildThisFile)" TargetToRun="BuildSample"
+                      AdditionalProperties="SamplePath=%(SampleSolutions.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
+      <SamplesToBuild Include="$(MSBuildThisFile)" TargetToRun="BuildSample"
+                      AdditionalProperties="SamplePath=%(SingleFileAppHostFiles.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
+    </ItemGroup>
 
-        <PropertyGroup>
-          <RestorePackagesPath Condition="'$(NoRestoreCache)' == 'true'">$(MSBuildThisFileDirectory)../.packages</RestorePackagesPath>
-          <RestoreNoHttpCache Condition="'$(RestoreNoHttpCache)' == '' and '$(NoRestoreCache)' == 'true'">true</RestoreNoHttpCache>
-        </PropertyGroup>
+    <!-- Execute the appropriate sample-building target for each sample -->
+    <MSBuild Projects="@(SamplesToBuild)" Targets="%(SamplesToBuild.TargetToRun)" BuildInParallel="True" />
+    <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
+  </Target>
 
-        <MSBuild Projects="@(SampleSln)" Targets="Restore" Properties="RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
-        <MSBuild Projects="@(SampleSln)" Targets="Build" BuildInParallel="True" />
+  <!-- This target will be called by the MSBuild task in the BuildSamples target for each sample found.
+       It executes 'dotnet build Sample.slnx' or 'dotnet build apphost.cs' for each sample. -->
+  <Target Name="BuildSample">
+    <ItemGroup>
+      <SampleToBuild Include="$(SamplePath)" />
+      <ExecArgs Include="dotnet;build;%(SampleToBuild.Identity)" />
+      <ExecArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
+      <ExecArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
+    </ItemGroup>
+    <Exec Command="@(ExecArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
+          StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
+  </Target>
 
-        <Message Text="@(SampleSln->Count()) samples successfully built" Importance="High" />
-    </Target>
+  <!-- Disabling solution publish until fix for
+  https://github.com/dotnet/aspire-samples/pull/214#issuecomment-2067099667 is found -->
+  <!-- <Target Name="PublishSamples" AfterTargets="BuildSamples">
+        <Message Text="Publishing @(SampleSolutions->Count()) samples" Importance="High" />
 
-    <!-- Disabling solution publish until fix for https://github.com/dotnet/aspire-samples/pull/214#issuecomment-2067099667 is found -->
-    <!-- <Target Name="PublishSamples" AfterTargets="BuildSamples">
-        <Message Text="Publishing @(SampleSln->Count()) samples" Importance="High" />
+        <MSBuild Projects="@(SampleSolutions)" Targets="Restore" />
+        <MSBuild Projects="@(SampleSolutions)" Targets="Publish" BuildInParallel="True" />
 
-        <MSBuild Projects="@(SampleSln)" Targets="Restore" />
-        <MSBuild Projects="@(SampleSln)" Targets="Publish" BuildInParallel="True" />
-
-        <Message Text="@(SampleSln->Count()) samples successfully published" Importance="High" />
+        <Message Text="@(SampleSolutions->Count()) samples successfully published" Importance="High" />
     </Target> -->
 
-    <Target Name="GenerateAppHostManifests" AfterTargets="PublishSamples">
-        <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
+  <Target Name="GenerateAppHostManifests" AfterTargets="PublishSamples">
+    <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
 
-        <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">
-            <Output TaskParameter="TargetOutputs" ItemName="GeneratedManifestFiles" />
-        </MSBuild>
+    <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">
+      <Output TaskParameter="TargetOutputs" ItemName="GeneratedManifestFiles" />
+    </MSBuild>
 
-        <Message Text="Generated manifest for '%(GeneratedManifestFiles.MSBuildSourceProjectFile)'" Importance="High" />
-        <Message Text="@(AppHostProjects->Count()) manifests generated" Importance="High" />
-    </Target>
+    <Message Text="Generated manifest for '%(GeneratedManifestFiles.MSBuildSourceProjectFile)'" Importance="High" />
+    <Message Text="@(AppHostProjects->Count()) manifests generated" Importance="High" />
+  </Target>
+
 </Project>

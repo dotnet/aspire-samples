@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="DatabaseMigrations.ApiModel/DatabaseMigrations.ApiModel.csproj" />
+  <Project Path="DatabaseMigrations.ApiService/DatabaseMigrations.ApiService.csproj" />
+  <Project Path="DatabaseMigrations.AppHost/DatabaseMigrations.AppHost.csproj" />
+  <Project Path="DatabaseMigrations.MigrationService/DatabaseMigrations.MigrationService.csproj" />
+  <Project Path="DatabaseMigrations.ServiceDefaults/DatabaseMigrations.ServiceDefaults.csproj" />
+</Solution>

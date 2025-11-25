@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Aspire.Hosting.JavaScript;
 using Aspire.Hosting.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -123,16 +124,20 @@ public static partial class DistributedApplicationExtensions
 
         foreach (var resource in applicationModel.Resources)
         {
-            if (resource is IResourceWithoutLifetime)
+            var explicitStartup = resource.Annotations.OfType<ExplicitStartupAnnotation>().FirstOrDefault();
+            if (resource is IResourceWithoutLifetime || explicitStartup is not null)
             {
                 continue;
             }
             resourceTasks[resource.Name] = GetResourceWaitTask(resource.Name, targetStates, cancellationToken);
         }
 
-        logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-            string.Join(',', resourceTasks.Keys),
-            string.Join(',', targetStates));
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                string.Join(',', resourceTasks.Keys),
+                string.Join(',', targetStates));
+        }
 
         while (resourceTasks.Count > 0)
         {
@@ -146,7 +151,10 @@ public static partial class DistributedApplicationExtensions
 
             resourceTasks.Remove(completedResourceName);
 
-            logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", completedResourceName, targetStateReached);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Wait for resource '{ResourceName}' completed with state '{ResourceState}'", completedResourceName, targetStateReached);
+            }
 
             // Ensure resources being waited on still exist
             var remainingResources = resourceTasks.Keys.ToList();
@@ -155,7 +163,10 @@ public static partial class DistributedApplicationExtensions
                 var name = remainingResources[i];
                 if (!applicationModel.Resources.Any(r => r.Name == name))
                 {
-                    logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it.", name);
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("Resource '{ResourceName}' was deleted while waiting for it.", name);
+                    }
                     resourceTasks.Remove(name);
                     remainingResources.RemoveAt(i);
                 }
@@ -163,9 +174,12 @@ public static partial class DistributedApplicationExtensions
 
             if (resourceTasks.Count > 0)
             {
-                logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
-                    string.Join(',', remainingResources),
-                    string.Join(',', targetStates));
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Still waiting for resources [{Resources}] to reach one of target states [{TargetStates}].",
+                        string.Join(',', remainingResources),
+                        string.Join(',', targetStates));
+                }
             }
         }
 
@@ -274,19 +288,28 @@ public static partial class DistributedApplicationExtensions
         var projectName = project.GetName();
 
         // First check if the project has a migration endpoint, if it doesn't it will respond with a 404
-        logger.LogInformation("Checking if project '{ProjectName}' has a migration endpoint", projectName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Checking if project '{ProjectName}' has a migration endpoint", projectName);
+        }
         using (var checkHttpClient = app.CreateHttpClient(project.Name))
         {
             using var emptyDbContextContent = new FormUrlEncodedContent([new("context", "")]);
             using var checkResponse = await checkHttpClient.PostAsync("/ApplyDatabaseMigrations", emptyDbContextContent);
             if (checkResponse.StatusCode == HttpStatusCode.NotFound)
             {
-                logger.LogInformation("Project '{ProjectName}' does not have a migration endpoint", projectName);
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Project '{ProjectName}' does not have a migration endpoint", projectName);
+                }
                 return false;
             }
         }
 
-        logger.LogInformation("Attempting to apply EF migrations for project '{ProjectName}'", projectName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Attempting to apply EF migrations for project '{ProjectName}'", projectName);
+        }
 
         // Load the project assembly and find all DbContext types
         var projectDirectory = Path.GetDirectoryName(project.GetProjectMetadata().ProjectPath) ?? throw new UnreachableException();
@@ -295,11 +318,14 @@ public static partial class DistributedApplicationExtensions
 #else
         var configuration = "Release";
 #endif
-        var projectAssemblyPath = Path.Combine(projectDirectory, "bin", configuration, "net8.0", $"{projectName}.dll");
+        var projectAssemblyPath = Path.Combine(projectDirectory, "bin", configuration, "net10.0", $"{projectName}.dll");
         var projectAssembly = Assembly.LoadFrom(projectAssemblyPath);
         var dbContextTypes = projectAssembly.GetTypes().Where(t => DerivesFromDbContext(t));
 
-        logger.LogInformation("Found {DbContextCount} DbContext types in project '{ProjectName}'", dbContextTypes.Count(), projectName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Found {DbContextCount} DbContext types in project '{ProjectName}'", dbContextTypes.Count(), projectName);
+        }
 
         // Call the migration endpoint for each DbContext type
         var migrationsApplied = false;
@@ -307,13 +333,19 @@ public static partial class DistributedApplicationExtensions
         applyMigrationsHttpClient.Timeout = TimeSpan.FromSeconds(240);
         foreach (var dbContextType in dbContextTypes)
         {
-            logger.LogInformation("Applying migrations for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Applying migrations for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+            }
             using var content = new FormUrlEncodedContent([new("context", dbContextType.AssemblyQualifiedName)]);
             using var response = await applyMigrationsHttpClient.PostAsync("/ApplyDatabaseMigrations", content);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 migrationsApplied = true;
-                logger.LogInformation("Migrations applied for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Migrations applied for DbContext '{DbContextType}' in project '{ProjectName}'", dbContextType.FullName, projectName);
+                }
             }
         }
 

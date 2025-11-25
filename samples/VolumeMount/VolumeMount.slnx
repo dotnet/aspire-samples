@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="VolumeMount.AppHost/VolumeMount.AppHost.csproj" />
+  <Project Path="VolumeMount.BlazorWeb/VolumeMount.BlazorWeb.csproj" />
+  <Project Path="VolumeMount.ServiceDefaults/VolumeMount.ServiceDefaults.csproj" />
+</Solution>
