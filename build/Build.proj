@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <SampleSln Include="$(SamplesDir)**/*.sln" />
+        <SampleSln Include="$(SamplesDir)**/*.slnx" />
         <SampleSln Remove="$(NodeModules)" />
         <AppHostProjects Include="$(SamplesDir)**/*.AppHost/*.AppHost.csproj" />
         <AppHostProjects Remove="$(NodeModules)" />
