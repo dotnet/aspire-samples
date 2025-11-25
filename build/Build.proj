@@ -37,7 +37,7 @@
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
-    <!-- Restore must be sequential to avoid package cache conflicts -->
+    <!-- Restore must be sequential to avoid package cache conflicts: https://github.com/NuGet/Home/issues/10935 (should be fixed in 10.0.200) -->
     <MSBuild Projects="@(SamplesToBuild)" Targets="RestoreSample" BuildInParallel="False" /> 
     <MSBuild Projects="@(SamplesToBuild)" Targets="BuildSample" BuildInParallel="True" Properties="PropertyToForceNewEval=true" />
     <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
