@@ -37,8 +37,9 @@
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
-    <MSBuild Projects="@(SamplesToBuild)" Targets="RestoreSample" BuildInParallel="False" /> <!-- Restore must be sequential to avoid package cache conflicts -->
-    <MSBuild Projects="@(SamplesToBuild)" Targets="BuildSample" BuildInParallel="True" />
+    <!-- Restore must be sequential to avoid package cache conflicts -->
+    <MSBuild Projects="@(SamplesToBuild)" Targets="RestoreSample" BuildInParallel="False" /> 
+    <MSBuild Projects="@(SamplesToBuild)" Targets="BuildSample" BuildInParallel="True" Properties="PropertyToForceNewEval=true" />
     <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
   </Target>
 
