@@ -37,7 +37,7 @@
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
-    <MSBuild Projects="@(SamplesToBuild)" Targets="%(SamplesToBuild.TargetToRun)" BuildInParallel="True" />
+    <MSBuild Projects="@(SamplesToBuild)" Targets="%(SamplesToBuild.TargetToRun)" BuildInParallel="False" />
     <Message Text="@(SamplesToBuild->Count()) samples successfully built" Importance="High" />
   </Target>
 
