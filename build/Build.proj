@@ -46,11 +46,17 @@
   <Target Name="BuildSample">
     <ItemGroup>
       <SampleToBuild Include="$(SamplePath)" />
-      <ExecArgs Include="dotnet;build;%(SampleToBuild.Identity)" />
-      <ExecArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
-      <ExecArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
+      <RestoreArgs Include="dotnet;restore" />
+      <RestoreArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs'" />
+      <RestoreArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
+      <RestoreArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
+      <BuildArgs Include="dotnet;build" />
+      <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs'" />
+      <BuildArgs Include="--no-restore" />
     </ItemGroup>
-    <Exec Command="@(ExecArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
+    <Exec Command="@(RestoreArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
+          StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
+    <Exec Command="@(BuildArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
           StandardOutputImportance="Normal" StandardErrorImportance="Normal" />
   </Target>
 
