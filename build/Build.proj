@@ -51,7 +51,7 @@
       <RestoreArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
       <RestoreArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
       <BuildArgs Include="dotnet;build" />
-      <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Identity).EndsWith('.cs')" />
+      <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Identity.EndsWith('.cs'))" />
       <BuildArgs Include="--no-restore" />
     </ItemGroup>
     <Exec Command="@(RestoreArgs, ' ')" WorkingDirectory="%(SampleToBuild.RootDir)%(SampleToBuild.Directory)"
