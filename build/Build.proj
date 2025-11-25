@@ -47,7 +47,7 @@
     <ItemGroup>
       <SampleToBuild Include="$(SamplePath)" />
       <RestoreArgs Include="dotnet;restore" />
-      <RestoreArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Identity).EndsWith('.cs')" />
+      <RestoreArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Identity.EndsWith('.cs'))" />
       <RestoreArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
       <RestoreArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
       <BuildArgs Include="dotnet;build" />
