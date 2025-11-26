@@ -61,5 +61,5 @@ extends:
             useGlobalJson: true
             workingDirectory: $(Build.SourcesDirectory)/build
         - powershell: |
-              ./build/build.cmd
-          displayName: ./build/build.cmd
+              $(Build.SourcesDirectory)/build/build.cmd
+          displayName: build.cmd
