@@ -1,16 +1,17 @@
 {
-	"name": ".NET Aspire Samples",
-	"image": "mcr.microsoft.com/devcontainers/dotnet:dev-9.0-bookworm",
+	"name": "Aspire Samples",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:dev-10.0",
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {},
 		"ghcr.io/azure/azure-dev/azd:0": {},
+        "ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": { },
 		"ghcr.io/devcontainers/features/docker-in-docker": {},
 		"ghcr.io/dotnet/aspire-devcontainer-feature/dotnetaspire:1": {},
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers/features/dotnet:2": {
 			"version": "none",
-			"aspNetCoreRuntimeVersions": "8.0"
+			"aspNetCoreRuntimeVersions": "10.0"
 		}
 	},
 	"hostRequirements": {
@@ -22,6 +23,7 @@
 		"vscode": {
 			"extensions": [
 				"ms-azuretools.azure-dev",
+                "microsoft-aspire.aspire-vscode",
 				"GitHub.copilot",
 				"GitHub.copilot-chat"
 			],
@@ -31,9 +33,9 @@
 				"remote.otherPortsAttributes": {
 					"onAutoForward": "ignore"
 				},
-				"dotnet.defaultSolution": "samples/AspireShop/AspireShop.sln"
+				"dotnet.defaultSolution": "disable"
 			}
 		}
 	},
-	"postStartCommand": "dotnet dev-certs https --trust"
+	"postStartCommand": "curl -sSL https://aspire.dev/install.sh | bash"
 }
