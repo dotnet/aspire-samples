@@ -1,4 +1,4 @@
-name: .NET Aspire Samples CI
+name: Aspire Samples CI
 
 on:
   push:
@@ -49,7 +49,7 @@ jobs:
     - name: Install .NET SDK (global.json)
       uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4.3.0
       with:
-        global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
+        global-json-file: ${{ matrix.os == 'ubuntu-latest' && './build/global.json' || '.\build\global.json' }}
     
     - name: Print .NET info
       run: dotnet --info
@@ -65,7 +65,7 @@ jobs:
       run: dotnet dev-certs https --trust
 
     - name: Build
-      run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+      run: ${{ matrix.os == 'ubuntu-latest' && './build/build.sh' || '.\build\build.cmd' }}
 
     - name: Copy binlog files
       if: always()

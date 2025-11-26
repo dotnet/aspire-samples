@@ -58,7 +58,7 @@ OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://localhost:4318/v1/metrics
 OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://localhost:4318/v1/logs
 ```
 
-**Important for .NET Aspire:** When running in containers with HTTPS endpoints like `https://host.docker.internal:21227`, the Go OTLP exporters will try to verify TLS certificates. Since Aspire uses self-signed certificates, you must set `OTEL_EXPORTER_OTLP_INSECURE=true` or the connection will fail silently.
+**Important for Aspire:** When running in containers with HTTPS endpoints like `https://host.docker.internal:21227`, the Go OTLP exporters will try to verify TLS certificates. Since Aspire uses self-signed certificates, you must set `OTEL_EXPORTER_OTLP_INSECURE=true` or the connection will fail silently.
 
 #### Service Configuration
 ```bash
@@ -106,9 +106,9 @@ go run ginapp.go
    - Send metrics to `http://localhost:4318/v1/metrics`
    - Send logs to `http://localhost:4318/v1/logs`
 
-### Running with .NET Aspire
+### Running with Aspire
 
-.NET Aspire automatically configures OpenTelemetry environment variables when you add the app to the AppHost. The following are set automatically:
+Aspire automatically configures OpenTelemetry environment variables when you add the app to the AppHost. The following are set automatically:
 
 - `OTEL_EXPORTER_OTLP_ENDPOINT` - Points to Aspire's OTLP endpoint
 - `OTEL_SERVICE_NAME` - Set to the resource name

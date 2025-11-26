@@ -10,21 +10,21 @@ Samples for [Aspire](https://aspire.dev).
 
 | Sample Name | Languages Used | Technologies Used | Description |
 |-------------|---------------|------------------|-------------|
-| [Aspire Shop](./samples/AspireShop/) | C# | ASP.NET Core, Redis, PostgreSQL, Containers | Distributed e-commerce sample app demonstrating Aspire integration. |
-| [Integrating a Node.js App](./samples/AspireWithNode) | JavaScript, C# | Node.js | Example of integrating a [Node.js](https://nodejs.org/) backend with Aspire. |
-| [Integrating Frontend Apps](./samples/AspireWithJavaScript) | JavaScript, TypeScript, C# | React, Vue, Angular | Demonstrates integration of popular frontend frameworks such as [React](https://react.dev/), [Vue](https://vuejs.org/), etc. |
-| [Integrating Python Apps](./samples/AspireWithPython) | Python, JavaScript | FastAPI, React | Example of integrating a [FastAPI](https://fastapi.tiangolo.com/) backend and a JavaScript frontend with Aspire. |
-| [Integrating a Go App](./samples/ContainerBuild) | Go | Gin, Containers | Shows how to add a [Go Gin](https://gin-gonic.com/) app being built via Dockerfile to Aspire. |
-| [Integrating Orleans](./samples/OrleansVoting) | C# | Orleans | Sample for distributed actor model integration with [Orleans](https://learn.microsoft.com/dotnet/orleans/overview). |
-| [Persisting Data with Volume Mounts](./samples/VolumeMount) | C# | Containers, Azure Storage, SQL Server | Demonstrates using volume mounts for data persistence in containers. |
-| [Working with Database Containers](./samples/DatabaseContainers) | C#, SQL | PostgreSQL, MongoDB, SQL Server | Shows how to initialize and use database containers. |
-| [Running EF Core Migrations](./samples/DatabaseMigrations) | C# | ASP.NET Core, Entity Framework Core | Example of running [Entity Framework Core](https://learn.microsoft.com/ef/core/) migrations in Aspire apps. |
-| [Integrating Client Apps](./samples/ClientAppsIntegration) | C# | Windows Forms, WPF | Demonstrates integration of Windows client apps using [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/overview/) or [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview/). |
-| [Custom Metrics Visualization](./samples/Metrics) | C# | Prometheus, Grafana | Shows how to collect and visualize custom metrics using [Grafana](https://grafana.com/). |
-| [Standalone Aspire dashboard](./samples/StandaloneDashboard) | C# | Aspire Dashboard | Demonstrates using the standalone [Aspire dashboard](https://aspire.dev/dashboard/overview/) container to visualize OpenTelemetry from any application. |
-| [Custom Aspire hosting resources](./samples/CustomResources) | C# | Aspire AppHost | Demonstrates authoring custom hosting resources with Aspire. |
-| [HealthChecksUI](./samples/HealthChecksUI) | C# | ASP.NET Core, Containers, Docker Compose | Demonstrates resources with separate isolated endpoints for health checks. |
-| [Azure Functions](./samples/AspireWithAzureFunctions) | C# | ASP.NET Core, Blazor, Azure Functions, Azure Blob Storage | Shows how to integrate [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) with Aspire. |
+| [Aspire Shop](./samples/aspire-shop/) | C# | ASP.NET Core, Redis, PostgreSQL, Containers | Distributed e-commerce sample app demonstrating Aspire integration. |
+| [Integrating a Node.js App](./samples/aspire-with-node) | JavaScript, C# | Node.js | Example of integrating a [Node.js](https://nodejs.org/) backend with Aspire. |
+| [Integrating Frontend Apps](./samples/aspire-with-javascript) | JavaScript, TypeScript, C# | React, Vue, Angular | Demonstrates integration of popular frontend frameworks such as [React](https://react.dev/), [Vue](https://vuejs.org/), etc. |
+| [Integrating Python Apps](./samples/aspire-with-python) | Python, JavaScript | FastAPI, React | Example of integrating a [FastAPI](https://fastapi.tiangolo.com/) backend and a JavaScript frontend with Aspire. |
+| [Integrating a Go App](./samples/container-build) | Go | Gin, Containers | Shows how to add a [Go Gin](https://gin-gonic.com/) app being built via Dockerfile to Aspire. |
+| [Integrating Orleans](./samples/orleans-voting) | C# | Orleans | Sample for distributed actor model integration with [Orleans](https://learn.microsoft.com/dotnet/orleans/overview). |
+| [Persisting Data with Volume Mounts](./samples/volume-mount) | C# | Containers, Azure Storage, SQL Server | Demonstrates using volume mounts for data persistence in containers. |
+| [Working with Database Containers](./samples/database-containers) | C#, SQL | PostgreSQL, MongoDB, SQL Server | Shows how to initialize and use database containers. |
+| [Running EF Core Migrations](./samples/database-migrations) | C# | ASP.NET Core, Entity Framework Core | Example of running [Entity Framework Core](https://learn.microsoft.com/ef/core/) migrations in Aspire apps. |
+| [Integrating Client Apps](./samples/client-apps-integration) | C# | Windows Forms, WPF | Demonstrates integration of Windows client apps using [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/overview/) or [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview/). |
+| [Custom Metrics Visualization](./samples/metrics) | C# | Prometheus, Grafana | Shows how to collect and visualize custom metrics using [Grafana](https://grafana.com/). |
+| [Standalone Aspire dashboard](./samples/standalone-dashboard) | C# | Aspire Dashboard | Demonstrates using the standalone [Aspire dashboard](https://aspire.dev/dashboard/overview/) container to visualize OpenTelemetry from any application. |
+| [Custom Aspire hosting resources](./samples/custom-resources) | C# | Aspire AppHost | Demonstrates authoring custom hosting resources with Aspire. |
+| [HealthChecksUI](./samples/health-checks-ui) | C# | ASP.NET Core, Containers, Docker Compose | Demonstrates resources with separate isolated endpoints for health checks. |
+| [Azure Functions](./samples/aspire-with-azure-functions) | C# | ASP.NET Core, Blazor, Azure Functions, Azure Blob Storage | Shows how to integrate [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) with Aspire. |
 
 ## eShop
 
