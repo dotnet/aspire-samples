@@ -59,6 +59,7 @@ extends:
           displayName: Install global.json SDK
           inputs:
             useGlobalJson: true
+            workingDirectory: $(Build.SourcesDirectory)/build
         - powershell: |
-              ./build.cmd
-          displayName: ./build.cmd
+              ./build/build.cmd
+          displayName: ./build/build.cmd

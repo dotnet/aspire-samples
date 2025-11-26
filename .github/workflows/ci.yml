@@ -65,7 +65,7 @@ jobs:
       run: dotnet dev-certs https --trust
 
     - name: Build
-      run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+      run: ${{ matrix.os == 'ubuntu-latest' && './build/build.sh' || '.\build\build.cmd' }}
 
     - name: Copy binlog files
       if: always()

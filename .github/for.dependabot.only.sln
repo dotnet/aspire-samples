@@ -3,79 +3,79 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.AppHost", "..\samples\AspireShop\AspireShop.AppHost\AspireShop.AppHost.csproj", "{4CFD8A01-7D42-4ABF-8036-8870FB9AD908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.AppHost", "..\samples\aspire-shop\AspireShop.AppHost\AspireShop.AppHost.csproj", "{4CFD8A01-7D42-4ABF-8036-8870FB9AD908}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.BasketService", "..\samples\AspireShop\AspireShop.BasketService\AspireShop.BasketService.csproj", "{3311C697-D624-4DD2-96A8-67F5FFB97A05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.BasketService", "..\samples\aspire-shop\AspireShop.BasketService\AspireShop.BasketService.csproj", "{3311C697-D624-4DD2-96A8-67F5FFB97A05}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogDb", "..\samples\AspireShop\AspireShop.CatalogDb\AspireShop.CatalogDb.csproj", "{23D153F4-7A33-4DAC-95E9-8271375F2375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogDb", "..\samples\aspire-shop\AspireShop.CatalogDb\AspireShop.CatalogDb.csproj", "{23D153F4-7A33-4DAC-95E9-8271375F2375}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogDbManager", "..\samples\AspireShop\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj", "{E7E207D3-309C-4020-AD60-633BBC396D05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogDbManager", "..\samples\aspire-shop\AspireShop.CatalogDbManager\AspireShop.CatalogDbManager.csproj", "{E7E207D3-309C-4020-AD60-633BBC396D05}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogService", "..\samples\AspireShop\AspireShop.CatalogService\AspireShop.CatalogService.csproj", "{44E8AA82-2BC4-4A24-B754-CF098BC85294}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.CatalogService", "..\samples\aspire-shop\AspireShop.CatalogService\AspireShop.CatalogService.csproj", "{44E8AA82-2BC4-4A24-B754-CF098BC85294}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.Frontend", "..\samples\AspireShop\AspireShop.Frontend\AspireShop.Frontend.csproj", "{D981AE25-EC28-4FA9-80D8-E887121FFDBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.Frontend", "..\samples\aspire-shop\AspireShop.Frontend\AspireShop.Frontend.csproj", "{D981AE25-EC28-4FA9-80D8-E887121FFDBC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.ServiceDefaults", "..\samples\AspireShop\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj", "{9F8BE5D7-566D-446C-A867-84A2F6EF3609}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireShop.ServiceDefaults", "..\samples\aspire-shop\AspireShop.ServiceDefaults\AspireShop.ServiceDefaults.csproj", "{9F8BE5D7-566D-446C-A867-84A2F6EF3609}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.AppHost", "..\samples\AspireWithJavaScript\AspireJavaScript.AppHost\AspireJavaScript.AppHost.csproj", "{9932E9F8-85C4-4978-BE21-DF665C0CACCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.AppHost", "..\samples\aspire-with-javascript\AspireJavaScript.AppHost\AspireJavaScript.AppHost.csproj", "{9932E9F8-85C4-4978-BE21-DF665C0CACCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.MinimalApi", "..\samples\AspireWithJavaScript\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj", "{68732D90-7FEE-426F-9921-07675EA78E41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.MinimalApi", "..\samples\aspire-with-javascript\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj", "{68732D90-7FEE-426F-9921-07675EA78E41}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.ServiceDefaults", "..\samples\AspireWithJavaScript\AspireJavaScript.ServiceDefaults\AspireJavaScript.ServiceDefaults.csproj", "{B6D057E6-A16A-4B19-BFF0-2646B580A260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireJavaScript.ServiceDefaults", "..\samples\aspire-with-javascript\AspireJavaScript.ServiceDefaults\AspireJavaScript.ServiceDefaults.csproj", "{B6D057E6-A16A-4B19-BFF0-2646B580A260}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.AppHost", "..\samples\AspireWithNode\AspireWithNode.AppHost\AspireWithNode.AppHost.csproj", "{4072FEF6-00F5-4DB2-B2DD-314E7ED0932B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.AppHost", "..\samples\aspire-with-node\AspireWithNode.AppHost\AspireWithNode.AppHost.csproj", "{4072FEF6-00F5-4DB2-B2DD-314E7ED0932B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.AspNetCoreApi", "..\samples\AspireWithNode\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj", "{2F5C8620-DD80-4BB4-9052-F8E5D15B3DAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.AspNetCoreApi", "..\samples\aspire-with-node\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj", "{2F5C8620-DD80-4BB4-9052-F8E5D15B3DAC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.ServiceDefaults", "..\samples\AspireWithNode\AspireWithNode.ServiceDefaults\AspireWithNode.ServiceDefaults.csproj", "{9BA583C4-1AD4-4E34-9182-C01C05A9E619}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspireWithNode.ServiceDefaults", "..\samples\aspire-with-node\AspireWithNode.ServiceDefaults\AspireWithNode.ServiceDefaults.csproj", "{9BA583C4-1AD4-4E34-9182-C01C05A9E619}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.ApiService", "..\samples\ClientAppsIntegration\ClientAppsIntegration.ApiService\ClientAppsIntegration.ApiService.csproj", "{646CB5FC-0971-433A-9B49-0FB6B94C0673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.ApiService", "..\samples\client-apps-integration\ClientAppsIntegration.ApiService\ClientAppsIntegration.ApiService.csproj", "{646CB5FC-0971-433A-9B49-0FB6B94C0673}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.AppDefaults", "..\samples\ClientAppsIntegration\ClientAppsIntegration.AppDefaults\ClientAppsIntegration.AppDefaults.csproj", "{CE683A2D-1DAA-492E-B2F4-993A0683209C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.AppDefaults", "..\samples\client-apps-integration\ClientAppsIntegration.AppDefaults\ClientAppsIntegration.AppDefaults.csproj", "{CE683A2D-1DAA-492E-B2F4-993A0683209C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.AppHost", "..\samples\ClientAppsIntegration\ClientAppsIntegration.AppHost\ClientAppsIntegration.AppHost.csproj", "{324A2A72-CC33-4269-901B-778D23C2B788}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.AppHost", "..\samples\client-apps-integration\ClientAppsIntegration.AppHost\ClientAppsIntegration.AppHost.csproj", "{324A2A72-CC33-4269-901B-778D23C2B788}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.ServiceDefaults", "..\samples\ClientAppsIntegration\ClientAppsIntegration.ServiceDefaults\ClientAppsIntegration.ServiceDefaults.csproj", "{C475D03F-FA0E-4AD3-84C8-C97FE77D2CC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.ServiceDefaults", "..\samples\client-apps-integration\ClientAppsIntegration.ServiceDefaults\ClientAppsIntegration.ServiceDefaults.csproj", "{C475D03F-FA0E-4AD3-84C8-C97FE77D2CC8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.WinForms", "..\samples\ClientAppsIntegration\ClientAppsIntegration.WinForms\ClientAppsIntegration.WinForms.csproj", "{81D6B1D7-68AC-4CB9-A272-4870BC4E90A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.WinForms", "..\samples\client-apps-integration\ClientAppsIntegration.WinForms\ClientAppsIntegration.WinForms.csproj", "{81D6B1D7-68AC-4CB9-A272-4870BC4E90A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.WPF", "..\samples\ClientAppsIntegration\ClientAppsIntegration.WPF\ClientAppsIntegration.WPF.csproj", "{79DA59AC-9B90-4206-B46A-D9C6C7618342}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientAppsIntegration.WPF", "..\samples\client-apps-integration\ClientAppsIntegration.WPF\ClientAppsIntegration.WPF.csproj", "{79DA59AC-9B90-4206-B46A-D9C6C7618342}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.ApiService", "..\samples\DatabaseContainers\DatabaseContainers.ApiService\DatabaseContainers.ApiService.csproj", "{EF916BCF-2F19-4D74-820D-7B3AAF9CC853}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.ApiService", "..\samples\database-containers\DatabaseContainers.ApiService\DatabaseContainers.ApiService.csproj", "{EF916BCF-2F19-4D74-820D-7B3AAF9CC853}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.AppHost", "..\samples\DatabaseContainers\DatabaseContainers.AppHost\DatabaseContainers.AppHost.csproj", "{7F6E936C-2913-4DCE-8E5F-8780200762C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.AppHost", "..\samples\database-containers\DatabaseContainers.AppHost\DatabaseContainers.AppHost.csproj", "{7F6E936C-2913-4DCE-8E5F-8780200762C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.ServiceDefaults", "..\samples\DatabaseContainers\DatabaseContainers.ServiceDefaults\DatabaseContainers.ServiceDefaults.csproj", "{20BD19F3-661A-48A8-8E3B-374E29F58244}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseContainers.ServiceDefaults", "..\samples\database-containers\DatabaseContainers.ServiceDefaults\DatabaseContainers.ServiceDefaults.csproj", "{20BD19F3-661A-48A8-8E3B-374E29F58244}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiModel", "..\samples\DatabaseMigrations\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj", "{602C86CA-95C4-4CA6-A610-3C96197C9FEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiModel", "..\samples\database-migrations\DatabaseMigrations.ApiModel\DatabaseMigrations.ApiModel.csproj", "{602C86CA-95C4-4CA6-A610-3C96197C9FEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiService", "..\samples\DatabaseMigrations\DatabaseMigrations.ApiService\DatabaseMigrations.ApiService.csproj", "{BECC905B-3745-4C2F-BB26-F5BAFEB06002}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ApiService", "..\samples\database-migrations\DatabaseMigrations.ApiService\DatabaseMigrations.ApiService.csproj", "{BECC905B-3745-4C2F-BB26-F5BAFEB06002}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.AppHost", "..\samples\DatabaseMigrations\DatabaseMigrations.AppHost\DatabaseMigrations.AppHost.csproj", "{C7F370A3-DAFA-4F1A-B3B2-FF2AB3CBE9C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.AppHost", "..\samples\database-migrations\DatabaseMigrations.AppHost\DatabaseMigrations.AppHost.csproj", "{C7F370A3-DAFA-4F1A-B3B2-FF2AB3CBE9C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.MigrationService", "..\samples\DatabaseMigrations\DatabaseMigrations.MigrationService\DatabaseMigrations.MigrationService.csproj", "{5201BC8A-80FB-47C1-B3D4-32C7D7E987EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.MigrationService", "..\samples\database-migrations\DatabaseMigrations.MigrationService\DatabaseMigrations.MigrationService.csproj", "{5201BC8A-80FB-47C1-B3D4-32C7D7E987EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ServiceDefaults", "..\samples\DatabaseMigrations\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj", "{F0A1F89B-1171-4BC8-A245-5378CBD5CE70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseMigrations.ServiceDefaults", "..\samples\database-migrations\DatabaseMigrations.ServiceDefaults\DatabaseMigrations.ServiceDefaults.csproj", "{F0A1F89B-1171-4BC8-A245-5378CBD5CE70}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.AppHost", "..\samples\Metrics\MetricsApp.AppHost\MetricsApp.AppHost.csproj", "{4CB38928-0992-4826-9713-6BD923CAA8E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.AppHost", "..\samples\metrics\MetricsApp.AppHost\MetricsApp.AppHost.csproj", "{4CB38928-0992-4826-9713-6BD923CAA8E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.Client", "..\samples\Metrics\MetricsApp.Client\MetricsApp.Client.csproj", "{9BCA02C1-68B5-4E94-805C-43AA910BA865}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp.Client", "..\samples\metrics\MetricsApp.Client\MetricsApp.Client.csproj", "{9BCA02C1-68B5-4E94-805C-43AA910BA865}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp", "..\samples\Metrics\MetricsApp\MetricsApp.csproj", "{4EA8719F-2AF5-414E-AA10-AA3666E61C2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetricsApp", "..\samples\metrics\MetricsApp\MetricsApp.csproj", "{4EA8719F-2AF5-414E-AA10-AA3666E61C2A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceDefaults", "..\samples\Metrics\ServiceDefaults\ServiceDefaults.csproj", "{6D717975-3D02-42A3-B4D2-D03BA3766F1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceDefaults", "..\samples\metrics\ServiceDefaults\ServiceDefaults.csproj", "{6D717975-3D02-42A3-B4D2-D03BA3766F1C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.AppHost", "..\samples\OrleansVoting\OrleansVoting.AppHost\OrleansVoting.AppHost.csproj", "{5FE1DA7B-B4FE-4A3C-BB9B-792A38B33006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.AppHost", "..\samples\orleans-voting\OrleansVoting.AppHost\OrleansVoting.AppHost.csproj", "{5FE1DA7B-B4FE-4A3C-BB9B-792A38B33006}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.Service", "..\samples\OrleansVoting\OrleansVoting.Service\OrleansVoting.Service.csproj", "{2D3455C5-0CDA-48DF-9CDF-5F73E4A84DA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.Service", "..\samples\orleans-voting\OrleansVoting.Service\OrleansVoting.Service.csproj", "{2D3455C5-0CDA-48DF-9CDF-5F73E4A84DA6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.ServiceDefaults", "..\samples\OrleansVoting\OrleansVoting.ServiceDefaults\OrleansVoting.ServiceDefaults.csproj", "{87A65407-1D25-406A-A863-9384441880BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansVoting.ServiceDefaults", "..\samples\orleans-voting\OrleansVoting.ServiceDefaults\OrleansVoting.ServiceDefaults.csproj", "{87A65407-1D25-406A-A863-9384441880BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.AppHost", "..\samples\VolumeMount\VolumeMount.AppHost\VolumeMount.AppHost.csproj", "{8AABE5C3-EA25-4849-B802-44C9F3DE4A29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.AppHost", "..\samples\volume-mount\VolumeMount.AppHost\VolumeMount.AppHost.csproj", "{8AABE5C3-EA25-4849-B802-44C9F3DE4A29}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.BlazorWeb", "..\samples\VolumeMount\VolumeMount.BlazorWeb\VolumeMount.BlazorWeb.csproj", "{FBA5A48C-03C3-46A4-BCD1-46FBF102AF63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.BlazorWeb", "..\samples\volume-mount\VolumeMount.BlazorWeb\VolumeMount.BlazorWeb.csproj", "{FBA5A48C-03C3-46A4-BCD1-46FBF102AF63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.ServiceDefaults", "..\samples\VolumeMount\VolumeMount.ServiceDefaults\VolumeMount.ServiceDefaults.csproj", "{B2F0EF0B-7CF6-481E-AAF8-63753BFA083E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeMount.ServiceDefaults", "..\samples\volume-mount\VolumeMount.ServiceDefaults\VolumeMount.ServiceDefaults.csproj", "{B2F0EF0B-7CF6-481E-AAF8-63753BFA083E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SamplesIntegrationTests", "..\tests\SamplesIntegrationTests\SamplesIntegrationTests.csproj", "{2A0E88F5-0FE4-4C6A-8985-8EB92C5A2536}"
 EndProject
@@ -103,25 +103,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AA612AC9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HealthChecksUI", "HealthChecksUI", "{3F6148B7-82DF-45F0-B3F4-38B40538C4DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.ApiService", "..\samples\HealthChecksUI\HealthChecksUI.ApiService\HealthChecksUI.ApiService.csproj", "{E0D44400-7FA6-4C9B-A2E4-8FCE50A8F11B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.ApiService", "..\samples\health-checks-ui\HealthChecksUI.ApiService\HealthChecksUI.ApiService.csproj", "{E0D44400-7FA6-4C9B-A2E4-8FCE50A8F11B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.AppHost", "..\samples\HealthChecksUI\HealthChecksUI.AppHost\HealthChecksUI.AppHost.csproj", "{D1247479-DF5F-4DAF-9785-EC0C0470824F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.AppHost", "..\samples\health-checks-ui\HealthChecksUI.AppHost\HealthChecksUI.AppHost.csproj", "{D1247479-DF5F-4DAF-9785-EC0C0470824F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.ServiceDefaults", "..\samples\HealthChecksUI\HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj", "{F66DF86C-A717-45B7-B6B6-9677B7858CE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.ServiceDefaults", "..\samples\health-checks-ui\HealthChecksUI.ServiceDefaults\HealthChecksUI.ServiceDefaults.csproj", "{F66DF86C-A717-45B7-B6B6-9677B7858CE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.Web", "..\samples\HealthChecksUI\HealthChecksUI.Web\HealthChecksUI.Web.csproj", "{7D4CF58B-EE7C-40CE-860F-54F4EBC945B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecksUI.Web", "..\samples\health-checks-ui\HealthChecksUI.Web\HealthChecksUI.Web.csproj", "{7D4CF58B-EE7C-40CE-860F-54F4EBC945B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspireWithAzureFunctions", "AspireWithAzureFunctions", "{28616E46-729B-4F5E-B2BD-BA30E12C411C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.AppHost", "..\samples\AspireWithAzureFunctions\ImageGallery.AppHost\ImageGallery.AppHost.csproj", "{0AEFC57D-E4AD-4D69-93EF-C2820D770982}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.AppHost", "..\samples\aspire-with-azure-functions\ImageGallery.AppHost\ImageGallery.AppHost.csproj", "{0AEFC57D-E4AD-4D69-93EF-C2820D770982}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.FrontEnd", "..\samples\AspireWithAzureFunctions\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj", "{49430A69-91D2-437B-B65D-1359D2314FE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.FrontEnd", "..\samples\aspire-with-azure-functions\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj", "{49430A69-91D2-437B-B65D-1359D2314FE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Functions", "..\samples\AspireWithAzureFunctions\ImageGallery.Functions\ImageGallery.Functions.csproj", "{6FD28298-8E14-4A2D-BA0E-60D5993C6F7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Functions", "..\samples\aspire-with-azure-functions\ImageGallery.Functions\ImageGallery.Functions.csproj", "{6FD28298-8E14-4A2D-BA0E-60D5993C6F7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.ServiceDefaults", "..\samples\AspireWithAzureFunctions\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj", "{AFB99A94-7F9A-4D5A-996D-C266378CAB3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.ServiceDefaults", "..\samples\aspire-with-azure-functions\ImageGallery.ServiceDefaults\ImageGallery.ServiceDefaults.csproj", "{AFB99A94-7F9A-4D5A-996D-C266378CAB3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Shared", "..\samples\AspireWithAzureFunctions\ImageGallery.Shared\ImageGallery.Shared.csproj", "{54EBE8CF-AA1D-49B0-BE7A-783E095B8C1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Shared", "..\samples\aspire-with-azure-functions\ImageGallery.Shared\ImageGallery.Shared.csproj", "{54EBE8CF-AA1D-49B0-BE7A-783E095B8C1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
