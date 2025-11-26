@@ -16,7 +16,7 @@ View telemetry from any app in the Aspire dashboard. The dashboard supports runn
 
 This sample is a .NET console app that downloads data from [NuGet](https://nuget.org/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
 
-![Screenshot of the standalone .NET Aspire dashboard](./images/aspire-dashboard-screenshot.png)
+![Screenshot of the standalone Aspire dashboard](./images/aspire-dashboard-screenshot.png)
 
 ## Demonstrates
 
@@ -57,7 +57,7 @@ Data displayed in the dashboard can be sensitive. By default, the dashboard is s
 
 When the dashboard is run from a standalone container the login token is printed to the container logs. After copying the highlighted token into the login page, select the *Login* button.
 
-![Screenshot of the .NET Aspire dashboard container logs](./images/aspire-dashboard-container-log.png)
+![Screenshot of the Aspire dashboard container logs](./images/aspire-dashboard-container-log.png)
 
 For more information about logging into the dashboard, see [Dashboard authentication](https://learn.microsoft.com/dotnet/aspire/fundamentals/dashboard/explore#dashboard-authentication).
 

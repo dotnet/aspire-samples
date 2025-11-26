@@ -1,4 +1,4 @@
-name: .NET Aspire Samples CI
+name: Aspire Samples CI
 
 on:
   push:
