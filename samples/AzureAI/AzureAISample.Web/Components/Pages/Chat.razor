@@ -1,0 +1,31 @@
+﻿@page "/chat"
+@rendermode InteractiveServer
+
+
+<PageTitle>Chat Demo</PageTitle>
+
+<h1>Chat</h1>
+
+<p>Limerick generator, give a topic and AI will generate a limerick</p>
+<div class="chat-content">
+    <div class="messages-scroller">
+        <div class="messages">
+            @for (var i = 0; i < _sampleChatService.Messages.Count; i++)
+            {
+                var id = $"message{i}";
+                var state = _sampleChatService.Messages[i]!;
+                <ChatMessage @key="@id" State="@state" />
+            }
+        </div>
+    </div>
+    @if (_pendingRequestCount > 0)
+    {
+        <div class="messages">
+            Thinking...
+        </div>
+    }
+    <div class="write-message">
+        <textarea class="ta" @ref="userMessage" @bind="@_userMessageText" Placeholder="Topic for a limerick, or suggestion for refinement" />
+        <button type="button" class="sendBtn" @ref="sendBtn" @onclick="SendChatRequest">Send</button>
+    </div>
+</div>
