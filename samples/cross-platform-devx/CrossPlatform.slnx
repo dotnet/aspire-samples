@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="CrossPlatform.AppHost\CrossPlatform.AppHost.csproj" Type="Classic C#" />
+  <Project Path="CrossPlatform.Web.Api\CrossPlatform.Web.Api.csproj" Type="Classic C#" />
+</Solution>
