@@ -20,8 +20,8 @@ public static class ServiceRegistration
         builder.AddAzureCosmosClient("cosmosdb");
         builder.AddAzureCosmosContainer("cosmosdb-container");
         builder.AddSqlServerClient(connectionName: "database");
-        builder.AddAzureQueueServiceClient("queue");
-        builder.AddAzureBlobServiceClient("blobs");
+        builder.AddAzureBlobContainerClient("blob-container");
+        builder.AddAzureQueueServiceClient("queues");
         builder.AddAzureServiceBusClient(connectionName: "messaging");
         
         builder.Services.AddCqrsServices();

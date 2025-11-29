@@ -19,17 +19,20 @@ namespace CrossPlatform.AppHost;
                     azurite.WithLifetime(ContainerLifetime.Persistent);
                 }));
            
-            var queueResource = storage.AddQueue("queue");
+            var queueResource = storage.AddQueues("queues");
             var blobResource = storage.AddBlobs("blobs");
-            storage.AddBlobContainer("blob-container");
+            var container = storage.AddBlobContainer("blob-container", "blob-container");
 
             var cosmos = builder.AddAzureCosmosDB("cosmosdb");
-            cosmos.AddCosmosDatabase("cosmosdb-database", "app")
-                .AddContainer("cosmosdb-container", containerName: "tasks", partitionKeyPath: "/id");
+            cosmos.AddCosmosDatabase(
+                    "cosmosdb-database", "app")
+                .AddContainer(
+                    "cosmosdb-container", containerName: "tasks", partitionKeyPath: "/id");
             
             var serviceBus = builder.AddAzureServiceBus("messaging");
 
             var sql = builder.AddAzureSqlServer("sql");
+            var database = sql.AddDatabase("database");
             
             return new InitialisedResource
             {
@@ -37,9 +40,11 @@ namespace CrossPlatform.AppHost;
                 CosmosDbResource = cosmos,
                 StorageResource = storage,
                 ServiceBusResource = serviceBus,
+                SqlDatabaseResource = database,
                 SqlResource = sql,
                 QueueResource = queueResource,
                 BlobResource = blobResource,
+                ContainerResource = container,
             };
         }
         
@@ -53,8 +58,6 @@ namespace CrossPlatform.AppHost;
                     .WithImage("azure-sql-edge")
                     .WithImageTag("latest");
             });
-
-            resources.SqlResource.AddDatabase("database");
             
             resources.CosmosDbResource.RunAsPreviewEmulator(configure =>
             {
@@ -85,7 +88,7 @@ namespace CrossPlatform.AppHost;
             });
 
             resources.SqlResource.RunAsContainer();
-                
+            
             resources.ServiceBusResource.RunAsEmulator();
             
             return new WireUp(resources);
@@ -100,12 +103,13 @@ namespace CrossPlatform.AppHost;
                     .WithOtlpExporter()
                     .WithReference(resources.CosmosDbResource)
                     .WithReference(resources.ServiceBusResource)
-                    .WithReference(resources.SqlResource)
-                    .WithReference(resources.BlobResource)
+                    .WithReference(resources.SqlDatabaseResource!)
+                    .WithReference(resources.ContainerResource)
                     .WithReference(resources.QueueResource)
+                    .WaitFor(resources.ContainerResource)
                     .WaitFor(resources.CosmosDbResource)
                     .WaitFor(resources.ServiceBusResource)
-                    .WaitFor(resources.SqlResource)
+                    .WaitFor(resources.SqlDatabaseResource!)
                     .WaitFor(resources.StorageResource)
                     .PublishAsAzureContainerApp((infra, app) => app.Configuration.Ingress.AllowInsecure = true);
             }
@@ -122,7 +126,9 @@ namespace CrossPlatform.AppHost;
             public required IResourceBuilder<AzureServiceBusResource> ServiceBusResource { get; set; }
             
             public required IResourceBuilder<AzureSqlServerResource> SqlResource { get; set; }
-            public required IResourceBuilder<AzureQueueStorageQueueResource> QueueResource { get; set; }
+            public required IResourceBuilder<AzureQueueStorageResource> QueueResource { get; set; }
             public required IResourceBuilder<AzureBlobStorageResource> BlobResource { get; set; }
+            public required IResourceBuilder<AzureSqlDatabaseResource>? SqlDatabaseResource { get; set; }
+            public required IResourceBuilder<AzureBlobStorageContainerResource> ContainerResource { get; set; }
         }
     }
