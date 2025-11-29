@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Azure.Messaging.ServiceBus" Version="13.0.1" />
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="13.0.1" />
+    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="13.0.1" />
     <PackageReference Include="Aspire.Microsoft.Azure.Cosmos" Version="13.0.1" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.0.1" />
     <PackageReference Include="CQRS.Mediatr.Lite" Version="1.2.0"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8"/>
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.28"/>

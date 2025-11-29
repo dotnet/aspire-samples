@@ -21,7 +21,7 @@ else if (OperatingSystem.IsWindows() && RuntimeInformation.OSArchitecture == Arc
 }
 else
 {
-    Console.WriteLine("¯\\_(ツ)_/¯ are you running on a potato...?");
+    Console.WriteLine("¯\\_(ツ)_/¯ left as an exercise for the reader");
 }
 
 builder.Build().Run();

@@ -5,16 +5,23 @@ namespace CrossPlatform.AppHost;
 
     /// <summary>
     /// There are a few Emulated resources that need specific images or setup configuration in order
-    /// to execute properly on non-Windows environments
+    /// to execute properly on ARM environments
     /// </summary>
     /// <param name="builder"></param>
     public class AspireSetup(IDistributedApplicationBuilder builder)
     {
         public InitialisedResource Initialise()
         {
-            var storage = builder.AddAzureStorage("storage").RunAsEmulator();
-            storage.AddQueue("queue");
-            storage.AddBlobs("blobs");
+            var storage = builder
+                .AddAzureStorage("storage")
+                .RunAsEmulator((azurite => {
+                    azurite.WithDataVolume();
+                    azurite.WithLifetime(ContainerLifetime.Persistent);
+                }));
+           
+            var queueResource = storage.AddQueue("queue");
+            var blobResource = storage.AddBlobs("blobs");
+            storage.AddBlobContainer("blob-container");
 
             var cosmos = builder.AddAzureCosmosDB("cosmosdb");
             cosmos.AddCosmosDatabase("cosmosdb-database", "app")
@@ -31,6 +38,8 @@ namespace CrossPlatform.AppHost;
                 StorageResource = storage,
                 ServiceBusResource = serviceBus,
                 SqlResource = sql,
+                QueueResource = queueResource,
+                BlobResource = blobResource,
             };
         }
         
@@ -87,12 +96,17 @@ namespace CrossPlatform.AppHost;
         {
             public void ThenWireUpTargets()
             {
-                IResourceBuilder<ProjectResource> api = resources.ApplicationBuilder.AddProject<CrossPlatform_Web_Api>("api")
+                resources.ApplicationBuilder.AddProject<CrossPlatform_Web_Api>("api")
                     .WithOtlpExporter()
                     .WithReference(resources.CosmosDbResource)
                     .WithReference(resources.ServiceBusResource)
                     .WithReference(resources.SqlResource)
+                    .WithReference(resources.BlobResource)
+                    .WithReference(resources.QueueResource)
                     .WaitFor(resources.CosmosDbResource)
+                    .WaitFor(resources.ServiceBusResource)
+                    .WaitFor(resources.SqlResource)
+                    .WaitFor(resources.StorageResource)
                     .PublishAsAzureContainerApp((infra, app) => app.Configuration.Ingress.AllowInsecure = true);
             }
         }
@@ -108,5 +122,7 @@ namespace CrossPlatform.AppHost;
             public required IResourceBuilder<AzureServiceBusResource> ServiceBusResource { get; set; }
             
             public required IResourceBuilder<AzureSqlServerResource> SqlResource { get; set; }
+            public required IResourceBuilder<AzureQueueStorageQueueResource> QueueResource { get; set; }
+            public required IResourceBuilder<AzureBlobStorageResource> BlobResource { get; set; }
         }
     }
