@@ -3,13 +3,12 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using CQRS.Mediatr.Lite;
 using CrossPlatform.Web.Api.Data.Model;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Data.SqlClient;
 
 namespace CrossPlatform.Web.Api.Data.Queries;
 
 public class GetEnrichedGeographiesQueryHandler(
-    CosmosClient client,
+    CosmosSeeder cosmosSeeder,
     ServiceBusClient serviceBusClient,
     SqlConnection primaryConnection,
     BlobContainerClient containerClient,
@@ -20,16 +19,8 @@ public class GetEnrichedGeographiesQueryHandler(
 
     protected override async Task<IEnumerable<Geography>> ProcessRequest(GetEnrichedGeographiesQuery request)
     {
-        // Query Cosmos DB for geographies
-        var container = client.GetContainer("app", "tasks");
-        var query = "SELECT * FROM c";
-        var iterator = container.GetItemQueryIterator<Geography>(query);
-        List<Geography> allItems = [];
-
-        while (iterator.HasMoreResults)
-        {
-            allItems.AddRange(await iterator.ReadNextAsync());
-        }
+        // Ensure data is seeded and read all geographies
+        var allItems = (await cosmosSeeder.EnsureSeededAndReadAllAsync()).ToList();
         
         // Publish a message to Service Bus
         await using var serviceBusSender = serviceBusClient.CreateSender("geographies");

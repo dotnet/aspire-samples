@@ -1,4 +1,6 @@
+using System.Text.Json;
 using CrossPlatform.Web.Api.Data;
+using Microsoft.Azure.Cosmos;
 
 namespace CrossPlatform.Web.Api;
 
@@ -14,15 +16,27 @@ public static class ServiceRegistration
 
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
-            options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
+        builder.AddAzureCosmosClient(connectionName: "cosmosdb", configureClientOptions: options =>
+        {
+            options.UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+                PropertyNameCaseInsensitive = true
+            };
         });
         
-        builder.AddAzureCosmosClient("cosmosdb");
-        builder.AddAzureCosmosContainer("cosmosdb-container");
+        builder.AddAzureCosmosContainer("cosmosdb-container", settings => {});
         builder.AddSqlServerClient(connectionName: "database");
         builder.AddAzureBlobContainerClient("blob-container");
         builder.AddAzureQueueServiceClient("queues");
         builder.AddAzureServiceBusClient(connectionName: "messaging");
+        
+        
+        // Register CosmosSeeder
+        builder.Services.AddScoped<CosmosSeeder>();
         
         builder.Services.AddCqrsServices();
     }

@@ -29,6 +29,7 @@ namespace CrossPlatform.AppHost;
                 .AddContainer(
                     "cosmosdb-container", containerName: "tasks", partitionKeyPath: "/id");
             
+            
             var serviceBus = builder.AddAzureServiceBus("messaging");
             var topic = serviceBus.AddServiceBusTopic("geographies");
             var subscription = topic.AddServiceBusSubscription("demo");
