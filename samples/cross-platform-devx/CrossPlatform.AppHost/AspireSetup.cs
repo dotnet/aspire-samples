@@ -56,11 +56,6 @@ namespace CrossPlatform.AppHost;
             
             resources.ServiceBusResource.RunAsEmulator(sb =>
             {
-                sb.WithHttpEndpoint(targetPort: 5300, name: "sbhealthendpoint")
-                    .WithImageTag("1.1.2")
-                    .WithContainerName("messaging")
-                    .WithEnvironment("SQL_WAIT_INTERVAL", "1");
-
                 var edge = sb.ApplicationBuilder.Resources.OfType<ContainerResource>()
                     .First(resource => resource.Name.EndsWith("-mssql"));
 
@@ -79,7 +74,9 @@ namespace CrossPlatform.AppHost;
             resources.CosmosDbResource.RunAsEmulator(configure =>
             {
             });
-            
+
+            resources.SqlResource.RunAsContainer();
+                
             resources.ServiceBusResource.RunAsEmulator();
             
             return new WireUp(resources);
