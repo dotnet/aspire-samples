@@ -1,5 +1,5 @@
 using CQRS.Mediatr.Lite;
-using CrossPlatform.Web.Api.Contracts.Response;
+using CrossPlatform.Web.Api.Data.Model;
 using CrossPlatform.Web.Api.Data.Queries;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +20,9 @@ internal static class GetEnrichedGeographiesEndpoint
                     GetEnrichedGeographiesQuery query = new();
                     IEnumerable<Geography> resultFromQuery = await queryHandler.Query(query);
 
-                    return resultFromQuery.MapToResponse();
+                    return resultFromQuery;
                 })
-            .Produces<EnrichedGeographyResponse[]>(StatusCodes.Status200OK, "application/json")
+            .Produces<Geography[]>(StatusCodes.Status200OK, "application/json")
             .WithName("GetEnrichedGeographies")
             .WithOpenApi();
 

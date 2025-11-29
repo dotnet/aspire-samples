@@ -1,4 +1,5 @@
 using CQRS.Mediatr.Lite;
+using CrossPlatform.Web.Api.Data.Model;
 
 namespace CrossPlatform.Web.Api.Data.Queries;
 

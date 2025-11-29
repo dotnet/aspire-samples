@@ -1,5 +1,6 @@
-using System.Reflection;
 using CQRS.Mediatr.Lite;
+using CrossPlatform.Web.Api.Data.Model;
+using CrossPlatform.Web.Api.Data.Queries;
 
 namespace CrossPlatform.Web.Api.Data;
 
@@ -10,35 +11,13 @@ public static class CqrsModule
         // Basic CQRS Services from underlying library
         services.AddTransient<IQueryService, QueryService>();
         services.AddTransient<IRequestHandlerResolver>(ctx => new RequestHandlerResolver(ctx.GetRequiredService));
-
-        // Register all app specific Query Handlers using reflection
-        RegisterHandlers(services);
+        
+        // API specific queries 
+        services.AddTransient<GetEnrichedGeographiesQueryHandler>();
+        services.AddTransient<QueryHandler<GetEnrichedGeographiesQuery, IEnumerable<Geography>>>(sp => 
+            sp.GetRequiredService<GetEnrichedGeographiesQueryHandler>());
 
         return services;
-    }
-
-    private static void RegisterHandlers(IServiceCollection services)
-    {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        List<Type> handlerTypes = assembly.GetTypes()
-            .Where(t => t is { IsClass: true, IsAbstract: false } && IsHandlerType(t))
-            .ToList();
-
-        foreach (Type handlerType in handlerTypes)
-        {
-            RegisterHandler(services, handlerType);
-        }
-    }
-
-    private static bool IsHandlerType(Type type) =>
-        type.BaseType is { IsGenericType: true } &&
-        type.BaseType.GetGenericTypeDefinition() == typeof(QueryHandler<,>);
-
-    private static void RegisterHandler(IServiceCollection services, Type handlerType)
-    {
-        Type baseType = handlerType.BaseType!;
-        services.AddTransient(handlerType);
-        services.AddTransient(baseType, sp => sp.GetRequiredService(handlerType));
     }
 }
 
