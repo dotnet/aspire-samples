@@ -18,9 +18,9 @@ internal static class GetEnrichedGeographiesEndpoint
                 ) =>
                 {
                     GetEnrichedGeographiesQuery query = new();
-                    IEnumerable<Geography>? resultFromQuery = await queryHandler.Query(query);
+                    IEnumerable<Geography> resultFromQuery = await queryHandler.Query(query);
 
-                    return resultFromQuery.ToList();
+                    return resultFromQuery.MapToResponse();
                 })
             .Produces<EnrichedGeographyResponse[]>(StatusCodes.Status200OK, "application/json")
             .WithName("GetEnrichedGeographies")
@@ -29,4 +29,3 @@ internal static class GetEnrichedGeographiesEndpoint
         return endpoints;
     }
 }
-

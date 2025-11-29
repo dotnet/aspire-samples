@@ -41,13 +41,11 @@ namespace CrossPlatform.AppHost;
             resources.SqlResource.RunAsContainer(resourceBuilder =>
             {
                 resourceBuilder
-                    .WithBindMount("./Database/config", "/usr/config")
-                    .WithHostPort(63228)
-                    .WithImageTag("2022-latest")
-                    .WithEntrypoint("/usr/config/entrypoint.sh")
-                    .WithLifetime(ContainerLifetime.Persistent)
-                    .WithImageTag("2022-latest");
+                    .WithImage("azure-sql-edge")
+                    .WithImageTag("latest");
             });
+
+            resources.SqlResource.AddDatabase("database");
             
             resources.CosmosDbResource.RunAsPreviewEmulator(configure =>
             {
