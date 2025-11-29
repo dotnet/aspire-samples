@@ -12,7 +12,7 @@ public static class CqrsModule
         services.AddTransient<IQueryService, QueryService>();
         services.AddTransient<IRequestHandlerResolver>(ctx => new RequestHandlerResolver(ctx.GetRequiredService));
         
-        // API specific queries 
+        // This project specific queries 
         services.AddTransient<GetEnrichedGeographiesQueryHandler>();
         services.AddTransient<QueryHandler<GetEnrichedGeographiesQuery, IEnumerable<Geography>>>(sp => 
             sp.GetRequiredService<GetEnrichedGeographiesQueryHandler>());
