@@ -25,7 +25,7 @@
     "@opentelemetry/sdk-metrics": "^2.0.1",
     "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/winston-transport": "^0.7.0",
-    "express": "^5.1.0",
+    "express": "^5.2.0",
     "node-fetch": "^3.3.2",
     "pug": "^3.0.3",
     "redis": "^4.7.1",
