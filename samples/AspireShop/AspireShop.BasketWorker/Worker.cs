@@ -20,6 +20,7 @@ namespace AspireShop.BasketWorker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("About to work");
 
             using var channel = _connection.CreateModel();
 
