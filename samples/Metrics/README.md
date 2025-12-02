@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire metrics sample app"
-urlFragment: "aspire-metrics"
-description: "A sample Aspire app that collects and displays metrics using Prometheus and Grafana."
----
-
 # Aspire metrics sample app
 
 This is a simple .NET app that shows off collecting metrics with OpenTelemetry and exporting them to Prometheus and Grafana for reporting.

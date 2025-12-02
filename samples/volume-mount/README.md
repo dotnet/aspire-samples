@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire persistent container volume sample"
-urlFragment: "aspire-volume-mount"
-description: "An example demonstrating how to configure a local SQL Server container to use a persistent volume in Aspire."
----
-
 # Persistent Volume
 
 This sample demonstrates how to configure a SQL Server container to use a persistent volume in Aspire, so that the data is persisted across app launches. This method can be used to persist data across instances of other container types configured in Aspire apps too, e.g. PostgreSQL, Redis, etc.

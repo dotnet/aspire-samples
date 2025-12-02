@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Standalone Aspire dashboard sample app"
-urlFragment: "aspire-standalone-dashboard"
-description: "A sample of using the Aspire dashboard to view telemetry from non-Aspire apps."
----
-
 # Standalone Aspire dashboard sample app
 
 View telemetry from any app in the Aspire dashboard. The dashboard supports running standalone, and apps configured with an [OpenTelemetry SDK](https://opentelemetry.io/docs/getting-started/dev/) can send it data.

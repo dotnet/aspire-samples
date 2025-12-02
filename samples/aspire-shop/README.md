@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Shop sample"
-urlFragment: "aspire-shop"
-description: "An example shop app written with Aspire."
----
-
 # Aspire Shop
 
 ![Screenshot of the web front end the Aspire Shop sample](./images/aspireshop-frontend-complete.png)

@@ -1,17 +1,3 @@
----
-languages:
-- python
-- javascript
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Python App sample"
-urlFragment: "aspire-python"
-description: "An example of integrating a FastAPI app and a JavaScript frontend using Aspire."
----
-
 # Integrating a FastAPI (Python) app within an Aspire application
 
 This sample demonstrates integrating a FastAPI (Python) app and a JavaSript frontend using Aspire.

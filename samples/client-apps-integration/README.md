@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Client Apps Integration"
-urlFragment: "aspire-client-apps-integration"
-description: "An example of working with client apps (WinForms, WPF, etc.) in an Aspire app."
----
-
 # Working with client apps in an Aspire application
 
 This sample demonstrates working with client apps such as WinForms, WPF, etc., in an Aspire app, such that the client app is launched along with the AppHost project, can resolve services via service discovery, and logs, traces, and metrics are sent via OpenTelemetry to the dashboard.

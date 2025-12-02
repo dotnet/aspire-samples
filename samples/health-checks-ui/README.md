@@ -1,17 +1,3 @@
----
-languages:
-- csharp
-- sql
-- bash
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire ASP.NET Core HealthChecksUI sample"
-urlFragment: "aspire-health-checks-ui"
-description: "An example of adding support for hosting the ASP.NET Core HealthChecksUI container with Aspire."
----
-
 # Configuring health checks & running the ASP.NET Core HealthChecksUI container with Aspire
 
 This sample demonstrates configuring [ASP.NET Core Health Checks](https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks) and running the [ASP.NET Core HealthChecksUI container](https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/blob/master/doc/ui-docker.md) with Aspire.

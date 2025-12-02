@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Database migrations with Entity Framework Core sample app"
-urlFragment: "aspire-efcore-migrations"
-description: "A sample of using Entity Framework Core database migrations feature to update a database schema."
----
-
 # Database migrations with Entity Framework Core sample app
 
 This sample demonstrates how to use Entity Framework Core's [migrations feature](https://learn.microsoft.com/ef/core/managing-schemas/migrations) with Aspire.

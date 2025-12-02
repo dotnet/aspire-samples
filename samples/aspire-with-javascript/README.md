@@ -1,16 +1,3 @@
----
-languages:
-- csharp
-- javascript
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire with Angular, React, and Vue"
-urlFragment: "aspire-angular-react-vue"
-description: "An example of how to integrate several Node.js apps into an Aspire app."
----
-
 # Integrating Angular, React, and Vue with Aspire
 
 This sample demonstrates using the Aspire JavaScript hosting integration to configure and run client-side applications.

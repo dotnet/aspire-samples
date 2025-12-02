@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Custom Resources Sample"
-urlFragment: "aspire-custom-resources"
-description: "An example of writing custom resources for Aspire hosting integrations."
----
-
 # Writing custom resources for Aspire hosting integrations
 
 This sample demonstrates how to write custom resources for Aspire hosting integrations. This is useful when you want to integrate something into the Aspire development experience as a resource that isn't an executable or container. Custom resources can particpate in the Aspire development experience, including the dashboard, and can be used to integrate with other tools or services.
