@@ -1,16 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-orleans
-- dotnet-aspire
-page_type: sample
-name: "Orleans Voting sample app on Aspire"
-urlFragment: "orleans-voting-sample-app-on-aspire"
-description: "An Orleans sample demonstrating a voting app on Aspire."
----
-
 # Aspire Orleans sample app
 
 This is a simple .NET app that shows how to use Orleans with Aspire orchestration.

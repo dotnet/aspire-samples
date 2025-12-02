@@ -1,16 +1,3 @@
----
-languages:
-- csharp
-- javascript
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Node.js App sample"
-urlFragment: "aspire-nodejs"
-description: "An example of integrating a Node.js app and an ASP.NET Core HTTP API using Aspire."
----
-
 # Integrating a Node.js app within an Aspire application
 
 This sample demonstrates integrating a Node.js app and an ASP.NET Core HTTP API using Aspire.

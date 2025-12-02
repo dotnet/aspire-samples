@@ -1,16 +1,3 @@
----
-languages:
-- csharp
-- go
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire Container Build Sample"
-urlFragment: "aspire-container-build"
-description: "An example of integrating apps written in other languages using container-based builds in a Aspire app."
----
-
 # Working with container-built resources in a Aspire application
 
 This sample demonstrates integrating applications into a Aspire app via Dockerfiles and container-based builds. This is especially helpful to integrate applications written in languages that Aspire does not have a native integration for, or to reduce the prerequisites required to run the application.

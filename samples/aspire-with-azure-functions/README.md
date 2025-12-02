@@ -1,15 +1,3 @@
----
-languages:
-- csharp
-products:
-- dotnet
-- dotnet-aspire
-page_type: sample
-name: "Aspire and Functions image gallery sample"
-urlFragment: "aspire-azure-functions-with-blob-triggers"
-description: "An example image gallery app written with Aspire and Azure Functions."
----
-
 # Image Gallery
 
 ![Screenshot of the web frontend the Aspire with Azure Functions sample](./images/aspire-with-functions.png)
