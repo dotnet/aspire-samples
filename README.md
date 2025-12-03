@@ -1,51 +1,60 @@
-# .NET Aspire Samples
+# Aspire Samples
 
 [![CI (main)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml/badge.svg)](https://github.com/dotnet/aspire-samples/actions/workflows/ci.yml)
 
-Samples for .NET Aspire.
+Samples for [Aspire](https://aspire.dev).
 
-[.NET Aspire](https://aka.ms/aspireannouncement) is a stack for building resilient, observable, cloud-native apps with .NET.
+[Aspire](https://aspire.dev) is a developer-first toolset that streamlines integrating front-ends, APIs, containers, and databases with your apps. [Learn more about Aspire here](https://aspire.dev/get-started/what-is-aspire/).
 
-## Official Samples
+## Samples in this repository
 
-Official samples hosted in this repo can be accessed via the [Samples browser](https://learn.microsoft.com/samples/browse/?expanded=dotnet&products=dotnet-aspire).
-
-Sample highlights include:
-
-- [Aspire Shop](./samples/AspireShop/)
-- [Custom metrics visualization with OpenTelemetry, Prometheus & Grafana](./samples/Metrics)
-- [Integrating a Node.js app](./samples/AspireWithNode)
-- [Integrating frontend apps using React, Vue, Angular, etc.](./samples/AspireWithJavaScript)
-- [Integrating a Go app using a Dockerfile](./samples/ContainerBuild)
-- [Integrating Orleans](./samples/OrleansVoting)
-- [Persisting data in composed containers using volume mounts](./samples/VolumeMount)
-- [Working with and initializing database containers](./samples/DatabaseContainers)
-- [Running Entity Framework Core migrations](./samples/DatabaseMigrations)
-- [Integrating clients apps like WinForms](./samples/ClientAppsIntegration)
+| Sample Name | Languages Used | Technologies Used | Description |
+|-------------|---------------|------------------|-------------|
+| [Aspire Shop](./samples/aspire-shop/) | C# | ASP.NET Core, Redis, PostgreSQL, Containers | Distributed e-commerce sample app demonstrating Aspire integration. |
+| [Integrating a Node.js App](./samples/aspire-with-node) | JavaScript, C# | Node.js | Example of integrating a [Node.js](https://nodejs.org/) backend with Aspire. |
+| [Integrating Frontend Apps](./samples/aspire-with-javascript) | JavaScript, TypeScript, C# | React, Vue, Angular | Demonstrates integration of popular frontend frameworks such as [React](https://react.dev/), [Vue](https://vuejs.org/), etc. |
+| [Integrating Python Apps](./samples/aspire-with-python) | Python, JavaScript | FastAPI, React | Example of integrating a [FastAPI](https://fastapi.tiangolo.com/) backend and a JavaScript frontend with Aspire. |
+| [Integrating a Go App](./samples/container-build) | Go | Gin, Containers | Shows how to add a [Go Gin](https://gin-gonic.com/) app being built via Dockerfile to Aspire. |
+| [Integrating Orleans](./samples/orleans-voting) | C# | Orleans | Sample for distributed actor model integration with [Orleans](https://learn.microsoft.com/dotnet/orleans/overview). |
+| [Persisting Data with Volume Mounts](./samples/volume-mount) | C# | Containers, Azure Storage, SQL Server | Demonstrates using volume mounts for data persistence in containers. |
+| [Working with Database Containers](./samples/database-containers) | C#, SQL | PostgreSQL, MongoDB, SQL Server | Shows how to initialize and use database containers. |
+| [Running EF Core Migrations](./samples/database-migrations) | C# | ASP.NET Core, Entity Framework Core | Example of running [Entity Framework Core](https://learn.microsoft.com/ef/core/) migrations in Aspire apps. |
+| [Integrating Client Apps](./samples/client-apps-integration) | C# | Windows Forms, WPF | Demonstrates integration of Windows client apps using [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/overview/) or [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview/). |
+| [Custom Metrics Visualization](./samples/metrics) | C# | Prometheus, Grafana | Shows how to collect and visualize custom metrics using [Grafana](https://grafana.com/). |
+| [Standalone Aspire dashboard](./samples/standalone-dashboard) | C# | Aspire Dashboard | Demonstrates using the standalone [Aspire dashboard](https://aspire.dev/dashboard/overview/) container to visualize OpenTelemetry from any application. |
+| [Custom Aspire hosting resources](./samples/custom-resources) | C# | Aspire AppHost | Demonstrates authoring custom hosting resources with Aspire. |
+| [HealthChecksUI](./samples/health-checks-ui) | C# | ASP.NET Core, Containers, Docker Compose | Demonstrates resources with separate isolated endpoints for health checks. |
+| [Azure Functions](./samples/aspire-with-azure-functions) | C# | ASP.NET Core, Blazor, Azure Functions, Azure Blob Storage | Shows how to integrate [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) with Aspire. |
 
 ## eShop
 
-[eShop](https://github.com/dotnet/eshop) is a reference .NET application implementing an eCommerce web site using a services-based architecture using .NET Aspire.
+[eShop](https://github.com/dotnet/eshop) is a reference application implementing an eCommerce web site on a services-based architecture using Aspire.
 
-## .NET Aspire Links
+## Aspire Links
 
-- [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire)
-- [.NET Aspire Blog](https://aka.ms/dotnet/aspire/blog)
-- [.NET Aspire GitHub](https://github.com/dotnet/aspire)
+- [Aspire Documentation](https://aspire.dev/docs/)
+- [Aspire Blog](https://devblogs.microsoft.com/aspire/)
+- [Aspire GitHub](https://github.com/dotnet/aspire)
 
 ## License
 
-.NET (including the aspire-samples repo) is licensed under the [MIT license](./LICENSE).
+These samples are licensed under the [MIT license](./LICENSE).
 
 ## Disclaimer
 
 The sample applications provided in this repository are intended to illustrate individual concepts that may be beneficial in understanding the underlying technology and its potential uses. These samples may not illustrate best practices for production environments.
 
-The code is not intended for operational deployment. Users should exercise caution and not rely on the samples as a foundation for any commercial or production use. See [ASP.NET Core security topics](https://learn.microsoft.com/aspnet/core/security/) for more information on security concerns related to hosting ASP.NET Core applications.
+The code is not intended for operational deployment. Users should exercise caution and not rely on the samples as a foundation for any commercial or production use.
+
+See the following links for more information on best practices and security considerations when hosting applications:
+
+- [ASP.NET Core security topics](https://learn.microsoft.com/aspnet/core/security/)
+- [Node.js security best practices](https://nodejs.org/en/learn/getting-started/security-best-practices)
+- [FastAPI security](https://fastapi.tiangolo.com/tutorial/security/)
 
 ## Contributing
 
-We welcome contributions to this repository of samples related to official .NET Aspire features and integrations (i.e. those pieces whose code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
+We welcome contributions to this repository of samples related to official Aspire features and integrations (i.e. those pieces whose code lives in the [Aspire repo](https://github.com/dotnet/aspire) and that ship from the [**Aspire** NuGet account](https://www.nuget.org/profiles/aspire)). It's generally a good idea to [log an issue](https://github.com/dotnet/aspire-samples/issues/new/choose) first to discuss any idea for a sample with the team before sending a pull request.
 
 ## Code of conduct
 

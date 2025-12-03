@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="ImageGallery.AppHost/ImageGallery.AppHost.csproj" />
+  <Project Path="ImageGallery.FrontEnd/ImageGallery.FrontEnd.csproj" />
+  <Project Path="ImageGallery.Functions/ImageGallery.Functions.csproj" />
+  <Project Path="ImageGallery.ServiceDefaults/ImageGallery.ServiceDefaults.csproj" />
+  <Project Path="ImageGallery.Shared/ImageGallery.Shared.csproj" />
+</Solution>

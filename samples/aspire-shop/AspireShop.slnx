@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="deploy-az-cli.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="AspireShop.AppHost/AspireShop.AppHost.csproj" />
+  <Project Path="AspireShop.BasketService/AspireShop.BasketService.csproj" />
+  <Project Path="AspireShop.CatalogDb/AspireShop.CatalogDb.csproj" />
+  <Project Path="AspireShop.CatalogDbManager/AspireShop.CatalogDbManager.csproj" />
+  <Project Path="AspireShop.CatalogService/AspireShop.CatalogService.csproj" />
+  <Project Path="AspireShop.Frontend/AspireShop.Frontend.csproj" />
+  <Project Path="AspireShop.ServiceDefaults/AspireShop.ServiceDefaults.csproj" />
+</Solution>

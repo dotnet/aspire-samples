@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.0.1" />
+
+    <PackageReference Include="Microsoft.Orleans.Clustering.Redis" Version="9.2.1" />
+    <PackageReference Include="Microsoft.Orleans.Persistence.Redis" Version="9.2.1" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="9.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrleansVoting.ServiceDefaults\OrleansVoting.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="HealthChecksUI.ApiService/HealthChecksUI.ApiService.csproj" />
+  <Project Path="HealthChecksUI.AppHost/HealthChecksUI.AppHost.csproj" />
+  <Project Path="HealthChecksUI.ServiceDefaults/HealthChecksUI.ServiceDefaults.csproj" />
+  <Project Path="HealthChecksUI.Web/HealthChecksUI.Web.csproj" />
+</Solution>

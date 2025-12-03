@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="AspireWithNode.AppHost/AspireWithNode.AppHost.csproj" />
+  <Project Path="AspireWithNode.AspNetCoreApi/AspireWithNode.AspNetCoreApi.csproj" />
+  <Project Path="AspireWithNode.ServiceDefaults/AspireWithNode.ServiceDefaults.csproj" />
+</Solution>

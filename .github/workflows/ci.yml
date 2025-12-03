@@ -1,4 +1,4 @@
-name: .NET Aspire Samples CI
+name: Aspire Samples CI
 
 on:
   push:
@@ -32,11 +32,11 @@ jobs:
       SuppressNETCoreSdkPreviewMessage: true
       DCP_DIAGNOSTICS_LOG_LEVEL: 'debug'
     steps:
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
   
     - name: Install Docker (latest version)
       if: matrix.os == 'ubuntu-latest'
-      uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 #v4.3.0
+      uses: docker/setup-docker-action@e61617a16c407a86262fb923c35a616ddbe070b3 #v4.6.0
 
     - name: Install Azure Functions Core Tools
       if: matrix.os == 'ubuntu-latest'
@@ -47,18 +47,16 @@ jobs:
         sudo apt-get install azure-functions-core-tools-4
 
     - name: Install .NET SDK (global.json)
-      uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab # v4.3.0
+      uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
       with:
-        global-json-file: ${{ matrix.os == 'ubuntu-latest' && './global.json' || '.\global.json' }}
-        dotnet-version: | 
-          8.0.x
+        global-json-file: ${{ matrix.os == 'ubuntu-latest' && './build/global.json' || '.\build\global.json' }}
     
     - name: Print .NET info
       run: dotnet --info
 
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+    - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
       with:
-        node-version: '20.x'
+        node-version: '24.x'
 
     - name: Install & trust dev-certs
       id: install-dev-certs
@@ -67,7 +65,30 @@ jobs:
       run: dotnet dev-certs https --trust
 
     - name: Build
-      run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+      run: ${{ matrix.os == 'ubuntu-latest' && './build/build.sh' || '.\build\build.cmd' }}
+
+    - name: Copy binlog files
+      if: always()
+      shell: pwsh
+      run: |
+        $binlogFiles = Get-ChildItem -Path . -Filter *.binlog -Recurse
+        if ($binlogFiles.Count -gt 0) {
+          New-Item -ItemType Directory -Force -Path ./BuildLogs
+          foreach ($file in $binlogFiles) {
+            Copy-Item -Path $file.FullName -Destination ./BuildLogs
+            Write-Host "Copied: $($file.FullName)"
+          }
+        } else {
+          Write-Host "No .binlog files found"
+        }
+
+    - name: Publish binlog files
+      if: always()
+      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+      with:
+        name: BuildLogs_${{ matrix.os }}
+        path: ./BuildLogs
+        if-no-files-found: ignore
 
     - name: Test
       id: test
@@ -75,7 +96,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       # Note that the space after the last double dash (--) is intentional
       run: >
-        dotnet test ./tests/SamplesTests.sln
+        dotnet test ./tests/SamplesTests.slnx
         --logger console --logger trx --logger html --logger GitHubActions
         --results-directory ./TestResults --blame
         -- 
@@ -85,7 +106,8 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       run: |
         mkdir -p ./TestResults/DCPLogs
-        cp -r /tmp/dcp/logs/* ./TestResults/DCPLogs
+        TEMP_DIR="${TMPDIR:-/tmp}"
+        cp -r "$TEMP_DIR/dcp/logs/"* ./TestResults/DCPLogs
     
     - name: Publish Test Results
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
