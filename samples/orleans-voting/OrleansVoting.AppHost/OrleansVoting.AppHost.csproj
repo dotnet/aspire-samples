@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.0" />
-    <PackageReference Include="Aspire.Hosting.Orleans" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.1" />
+    <PackageReference Include="Aspire.Hosting.Orleans" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
