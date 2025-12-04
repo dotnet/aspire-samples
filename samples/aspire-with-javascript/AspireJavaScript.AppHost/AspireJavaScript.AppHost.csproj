@@ -10,7 +10,7 @@
 
   <ItemGroup>
   <ProjectReference Include="..\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj" />
-    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.1" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.2" />
   </ItemGroup>
 
 </Project>

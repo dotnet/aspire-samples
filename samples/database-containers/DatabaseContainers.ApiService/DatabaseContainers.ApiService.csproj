@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.0.1" />
-    <PackageReference Include="Aspire.Npgsql" Version="13.0.1" />
-    <PackageReference Include="Aspire.MySqlConnector" Version="13.0.1" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="13.0.2" />
+    <PackageReference Include="Aspire.Npgsql" Version="13.0.2" />
+    <PackageReference Include="Aspire.MySqlConnector" Version="13.0.2" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
   </ItemGroup>
