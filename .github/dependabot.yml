@@ -53,7 +53,21 @@ updates:
       interval: weekly
     open-pull-requests-limit: 1
     groups:
-      all-dependencies:
+      angular-core:
+        patterns:
+          - "@angular/*"
+          - "@angular/cli"
+          - "zone.js"
+          - "rxjs"
+      angular-tooling:
+        patterns:
+          - "@angular-devkit/*"
+          - "typescript"
+          - "@types/*"
+          - "eslint*"
+          - "karma*"
+          - "webpack*"
+      misc-deps:
         patterns:
           - "*"
     labels:
@@ -65,7 +79,19 @@ updates:
       interval: weekly
     open-pull-requests-limit: 1
     groups:
-      all-dependencies:
+      react-core:
+        patterns:
+          - "react"
+          - "react-dom"
+      react-tooling:
+        patterns:
+          - "typescript"
+          - "@types/*"
+          - "eslint*"
+          - "jest*"
+          - "vite*"
+          - "webpack*"
+      misc-deps:
         patterns:
           - "*"
     labels:
@@ -77,7 +103,19 @@ updates:
       interval: weekly
     open-pull-requests-limit: 1
     groups:
-      all-dependencies:
+      vue-core:
+        patterns:
+          - "vue"
+          - "@vue/*"
+          - "vue-router"
+          - "pinia"
+      vue-tooling:
+        patterns:
+          - "vite*"
+          - "typescript"
+          - "@types/*"
+          - "eslint*"
+      misc-deps:
         patterns:
           - "*"
     labels:
