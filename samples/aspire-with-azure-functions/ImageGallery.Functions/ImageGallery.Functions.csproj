@@ -16,8 +16,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.8.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.3" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
-    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="13.0.1" />
-    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="13.0.1" />
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="13.0.2" />
+    <PackageReference Include="Aspire.Azure.Storage.Queues" Version="13.0.2" />
     <PackageReference Include="SkiaSharp" Version="3.119.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
   </ItemGroup>

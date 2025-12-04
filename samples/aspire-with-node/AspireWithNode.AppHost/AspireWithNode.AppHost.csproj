@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspireWithNode.AspNetCoreApi\AspireWithNode.AspNetCoreApi.csproj" />
-    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.1" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.1" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.0.2" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.2" />
   </ItemGroup>
 
 </Project>
