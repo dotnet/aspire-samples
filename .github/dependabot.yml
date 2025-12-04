@@ -56,7 +56,6 @@ updates:
       angular-core:
         patterns:
           - "@angular/*"
-          - "@angular/cli"
           - "zone.js"
           - "rxjs"
       angular-tooling:
@@ -90,6 +89,7 @@ updates:
           - "eslint*"
           - "jest*"
           - "vite*"
+          - "@vitejs/*"
           - "webpack*"
       misc-deps:
         patterns:
@@ -112,6 +112,7 @@ updates:
       vue-tooling:
         patterns:
           - "vite*"
+          - "@vitejs/*"
           - "typescript"
           - "@types/*"
           - "eslint*"
