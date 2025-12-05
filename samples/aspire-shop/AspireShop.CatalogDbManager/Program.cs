@@ -1,13 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AspireShop.CatalogDb;
 using AspireShop.CatalogDbManager;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb", null,
     optionsBuilder => optionsBuilder.UseNpgsql(npgsqlBuilder =>
-        npgsqlBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name)));
+    {
+        npgsqlBuilder.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+        npgsqlBuilder.ConfigureDataSource(dataSourceBuilder =>
+        {
+            dataSourceBuilder.ConfigureTracing(options =>
+            {
+                options.ConfigureCommandFilter(cmd =>
+                {
+                    // Don't trace commands related to the health check to avoid filling the dashboard with noise
+                    if (cmd.CommandText.Contains("SELECT 1"))
+                    {
+                        return false;
+                    }
+                    return true;
+                });
+            });
+        });
+    }));
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(CatalogDbInitializer.ActivitySourceName));

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -12,6 +13,7 @@ namespace Microsoft.Extensions.Hosting;
 public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
+    private const string GrpcHealthEndpointPath = "/grpc.health.v1.Health/Check";
     private const string AlivenessEndpointPath = "/alive";
 
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
@@ -57,11 +59,40 @@ public static class Extensions
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
                         tracing.Filter = httpContext =>
-                            !(httpContext.Request.Path.StartsWithSegments(HealthEndpointPath)
-                              || httpContext.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                        {
+                            var path = httpContext.Request.Path;
+                            if (path.StartsWithSegments(HealthEndpointPath) ||
+                                path.StartsWithSegments(GrpcHealthEndpointPath) ||
+                                path.StartsWithSegments(AlivenessEndpointPath))
+                                return false;
+                            return true;
+                        }
                     )
-                    .AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
+                    .AddGrpcClientInstrumentation(grpcOptions =>
+                        // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
+                        grpcOptions.EnrichWithHttpRequestMessage = (activity, request) =>
+                        {
+                            if (request.RequestUri?.AbsolutePath == GrpcHealthEndpointPath)
+                            {
+                                activity.IsAllDataRequested = false;
+                                activity.ActivityTraceFlags = ActivityTraceFlags.None;
+                            }
+                        }
+                    )
+                    .AddHttpClientInstrumentation(httpOptions =>
+                        // Don't trace requests to the health endpoint to avoid filling the dashboard with noise
+                        httpOptions.FilterHttpRequestMessage = (request) =>
+                        {
+                            var path = request.RequestUri?.AbsolutePath ?? string.Empty;
+                            if (path.StartsWith(HealthEndpointPath) ||
+                                path.StartsWith(GrpcHealthEndpointPath) ||
+                                path.StartsWith(AlivenessEndpointPath))
+                            {
+                                return false;
+                            }
+                            return true;
+                        }
+                    );
             });
 
         builder.AddOpenTelemetryExporters();
