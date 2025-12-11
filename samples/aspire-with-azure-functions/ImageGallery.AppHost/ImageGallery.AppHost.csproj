@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" Version="13.0.2" />
-    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="13.0.2" />
-    <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.0.2-preview.1.25603.5" />
+    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" />
+    <PackageReference Include="Aspire.Hosting.Azure.Functions" />
   </ItemGroup>
 
   <ItemGroup>
