@@ -28,7 +28,7 @@
     </PackageReference>
 
     <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.1.0" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.7.0" />
   </ItemGroup>
 

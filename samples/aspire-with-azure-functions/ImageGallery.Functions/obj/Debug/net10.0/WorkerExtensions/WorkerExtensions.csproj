@@ -1,0 +1,19 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>Microsoft.Azure.Functions.Worker.Extensions</AssemblyName>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETCore.Targets" Version="3.0.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.6.0" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage.Blobs" Version="5.3.6" />
+    </ItemGroup>
+
+    <Target Name="_VerifyTargetFramework" BeforeTargets="Build">
+        <!-- It is possible to override our TFM via global properties. This can lead to successful builds, but runtime errors due to incompatible dependencies being brought in. -->
+        <Error Condition="'$(TargetFramework)' != 'net8.0'" Text="The target framework '$(TargetFramework)' must be 'net8.0'. Verify if target framework has been overridden by a global property." />
+    </Target>
+</Project>
