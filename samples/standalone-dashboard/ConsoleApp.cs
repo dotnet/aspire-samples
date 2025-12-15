@@ -1,4 +1,4 @@
-﻿#:package Microsoft.Extensions.Hosting@10.0.0
+﻿#:package Microsoft.Extensions.Hosting@10.0.1
 #:package OpenTelemetry.Exporter.OpenTelemetryProtocol@1.14.0
 #:package OpenTelemetry.Extensions.Hosting@1.14.0
 #:package OpenTelemetry.Instrumentation.Http@1.14.0
