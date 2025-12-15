@@ -1,4 +1,4 @@
-#:sdk Aspire.AppHost.Sdk@13.0.0
+#:sdk Aspire.AppHost.Sdk@13.1.0
 #:package Aspire.Hosting.JavaScript@13.0.0
 #:package Aspire.Hosting.Python@13.0.0
 #:package Aspire.Hosting.Redis@13.0.0

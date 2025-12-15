@@ -6,13 +6,13 @@
 
   <ItemGroup>
     <!-- Aspire Hosting -->
-    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.0.2" />
-    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.0.2" />
-    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.0.2-preview.1.25603.5" />
+    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.1.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.1.0" />
     
     <!-- Aspire Azure -->
-    <PackageVersion Include="Aspire.Azure.Storage.Queues" Version="13.0.2" />
-    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.0.2" />
+    <PackageVersion Include="Aspire.Azure.Storage.Queues" Version="13.1.0" />
+    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.1.0" />
     
     <!-- Azure Functions -->
     <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
@@ -22,8 +22,8 @@
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
     
     <!-- Microsoft Extensions -->
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0" />
     
     <!-- OpenTelemetry -->
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
