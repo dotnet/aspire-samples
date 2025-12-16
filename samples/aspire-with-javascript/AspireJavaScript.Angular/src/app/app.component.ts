@@ -17,9 +17,13 @@ export class AppComponent {
   forecasts: WeatherForecasts = [];
 
   constructor(private http: HttpClient) {
-    http.get<WeatherForecasts>('api/weatherforecast').subscribe({
+    http.get<WeatherForecasts>('/api/weatherforecast').subscribe({
       next: result => this.forecasts = result,
       error: console.error
     });
+  }
+
+  trackByDate(_index: number, forecast: any) {
+    return forecast.date;
   }
 }

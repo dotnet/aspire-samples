@@ -56,21 +56,22 @@
         </defs>
       </svg>
       <h1>Hello, {{ title }}</h1>
-      <table>
+      <table id="weatherTable">
         <thead>
           <tr>
             <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th aria-label="Temperature in Celsius">Temp. (C)</th>
+            <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
+            <th aria-label="Weather forecast summary">Summary</th>
           </tr>
         </thead>
+
         <tbody>
-          <tr *ngFor="let forecast of forecasts; index as i;">
+          <tr *ngFor="let forecast of forecasts; trackBy: trackByDate">
             <td>{{forecast.date}}</td>
-              <td>{{forecast.temperatureC}}</td>
-              <td>{{forecast.temperatureF}}</td>
-              <td>{{forecast.summary}}</td>
+            <td>{{forecast.temperatureC}}</td>
+            <td>{{forecast.temperatureF}}</td>
+            <td>{{forecast.summary}}</td>
           </tr>
         </tbody>
       </table>
