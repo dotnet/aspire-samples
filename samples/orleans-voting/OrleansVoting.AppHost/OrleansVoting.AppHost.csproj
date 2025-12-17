@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.2" />
-    <PackageReference Include="Aspire.Hosting.Orleans" Version="13.0.2" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.0" />
+    <PackageReference Include="Aspire.Hosting.Orleans" Version="13.1.0" />
   </ItemGroup>
 
   <ItemGroup>
