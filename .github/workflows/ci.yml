@@ -36,7 +36,7 @@ jobs:
   
     - name: Install Docker (latest version)
       if: matrix.os == 'ubuntu-latest'
-      uses: docker/setup-docker-action@e61617a16c407a86262fb923c35a616ddbe070b3 #v4.6.0
+      uses: docker/setup-docker-action@e43656e248c0bd0647d3f5c195d116aacf6fcaf4 #v4.7.0
 
     - name: Install Azure Functions Core Tools
       if: matrix.os == 'ubuntu-latest'
