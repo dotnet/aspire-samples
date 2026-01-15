@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
 
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
   </ItemGroup>
