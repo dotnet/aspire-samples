@@ -7,5 +7,8 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>00d08ee4-b2e0-4d12-827c-d131fda1c6f6</UserSecretsId>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+  </ItemGroup>
 
 </Project>
