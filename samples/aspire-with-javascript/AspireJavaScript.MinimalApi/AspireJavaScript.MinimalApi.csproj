@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.11.6" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.12.18" />
   </ItemGroup>
 
   <ItemGroup>
