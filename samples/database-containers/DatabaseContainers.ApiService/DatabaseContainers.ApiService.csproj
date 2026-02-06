@@ -16,7 +16,7 @@
     <PackageReference Include="Aspire.Npgsql" Version="13.1.0" />
     <PackageReference Include="Aspire.MySqlConnector" Version="13.1.0" />
     <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.2" />
   </ItemGroup>
 
 </Project>
