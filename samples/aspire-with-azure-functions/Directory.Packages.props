@@ -33,7 +33,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0" />
     
     <!-- SkiaSharp -->
-    <PackageVersion Include="SkiaSharp" Version="3.119.1" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.2" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
   </ItemGroup>
 
