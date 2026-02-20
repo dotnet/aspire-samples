@@ -125,7 +125,7 @@ public class AppHostTests(ITestOutputHelper testOutput)
                 { "frontend", ["/alive", "/health", "/"] }
             }),
             new TestEndpoints("AspireJavaScript.AppHost", new() {
-                { "weatherapi", ["/alive", "/health", "/weatherforecast", "/scalar"] },
+                { "weatherapi", ["/alive", "/health", "/api/weatherforecast", "/scalar"] },
                 { "angular", ["/"] },
                 { "react", ["/"] },
                 { "vue", ["/"] }
