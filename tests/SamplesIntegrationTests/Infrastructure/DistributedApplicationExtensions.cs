@@ -112,9 +112,9 @@ public static partial class DistributedApplicationExtensions
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
-        foreach (var volumeName in volumeNames)
+        if (volumeNames.Count > 0)
         {
-            await TryRemoveDockerVolumeAsync(volumeName, log, cancellationToken);
+            await TryRemoveDockerVolumesAsync(volumeNames, log, cancellationToken);
         }
     }
 
@@ -394,8 +394,9 @@ public static partial class DistributedApplicationExtensions
     private static string CreateRandomizedVolumeName(string sourceVolumeName)
         => $"{TestVolumePrefix}{sourceVolumeName}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}";
 
-    private static async Task TryRemoveDockerVolumeAsync(string volumeName, Action<string>? log, CancellationToken cancellationToken)
+    private static async Task TryRemoveDockerVolumesAsync(IReadOnlyList<string> volumeNames, Action<string>? log, CancellationToken cancellationToken)
     {
+        var volumeNamesText = string.Join(", ", volumeNames);
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -410,13 +411,16 @@ public static partial class DistributedApplicationExtensions
         process.StartInfo.ArgumentList.Add("volume");
         process.StartInfo.ArgumentList.Add("rm");
         process.StartInfo.ArgumentList.Add("-f");
-        process.StartInfo.ArgumentList.Add(volumeName);
+        foreach (var volumeName in volumeNames)
+        {
+            process.StartInfo.ArgumentList.Add(volumeName);
+        }
 
         try
         {
             if (!process.Start())
             {
-                log?.Invoke($"Failed to start docker process while cleaning volume '{volumeName}'.");
+                log?.Invoke($"Failed to start docker process while cleaning volumes [{volumeNamesText}].");
                 return;
             }
 
@@ -432,8 +436,8 @@ public static partial class DistributedApplicationExtensions
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                log?.Invoke($"Timed out cleaning docker volume '{volumeName}' after {DockerVolumeCleanupTimeout.TotalSeconds:0} seconds.");
-                TryKillProcess(process, log, volumeName);
+                log?.Invoke($"Timed out cleaning docker volumes [{volumeNamesText}] after {DockerVolumeCleanupTimeout.TotalSeconds:0} seconds.");
+                TryKillProcess(process, log, volumeNamesText);
                 return;
             }
 
@@ -442,18 +446,18 @@ public static partial class DistributedApplicationExtensions
 
             if (process.ExitCode != 0)
             {
-                log?.Invoke($"Docker volume cleanup for '{volumeName}' exited with code {process.ExitCode}. stdout: {stdOut} stderr: {stdErr}");
+                log?.Invoke($"Docker volume cleanup for [{volumeNamesText}] exited with code {process.ExitCode}. stdout: {stdOut} stderr: {stdErr}");
                 return;
             }
 
             if (!string.IsNullOrEmpty(stdErr))
             {
-                log?.Invoke($"Docker volume cleanup warning for '{volumeName}': {stdErr}");
+                log?.Invoke($"Docker volume cleanup warning for [{volumeNamesText}]: {stdErr}");
             }
         }
         catch (Exception ex)
         {
-            log?.Invoke($"Docker volume cleanup failed for '{volumeName}': {ex.Message}");
+            log?.Invoke($"Docker volume cleanup failed for [{volumeNamesText}]: {ex.Message}");
         }
     }
 
