@@ -17,6 +17,9 @@ namespace SamplesIntegrationTests.Infrastructure;
 
 public static partial class DistributedApplicationExtensions
 {
+    private const string TestVolumePrefix = "aspire-samples-";
+    private static readonly TimeSpan DockerVolumeCleanupTimeout = TimeSpan.FromSeconds(30);
+
     /// <summary>
     /// Ensures all parameters in the application configuration have values set.
     /// </summary>
@@ -54,16 +57,15 @@ public static partial class DistributedApplicationExtensions
     }
 
     /// <summary>
-    /// Replaces all named volumes with anonymous volumes so they're isolated across test runs and from the volume the app uses during development.
+    /// Replaces all named volumes with randomized names so they're isolated across test runs and from the volume the app uses during development.
     /// </summary>
     /// <remarks>
-    /// Note that if multiple resources share a volume, the volume will instead be given a random name so that it's still shared across those resources in the test run.
+    /// Note that if multiple resources share a volume, they are all assigned the same randomized volume name so the volume remains shared in the test run.
     /// </remarks>
     public static TBuilder WithRandomVolumeNames<TBuilder>(this TBuilder builder)
         where TBuilder : IDistributedApplicationTestingBuilder
     {
-        // Named volumes that aren't shared across resources should be replaced with anonymous volumes.
-        // Named volumes shared by mulitple resources need to have their name randomized but kept shared across those resources.
+        // Named volumes shared by multiple resources need to have their name randomized but kept shared across those resources.
 
         // Find all shared volumes and make a map of their original name to a new randomized name
         var allResourceNamedVolumes = builder.Resources.SelectMany(r => r.Annotations
@@ -78,22 +80,42 @@ public static partial class DistributedApplicationExtensions
             var name = resourceVolume.Volume.Source!;
             if (!seenVolumes.Add(name) && !renamedVolumes.ContainsKey(name))
             {
-                renamedVolumes[name] = $"{name}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}";
+                renamedVolumes[name] = CreateRandomizedVolumeName(name);
             }
         }
 
-        // Replace all named volumes with randomly named or anonymous volumes
+        // Replace all named volumes with randomized names.
         foreach (var resourceVolume in allResourceNamedVolumes)
         {
             var resource = resourceVolume.Resource;
             var volume = resourceVolume.Volume;
-            var newName = renamedVolumes.TryGetValue(volume.Source!, out var randomName) ? randomName : null;
+            var newName = renamedVolumes.TryGetValue(volume.Source!, out var randomName)
+                ? randomName
+                : CreateRandomizedVolumeName(volume.Source!);
             var newMount = new ContainerMountAnnotation(newName, volume.Target, ContainerMountType.Volume, volume.IsReadOnly);
             resource.Annotations.Remove(volume);
             resource.Annotations.Add(newMount);
         }
 
         return builder;
+    }
+
+    public static async Task CleanupRandomizedVolumesAsync(this DistributedApplication app, Action<string>? log = null, CancellationToken cancellationToken = default)
+    {
+        var volumeNames = app.Services.GetRequiredService<DistributedApplicationModel>()
+            .Resources
+            .SelectMany(r => r.Annotations.OfType<ContainerMountAnnotation>())
+            .Where(m => m.Type == ContainerMountType.Volume
+                && !string.IsNullOrEmpty(m.Source)
+                && m.Source.StartsWith(TestVolumePrefix, StringComparison.Ordinal))
+            .Select(m => m.Source!)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (volumeNames.Count > 0)
+        {
+            await TryRemoveDockerVolumesAsync(volumeNames, log, cancellationToken);
+        }
     }
 
     /// <summary>
@@ -367,5 +389,90 @@ public static partial class DistributedApplicationExtensions
         }
 
         return false;
+    }
+
+    private static string CreateRandomizedVolumeName(string sourceVolumeName)
+        => $"{TestVolumePrefix}{sourceVolumeName}-{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}";
+
+    private static async Task TryRemoveDockerVolumesAsync(IReadOnlyList<string> volumeNames, Action<string>? log, CancellationToken cancellationToken)
+    {
+        var volumeNamesText = string.Join(", ", volumeNames);
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "docker",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+        process.StartInfo.ArgumentList.Add("volume");
+        process.StartInfo.ArgumentList.Add("rm");
+        process.StartInfo.ArgumentList.Add("-f");
+        foreach (var volumeName in volumeNames)
+        {
+            process.StartInfo.ArgumentList.Add(volumeName);
+        }
+
+        try
+        {
+            if (!process.Start())
+            {
+                log?.Invoke($"Failed to start docker process while cleaning volumes [{volumeNamesText}].");
+                return;
+            }
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(DockerVolumeCleanupTimeout);
+
+            var stdOutTask = process.StandardOutput.ReadToEndAsync(timeoutCts.Token);
+            var stdErrTask = process.StandardError.ReadToEndAsync(timeoutCts.Token);
+
+            try
+            {
+                await process.WaitForExitAsync(timeoutCts.Token);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                log?.Invoke($"Timed out cleaning docker volumes [{volumeNamesText}] after {DockerVolumeCleanupTimeout.TotalSeconds:0} seconds.");
+                TryKillProcess(process, log, volumeNamesText);
+                return;
+            }
+
+            var stdOut = (await stdOutTask).Trim();
+            var stdErr = (await stdErrTask).Trim();
+
+            if (process.ExitCode != 0)
+            {
+                log?.Invoke($"Docker volume cleanup for [{volumeNamesText}] exited with code {process.ExitCode}. stdout: {stdOut} stderr: {stdErr}");
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(stdErr))
+            {
+                log?.Invoke($"Docker volume cleanup warning for [{volumeNamesText}]: {stdErr}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"Docker volume cleanup failed for [{volumeNamesText}]: {ex.Message}");
+        }
+    }
+
+    private static void TryKillProcess(Process process, Action<string>? log, string volumeName)
+    {
+        try
+        {
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"Failed to terminate docker cleanup process for volume '{volumeName}': {ex.Message}");
+        }
     }
 }
