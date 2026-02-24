@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SamplesIntegrationTests.Infrastructure;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -21,13 +23,28 @@ public class AppHostTests(ITestOutputHelper testOutput)
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         await using var app = await appHost.BuildAsync().WaitAsync(BuildStopTimeout);
+        Exception? testException = null;
 
-        await app.StartAsync().WaitAsync(StartStopTimeout);
-        await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
+        try
+        {
+            await app.StartAsync().WaitAsync(StartStopTimeout);
+            await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
 
-        //app.EnsureNoErrorsLogged();
-
-        await app.StopAsync().WaitAsync(BuildStopTimeout);
+            //app.EnsureNoErrorsLogged();
+        }
+        catch (Exception ex)
+        {
+            testException = ex;
+            throw;
+        }
+        finally
+        {
+            var stopException = await StopAndCleanupAsync(app);
+            if (testException is null && stopException is not null)
+            {
+                ExceptionDispatchInfo.Capture(stopException).Throw();
+            }
+        }
     }
 
     [Theory]
@@ -41,71 +58,111 @@ public class AppHostTests(ITestOutputHelper testOutput)
         var appHost = await DistributedApplicationTestFactory.CreateAsync(appHostPath, testOutput);
         var projects = appHost.Resources.OfType<ProjectResource>();
         await using var app = await appHost.BuildAsync().WaitAsync(BuildStopTimeout);
+        Exception? testException = null;
 
-        await app.StartAsync().WaitAsync(StartStopTimeout);
-        await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
-
-        if (testEndpoints.WaitForResources?.Count > 0)
+        try
         {
-            // Wait until each resource transitions to the required state
-            var timeout = TimeSpan.FromMinutes(5);
-            foreach (var (ResourceName, TargetState) in testEndpoints.WaitForResources)
+            await app.StartAsync().WaitAsync(StartStopTimeout);
+            await app.WaitForResourcesAsync().WaitAsync(StartStopTimeout);
+
+            if (testEndpoints.WaitForResources?.Count > 0)
             {
-                await app.WaitForResource(ResourceName, TargetState).WaitAsync(timeout);
-            }
-        }
-
-        foreach (var resource in resourceEndpoints.Keys)
-        {
-            var endpoints = resourceEndpoints[resource];
-
-            if (endpoints.Count == 0)
-            {
-                // No test endpoints so ignore this resource
-                continue;
-            }
-
-            HttpResponseMessage? response = null;
-
-            using var client = app.CreateHttpClient(resource, null, clientBuilder =>
-            {
-                clientBuilder
-                    .ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan)
-                    .AddStandardResilienceHandler(resilience =>
-                    {
-                        resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
-                        resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
-                        resilience.Retry.MaxRetryAttempts = 30;
-                        resilience.CircuitBreaker.SamplingDuration = resilience.AttemptTimeout.Timeout * 2;
-                    });
-            });
-
-            foreach (var path in endpoints)
-            {
-                if (string.Equals("/ApplyDatabaseMigrations", path, StringComparison.OrdinalIgnoreCase)
-                    && projects.FirstOrDefault(p => string.Equals(p.Name, resource, StringComparison.OrdinalIgnoreCase)) is { } project)
+                // Wait until each resource transitions to the required state
+                var timeout = TimeSpan.FromMinutes(5);
+                foreach (var (ResourceName, TargetState) in testEndpoints.WaitForResources)
                 {
-                    await app.TryApplyEfMigrationsAsync(project);
+                    await app.WaitForResource(ResourceName, TargetState).WaitAsync(timeout);
+                }
+            }
+
+            foreach (var resource in resourceEndpoints.Keys)
+            {
+                var endpoints = resourceEndpoints[resource];
+
+                if (endpoints.Count == 0)
+                {
+                    // No test endpoints so ignore this resource
                     continue;
                 }
 
-                testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
-                try
-                {
-                    response = await client.GetAsync(path);
-                }
-                catch(Exception e)
-                {
-                    throw new XunitException($"Failed calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'", e);
-                }
+                HttpResponseMessage? response = null;
 
-                Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
+                using var client = app.CreateHttpClient(resource, null, clientBuilder =>
+                {
+                    clientBuilder
+                        .ConfigureHttpClient(client => client.Timeout = Timeout.InfiniteTimeSpan)
+                        .AddStandardResilienceHandler(resilience =>
+                        {
+                            resilience.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
+                            resilience.AttemptTimeout.Timeout = TimeSpan.FromSeconds(60);
+                            resilience.Retry.MaxRetryAttempts = 30;
+                            resilience.CircuitBreaker.SamplingDuration = resilience.AttemptTimeout.Timeout * 2;
+                        });
+                });
+
+                foreach (var path in endpoints)
+                {
+                    if (string.Equals("/ApplyDatabaseMigrations", path, StringComparison.OrdinalIgnoreCase)
+                        && projects.FirstOrDefault(p => string.Equals(p.Name, resource, StringComparison.OrdinalIgnoreCase)) is { } project)
+                    {
+                        await app.TryApplyEfMigrationsAsync(project);
+                        continue;
+                    }
+
+                    testOutput.WriteLine($"Calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'");
+                    try
+                    {
+                        response = await client.GetAsync(path);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new XunitException($"Failed calling endpoint '{client.BaseAddress}{path.TrimStart('/')} for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}'", e);
+                    }
+
+                    Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{Path.GetFileNameWithoutExtension(appHostPath)}' returned status code {response.StatusCode}");
+                }
+            }
+
+            //app.EnsureNoErrorsLogged();
+        }
+        catch (Exception ex)
+        {
+            testException = ex;
+            throw;
+        }
+        finally
+        {
+            var stopException = await StopAndCleanupAsync(app);
+            if (testException is null && stopException is not null)
+            {
+                ExceptionDispatchInfo.Capture(stopException).Throw();
             }
         }
+    }
 
-        //app.EnsureNoErrorsLogged();
+    private async Task<Exception?> StopAndCleanupAsync(DistributedApplication app)
+    {
+        Exception? stopException = null;
+        try
+        {
+            await app.StopAsync().WaitAsync(BuildStopTimeout);
+        }
+        catch (Exception ex)
+        {
+            stopException = ex;
+            testOutput.WriteLine($"Failed stopping app '{app.Services.GetRequiredService<IHostEnvironment>().ApplicationName}': {ex.Message}");
+        }
 
-        await app.StopAsync().WaitAsync(BuildStopTimeout);
+        try
+        {
+            await app.CleanupRandomizedVolumesAsync(message => testOutput.WriteLine(message));
+        }
+        catch (Exception ex)
+        {
+            testOutput.WriteLine($"Failed cleaning randomized docker volumes: {ex.Message}");
+        }
+
+        return stopException;
     }
 
     public static TheoryData<string> AppHostAssemblies()
