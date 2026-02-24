@@ -17,7 +17,7 @@ namespace SamplesIntegrationTests.Infrastructure;
 
 public static partial class DistributedApplicationExtensions
 {
-    private const string TestVolumePrefix = "samplesit-";
+    private const string TestVolumePrefix = "aspire-samples-";
     private static readonly TimeSpan DockerVolumeCleanupTimeout = TimeSpan.FromSeconds(30);
 
     /// <summary>
