@@ -24,4 +24,6 @@ If using VS Code, open this directory as a workspace and launch the `AspireShop.
 
 If using Visual Studio, open the solution file `AspireShop.slnx` and launch/debug the `AspireShop.AppHost` project.
 
+If using JetBrains Rider, open the solution file `AspireShop.slnx` and launch/debug the `AspireShop.AppHost` project.
+
 If using the .NET CLI, run `dotnet run` from the `AspireShop.AppHost` directory.
