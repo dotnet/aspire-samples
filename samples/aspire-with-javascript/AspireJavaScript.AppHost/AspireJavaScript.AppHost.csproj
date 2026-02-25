@@ -9,8 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.1" />
   <ProjectReference Include="..\AspireJavaScript.MinimalApi\AspireJavaScript.MinimalApi.csproj" />
-    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.1.0" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.1.1" />
   </ItemGroup>
 
 </Project>
