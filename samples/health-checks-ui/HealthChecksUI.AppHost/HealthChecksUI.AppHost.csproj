@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Docker" Version="13.1.0-preview.1.25616.3" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.0" />
+  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
   </ItemGroup>
 
 </Project>
