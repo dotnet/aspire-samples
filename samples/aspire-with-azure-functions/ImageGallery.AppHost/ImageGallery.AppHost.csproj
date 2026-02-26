@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Azure" />
     <ProjectReference Include="..\ImageGallery.FrontEnd\ImageGallery.FrontEnd.csproj" />
     <ProjectReference Include="..\ImageGallery.Functions\ImageGallery.Functions.csproj" />
   </ItemGroup>
