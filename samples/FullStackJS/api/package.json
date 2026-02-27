@@ -1,0 +1,22 @@
+{
+  "name": "aspire.node.api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
+    "start": "npx ts-node index.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "5.0.1",
+    "ts-node": "10.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.0",
+    "@types/node": "^22.13.9",
+    "eslint": "^9.21.0",
+    "typescript": "^5.8.2"
+  }
+}
