@@ -17,7 +17,7 @@ Samples for [Aspire](https://aspire.dev).
 | [Integrating a Go App](./samples/container-build) | Go | Gin, Containers | Shows how to add a [Go Gin](https://gin-gonic.com/) app being built via Dockerfile to Aspire. |
 | [Integrating Orleans](./samples/orleans-voting) | C# | Orleans | Sample for distributed actor model integration with [Orleans](https://learn.microsoft.com/dotnet/orleans/overview). |
 | [Persisting Data with Volume Mounts](./samples/volume-mount) | C# | Containers, Azure Storage, SQL Server | Demonstrates using volume mounts for data persistence in containers. |
-| [Working with Database Containers](./samples/database-containers) | C#, SQL | PostgreSQL, MongoDB, SQL Server | Shows how to initialize and use database containers. |
+| [Working with Database Containers](./samples/database-containers) | C#, SQL | PostgreSQL, MySQL, SQL Server | Shows how to initialize and use database containers. |
 | [Running EF Core Migrations](./samples/database-migrations) | C# | ASP.NET Core, Entity Framework Core | Example of running [Entity Framework Core](https://learn.microsoft.com/ef/core/) migrations in Aspire apps. |
 | [Integrating Client Apps](./samples/client-apps-integration) | C# | Windows Forms, WPF | Demonstrates integration of Windows client apps using [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/overview/) or [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview/). |
 | [Custom Metrics Visualization](./samples/metrics) | C# | Prometheus, Grafana | Shows how to collect and visualize custom metrics using [Grafana](https://grafana.com/). |
