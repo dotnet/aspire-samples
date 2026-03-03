@@ -21,16 +21,17 @@ which communicates with a .NET AppHost Server via JSON-RPC.
 To run the polyglot TypeScript apphosts:
 
 1. **Install the staging Aspire CLI** (the stable NuGet CLI does not include TypeScript polyglot support):
+   ```bash
+   # Linux/macOS:
+   curl -sSL https://aspire.dev/install.sh | bash -s -- -q staging
+   ```
    ```powershell
    # Windows (PowerShell):
    iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
    ```
-   ```bash
-   # Linux/macOS:
-   curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
-   ```
    > The stable CLI (`dotnet tool install -g Aspire.Cli`) does **not** detect `apphost.ts` files.
    > You must use the native staging binary from aspire.dev.
+   > See [Polyglot AppHost docs](https://aspiredev.netlify.app/app-host/polyglot-apphost/) for details.
 2. Node.js (v18+) or Bun must be installed
 3. A container runtime (Docker or Podman) must be running — Aspire handles all container orchestration automatically
 4. **Add integration packages** using `aspire add {package}` for each sample (see per-sample setup below)
@@ -346,11 +347,11 @@ To test any of these TypeScript apphosts:
 # Install the STAGING Aspire CLI (required for TypeScript polyglot support)
 # The stable CLI from NuGet (dotnet tool install -g Aspire.Cli) does NOT support apphost.ts.
 
+# On Linux/macOS:
+curl -sSL https://aspire.dev/install.sh | bash -s -- -q staging
+
 # On Windows (PowerShell):
 iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
-
-# On Linux/macOS:
-curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
 
 # Ensure Docker (or Podman) is running — Aspire handles all container orchestration
 
@@ -391,8 +392,8 @@ After running `aspire run` for each sample, update this section with results:
 ### Known Runtime Issues
 
 1. **Staging CLI required**: The stable Aspire CLI (`dotnet tool install -g Aspire.Cli@13.1.2`)
-   does **not** detect `apphost.ts` files. You must install the native staging binary from
-   `https://aspire.dev/install.sh` (or `.ps1`) with `--quality staging`.
+   does **not** detect `apphost.ts` files. You must install the native staging binary:
+   `curl -sSL https://aspire.dev/install.sh | bash -s -- -q staging`
 2. **`.modules/` not pre-generated**: The TypeScript SDK is generated at runtime by the CLI. The
    `import ... from "./.modules/aspire.js"` will fail if run directly with `node` or `ts-node`.
    Always use `aspire run`.
