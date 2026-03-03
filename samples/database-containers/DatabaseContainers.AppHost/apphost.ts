@@ -1,4 +1,12 @@
+// Setup: Run the following commands to add required integrations:
+//   aspire add postgres
+//   aspire add mysql
+//   aspire add sqlserver
+
 import { createBuilder, ContainerLifetime } from "./.modules/aspire.js";
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const builder = await createBuilder();
 
@@ -8,8 +16,8 @@ const postgres = await builder.addPostgres("postgres")
     .withEnvironment("POSTGRES_DB", todosDbName)
     .withBindMount("../DatabaseContainers.ApiService/data/postgres", "/docker-entrypoint-initdb.d")
     .withDataVolume()
+    .withPgWeb()
     .withLifetime(ContainerLifetime.Persistent);
-// POLYGLOT GAP: .WithPgWeb() — PgWeb integration is not available in the TypeScript polyglot SDK.
 
 const todosDb = postgres.addDatabase(todosDbName);
 
@@ -27,13 +35,12 @@ const sqlserver = await builder.addSqlServer("sqlserver")
     .withDataVolume()
     .withLifetime(ContainerLifetime.Persistent);
 
-// POLYGLOT GAP: WithCreationScript(File.ReadAllText(initScriptPath)) — reading a file and passing its content
-// via WithCreationScript is not available in the TypeScript polyglot SDK.
-// In C#: var initScriptPath = Path.Join(Path.GetDirectoryName(typeof(Program).Assembly.Location), "init.sql");
-// var addressBookDb = sqlserver.AddDatabase("AddressBook").WithCreationScript(File.ReadAllText(initScriptPath));
-const addressBookDb = sqlserver.addDatabase("AddressBook");
+// Read the SQL creation script and apply it to the database
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const initSql = readFileSync(join(__dirname, "init.sql"), "utf-8");
+const addressBookDb = sqlserver.addDatabase("AddressBook")
+    .withCreationScript(initSql);
 
-// POLYGLOT GAP: AddProject<Projects.DatabaseContainers_ApiService>("apiservice") — generic type parameter for project reference is not available.
 const apiservice = builder.addProject("apiservice")
     .withReference(todosDb)
     .waitFor(todosDb)

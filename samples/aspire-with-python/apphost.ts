@@ -1,15 +1,26 @@
+// Setup: Run the following commands to add required integrations:
+//   aspire add javascript
+//   aspire add python
+//   aspire add redis
+
 import { createBuilder } from "./.modules/aspire.js";
 
 const builder = await createBuilder();
 
 const cache = builder.addRedis("cache");
 
-// POLYGLOT GAP: AddUvicornApp("app", "./app", "main:app") is not available in the TypeScript polyglot SDK.
-// POLYGLOT GAP: .WithUv() — UV package manager configuration is not available.
-// POLYGLOT GAP: .WithExternalHttpEndpoints().WithReference(cache).WaitFor(cache).WithHttpHealthCheck("/health")
-// The Python/Uvicorn app cannot be added directly.
+const app = builder.addUvicornApp("app", "./app", "main:app")
+    .withUv()
+    .withExternalHttpEndpoints()
+    .withReference(cache)
+    .waitFor(cache)
+    .withHttpHealthCheck("/health");
 
-// POLYGLOT GAP: AddViteApp("frontend", "./frontend") is not available in the TypeScript polyglot SDK.
-// POLYGLOT GAP: app.PublishWithContainerFiles(frontend, "./static") — PublishWithContainerFiles is not available.
+const frontend = builder.addViteApp("frontend", "./frontend")
+    .withReference(app)
+    .waitFor(app);
+
+// POLYGLOT GAP: app.publishWithContainerFiles(frontend, "./static") — bundling Vite output
+// into the Python app's static directory may not be available.
 
 await builder.build().run();

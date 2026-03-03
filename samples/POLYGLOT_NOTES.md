@@ -17,14 +17,34 @@ To run the polyglot TypeScript apphosts:
    ```powershell
    iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
    ```
+   Or on Linux/macOS:
+   ```bash
+   curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
+   ```
 2. Node.js (v18+) or Bun must be installed
-3. Run `aspire run` from the sample directory containing `apphost.ts`
+3. **Add integration packages** using `aspire add {package}` for each sample (see per-sample setup below)
+4. Run `aspire run` from the sample directory containing `apphost.ts`
+
+### Adding Integrations with `aspire add`
+
+The `aspire add` command adds NuGet hosting packages to the backing .NET AppHost server project.
+This triggers code generation that makes the integration APIs available in the TypeScript SDK
+(`.modules/aspire.js`). **You must run `aspire add` for each integration before the TypeScript
+APIs become available.**
+
+For example:
+```bash
+aspire add redis       # Makes builder.addRedis() available
+aspire add postgres    # Makes builder.addPostgres() available
+aspire add javascript  # Makes builder.addJavaScriptApp(), addNodeApp(), addViteApp() available
+aspire add orleans     # Makes builder.addOrleans() available
+```
 
 The CLI will:
-- Scaffold an AppHost server project
-- Generate the TypeScript SDK in `.modules/`
-- Start the .NET AppHost server + Node.js/Bun guest runtime
-- The generated SDK provides typed builder classes for all available capabilities
+- Scaffold an AppHost server project (if not already present)
+- Add the NuGet package to the server project
+- Regenerate the TypeScript SDK in `.modules/` with the new capabilities
+- Start the .NET AppHost server + Node.js/Bun guest runtime on `aspire run`
 
 ### Skipped Sample
 
@@ -33,371 +53,247 @@ The CLI will:
 
 ---
 
-## Per-Sample Gap Analysis
+## Per-Sample Setup and Gap Analysis
+
+Each sample requires specific `aspire add` commands to install its integration packages. Run these
+commands from the sample directory before using `aspire run`.
 
 ### 1. Metrics (`samples/Metrics/MetricsApp.AppHost/apphost.ts`)
 
+**Setup:** No additional packages required (uses core container and project APIs).
+
 **Convertible:** Partially  
-**Status:** Container resources work, but custom extension and URL customization do not.
-
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Add container with image/tag | `AddContainer("prometheus", "prom/prometheus", "v3.2.1")` | ✅ Available |
-| Bind mount (read-only) | `.WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)` | ✅ Available |
-| Container args | `.WithArgs("--web.enable-otlp-receiver", ...)` | ✅ Available |
-| HTTP endpoint | `.WithHttpEndpoint(targetPort: 9090)` | ✅ Available |
-| URL display customization | `.WithUrlForEndpoint("http", u => u.DisplayText = "...")` | ❌ Lambda callback not available |
-| Custom extension method | `AddOpenTelemetryCollector(...)` | ❌ Custom C# extension — not exported to ATS |
-| Project reference (generic) | `AddProject<Projects.MetricsApp>("app")` | ⚠️ `addProject("app")` (no type-safe project binding) |
-| Environment from endpoint | `.WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"))` | ✅ Available |
-
-**Key Limitation:** The `AddOpenTelemetryCollector` is a custom extension method defined in the sample's
-AppHost project. Custom C# extensions require `[AspireExport]` attributes to be available in the
-polyglot SDK, which this sample does not have.
+**Remaining Gaps:**
+- `AddOpenTelemetryCollector(...)` — Custom C# extension method from `MetricsApp.AppHost.OpenTelemetryCollector`. Would need `[AspireExport]` and NuGet packaging.
+- `.WithUrlForEndpoint` lambda callbacks — URL display text/location customization not available.
 
 ---
 
 ### 2. aspire-shop (`samples/aspire-shop/AspireShop.AppHost/apphost.ts`)
 
+**Setup:**
+```bash
+aspire add postgres
+aspire add redis
+```
+
 **Convertible:** Mostly  
-**Status:** Core resource orchestration works. HTTP commands and URL customization are gaps.
-
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Postgres + PgAdmin | `AddPostgres("postgres").WithPgAdmin()` | ✅ Available |
-| Container lifetime | `.WithLifetime(ContainerLifetime.Persistent)` | ✅ Available |
-| Conditional data volume | `if (IsRunMode) postgres.WithDataVolume()` | ✅ Available (via `executionContext`) |
-| Add database | `postgres.AddDatabase("catalogdb")` | ✅ Available |
-| Redis + Commander | `AddRedis("basketcache").WithDataVolume().WithRedisCommander()` | ✅ Available |
-| Project references | `AddProject<Projects.X>("name")` | ⚠️ `addProject("name")` — no generic type |
-| HTTP health check | `.WithHttpHealthCheck("/health")` | ✅ Available |
-| HTTP command | `.WithHttpCommand("/reset-db", "Reset Database", ...)` | ❌ Not available |
-| URL display customization | `.WithUrlForEndpoint("https", url => url.DisplayText = "...")` | ❌ Lambda callback not available |
-| External HTTP endpoints | `.WithExternalHttpEndpoints()` | ✅ Available |
-| Resource references | `.WithReference(resource).WaitFor(resource)` | ✅ Available |
-
-**Key Limitation:** `WithHttpCommand` is an advanced feature for adding custom dashboard commands.
-This is not exposed through ATS capabilities.
+**Remaining Gaps:**
+- `.WithHttpCommand("/reset-db", ...)` — Custom dashboard commands not available.
+- `.WithUrlForEndpoint` lambda callbacks — URL display text customization not available.
 
 ---
 
 ### 3. aspire-with-javascript (`samples/aspire-with-javascript/AspireJavaScript.AppHost/apphost.ts`)
 
-**Convertible:** Minimally  
-**Status:** Almost entirely blocked — JavaScript/Node.js hosting APIs are not available.
+**Setup:**
+```bash
+aspire add javascript
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Project reference | `AddProject<Projects.X>("weatherapi")` | ⚠️ `addProject("weatherapi")` |
-| JavaScript app | `AddJavaScriptApp("angular", "../path", runScriptName: "start")` | ❌ Not available |
-| Vite app | `AddViteApp("reactvite", "../path")` | ❌ Not available |
-| Run script | `.WithRunScript("start")` | ❌ Not available |
-| npm configuration | `.WithNpm(installCommand: "ci")` | ❌ Not available |
-| Publish as Dockerfile | `.PublishAsDockerFile()` | ❌ Not available |
-| Publish container files | `weatherApi.PublishWithContainerFiles(reactVite, "./wwwroot")` | ❌ Not available |
-| HTTP endpoint with env | `.WithHttpEndpoint(env: "PORT")` | ❌ env parameter not available |
-
-**Key Limitation:** The entire `Aspire.Hosting.JavaScript` package (AddJavaScriptApp, AddViteApp,
-WithNpm, WithRunScript, PublishAsDockerFile) is not available in the polyglot SDK. This sample
-is fundamentally about JavaScript hosting, making it almost entirely unconvertible.
+**Convertible:** Mostly (after `aspire add javascript`)  
+**Remaining Gaps:**
+- `.PublishAsDockerFile()` — Publish-time Dockerfile generation may not be available.
+- `publishWithContainerFiles(reactVite, "./wwwroot")` — Bundling Vite output into a project's wwwroot may not be available.
 
 ---
 
 ### 4. aspire-with-node (`samples/aspire-with-node/AspireWithNode.AppHost/apphost.ts`)
 
-**Convertible:** Partially  
-**Status:** Redis and project resources work, but Node.js app hosting is not available.
+**Setup:**
+```bash
+aspire add javascript
+aspire add redis
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Redis + Insight | `AddRedis("cache").WithRedisInsight()` | ✅ Available |
-| Project reference | `AddProject<Projects.X>("weatherapi")` | ⚠️ `addProject("weatherapi")` |
-| Node.js app | `AddNodeApp("frontend", "../NodeFrontend", "./app.js")` | ❌ Not available |
-| npm config | `.WithNpm()` | ❌ Not available |
-| Run script | `.WithRunScript("dev")` | ❌ Not available |
-| HTTP endpoint with env | `.WithHttpEndpoint(port: 5223, env: "PORT")` | ❌ env parameter not available |
-
-**Key Limitation:** `AddNodeApp` from `Aspire.Hosting.NodeJs` is not available. The Node.js
-frontend cannot be orchestrated.
+**Convertible:** Fully (after `aspire add javascript` + `aspire add redis`)  
+**Remaining Gaps:** None expected.
 
 ---
 
 ### 5. aspire-with-python (`samples/aspire-with-python/apphost.ts`)
 
-**Convertible:** Minimally  
-**Status:** Almost entirely blocked — Python and Vite hosting APIs are not available.
+**Setup:**
+```bash
+aspire add javascript
+aspire add python
+aspire add redis
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Redis | `AddRedis("cache")` | ✅ Available |
-| Uvicorn app | `AddUvicornApp("app", "./app", "main:app")` | ❌ Not available |
-| UV package manager | `.WithUv()` | ❌ Not available |
-| Vite app | `AddViteApp("frontend", "./frontend")` | ❌ Not available |
-| Publish container files | `app.PublishWithContainerFiles(frontend, "./static")` | ❌ Not available |
-
-**Key Limitation:** Both `Aspire.Hosting.Python` (AddUvicornApp, WithUv) and
-`Aspire.Hosting.JavaScript` (AddViteApp) packages are not available in the polyglot SDK.
+**Convertible:** Mostly (after adding packages)  
+**Remaining Gaps:**
+- `publishWithContainerFiles(frontend, "./static")` — May not be available.
 
 ---
 
 ### 6. client-apps-integration (`samples/client-apps-integration/ClientAppsIntegration.AppHost/apphost.ts`)
 
-**Convertible:** Partially  
-**Status:** API service project works, but Windows platform checks and desktop app features don't.
+**Setup:** No additional packages required.
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Project reference | `AddProject<Projects.X>("apiservice")` | ⚠️ `addProject("apiservice")` |
-| Platform check | `OperatingSystem.IsWindows()` | ❌ Not available in TS context |
-| Explicit start | `.WithExplicitStart()` | ❌ Not available |
-| Exclude from manifest | `.ExcludeFromManifest()` | ❌ Not available |
-
-**Key Limitation:** `OperatingSystem.IsWindows()` has no equivalent in the TypeScript SDK.
-Desktop apps (WinForms, WPF) are Windows-only and their conditional inclusion cannot be expressed.
+**Convertible:** Mostly  
+**Notes:** Uses `process.platform === "win32"` instead of `OperatingSystem.IsWindows()`.  
+**Remaining Gaps:**
+- `.withExplicitStart()` / `.excludeFromManifest()` — May not be available as capabilities.
 
 ---
 
 ### 7. container-build (`samples/container-build/apphost.ts`)
 
-**Convertible:** Minimally  
-**Status:** Almost entirely blocked — Dockerfile build APIs are not available.
+**Setup:** No additional packages required (uses core Dockerfile and parameter APIs).
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Parameter with default | `AddParameter("goversion", "1.25.4", publishValueAsDefault: true)` | ❌ Not available |
-| Dockerfile build | `AddDockerfile("ginapp", "./ginapp")` | ❌ Not available |
-| Build arg | `.WithBuildArg("GO_VERSION", goVersion)` | ❌ Not available |
-| OTLP exporter | `.WithOtlpExporter()` | ❌ Not available |
-| Certificate trust | `.WithDeveloperCertificateTrust(trust: true)` | ❌ Not available |
-| Execution context | `builder.ExecutionContext.IsPublishMode` | ✅ Available (via `executionContext`) |
-
-**Key Limitation:** `AddDockerfile` and `WithBuildArg` from `Aspire.Hosting` are not available.
-This sample is fundamentally about building containers from Dockerfiles.
+**Convertible:** Mostly  
+**Remaining Gaps:**
+- `.withDeveloperCertificateTrust(true)` — Developer certificate trust may not be available.
 
 ---
 
 ### 8. custom-resources (`samples/custom-resources/CustomResources.AppHost/apphost.ts`)
 
+**Setup:** N/A — This sample uses custom C# resource extensions (`AddTalkingClock`, `AddTestResource`).
+
 **Convertible:** Not convertible  
-**Status:** Entirely blocked — custom resource types require C# implementation.
-
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Custom resource | `AddTalkingClock("talking-clock")` | ❌ Custom C# extension |
-| Custom resource | `AddTestResource("test")` | ❌ Custom C# extension |
-
-**Key Limitation:** This sample demonstrates creating custom resource types in C#. These are
-implemented as C# classes and extension methods. The polyglot SDK can only access capabilities
-from NuGet packages with `[AspireExport]` attributes — custom project-level extensions are not
-available.
+**Remaining Gaps:**
+- Custom resource types (`AddTalkingClock`, `AddTestResource`) are C# classes defined in the project. They would need `[AspireExport]` attributes and NuGet distribution to be accessible from TypeScript.
 
 ---
 
 ### 9. database-containers (`samples/database-containers/DatabaseContainers.AppHost/apphost.ts`)
 
-**Convertible:** Mostly  
-**Status:** Core database hosting works with minor gaps.
+**Setup:**
+```bash
+aspire add postgres
+aspire add mysql
+aspire add sqlserver
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Postgres | `AddPostgres("postgres")` | ✅ Available |
-| MySQL | `AddMySql("mysql")` | ✅ Available |
-| SQL Server | `AddSqlServer("sqlserver")` | ✅ Available |
-| Environment variable | `.WithEnvironment("POSTGRES_DB", todosDbName)` | ✅ Available |
-| Bind mount | `.WithBindMount(source, target)` | ✅ Available |
-| Data volume | `.WithDataVolume()` | ✅ Available |
-| Container lifetime | `.WithLifetime(ContainerLifetime.Persistent)` | ✅ Available |
-| Add database | `.AddDatabase("name")` | ✅ Available |
-| PgWeb | `.WithPgWeb()` | ❌ Not available |
-| Creation script | `.WithCreationScript(File.ReadAllText(path))` | ❌ Not available (file I/O + API) |
-| HTTP health check | `.WithHttpHealthCheck("/health")` | ✅ Available |
-
-**Key Limitation:** `WithCreationScript` requires reading a SQL file from disk and passing its
-content. The polyglot SDK doesn't have a `File.ReadAllText` equivalent, and `WithCreationScript`
-itself may not be exported. `WithPgWeb` is also not available.
+**Convertible:** Fully (after adding packages)  
+**Notes:** Uses Node.js `readFileSync` to read `init.sql` and pass it to `withCreationScript()`.  
+**Remaining Gaps:** None expected.
 
 ---
 
 ### 10. database-migrations (`samples/database-migrations/DatabaseMigrations.AppHost/apphost.ts`)
 
-**Convertible:** Mostly  
-**Status:** Works with minor API gap for WaitForCompletion.
+**Setup:**
+```bash
+aspire add sqlserver
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| SQL Server + volume | `AddSqlServer("sqlserver").WithDataVolume()` | ✅ Available |
-| Container lifetime | `.WithLifetime(ContainerLifetime.Persistent)` | ✅ Available |
-| Add database | `.AddDatabase("db1")` | ✅ Available |
-| Project references | `AddProject<Projects.X>("name")` | ⚠️ `addProject("name")` |
-| Wait for completion | `.WaitForCompletion(migrationService)` | ❌ Only `waitFor` available |
-| Resource references | `.WithReference(db1)` | ✅ Available |
-
-**Key Limitation:** `WaitForCompletion` (wait for a service to finish, not just start) is not
-available. This is semantically different from `WaitFor` — it waits for the migration service to
-complete its work before starting the API.
+**Convertible:** Fully (after adding package)  
+**Notes:** Uses `waitForCompletion()` which should be available via core capabilities.  
+**Remaining Gaps:** None expected.
 
 ---
 
 ### 11. health-checks-ui (`samples/health-checks-ui/HealthChecksUI.AppHost/apphost.ts`)
 
-**Convertible:** Partially  
-**Status:** Core project orchestration works, but specialized features don't.
+**Setup:**
+```bash
+aspire add redis
+aspire add docker
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Docker Compose | `AddDockerComposeEnvironment("compose")` | ❌ Not available |
-| Redis | `AddRedis("cache")` | ✅ Available |
-| Project references | `AddProject<Projects.X>("name")` | ⚠️ `addProject("name")` |
-| Health checks UI | `AddHealthChecksUI("healthchecksui")` | ❌ Not available |
-| HTTP probe | `.WithHttpProbe(ProbeType.Liveness, "/alive")` | ❌ Not available |
-| Custom URL helper | `.WithFriendlyUrls(...)` | ❌ Custom extension method |
-| Host port | `.WithHostPort(7230)` | ❌ Not available |
-| Execution context | `builder.ExecutionContext.IsRunMode` | ✅ Available |
-
-**Key Limitation:** `AddDockerComposeEnvironment`, `AddHealthChecksUI`, and `WithHttpProbe` are
-specialized integrations not available in the polyglot SDK. The `WithFriendlyUrls` is a custom
-extension method defined in the same AppHost.cs file.
+**Convertible:** Mostly (after adding packages)  
+**Remaining Gaps:**
+- `.WithFriendlyUrls(...)` — Custom C# extension method defined in the AppHost project. Needs `[AspireExport]` and NuGet packaging.
 
 ---
 
 ### 12. orleans-voting (`samples/orleans-voting/OrleansVoting.AppHost/apphost.ts`)
 
-**Convertible:** Minimally  
-**Status:** Redis works, but Orleans integration is entirely unavailable.
+**Setup:**
+```bash
+aspire add redis
+aspire add orleans
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Redis | `AddRedis("voting-redis")` | ✅ Available |
-| Orleans cluster | `AddOrleans("voting-cluster")` | ❌ Not available |
-| Orleans clustering | `.WithClustering(redis)` | ❌ Not available |
-| Orleans grain storage | `.WithGrainStorage("votes", redis)` | ❌ Not available |
-| Project with replicas | `.WithReplicas(3)` | ✅ Available |
-| Orleans reference | `.WithReference(orleans)` | ❌ Orleans resource not available |
-| URL customization | `.WithUrlForEndpoint(...)` | ❌ Lambda callback not available |
-
-**Key Limitation:** The entire `Aspire.Hosting.Orleans` package (AddOrleans, WithClustering,
-WithGrainStorage) is not available in the polyglot SDK.
+**Convertible:** Mostly (after adding packages)  
+**Remaining Gaps:**
+- `.WithUrlForEndpoint` lambda callbacks — URL display text/location customization not available.
 
 ---
 
 ### 13. volume-mount (`samples/volume-mount/VolumeMount.AppHost/apphost.ts`)
 
-**Convertible:** Partially  
-**Status:** SQL Server works, but Azure Storage emulator does not.
+**Setup:**
+```bash
+aspire add sqlserver
+aspire add azure-storage
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| SQL Server + volume | `AddSqlServer("sqlserver").WithDataVolume()` | ✅ Available |
-| Container lifetime | `.WithLifetime(ContainerLifetime.Persistent)` | ✅ Available |
-| Add database | `.AddDatabase("sqldb")` | ✅ Available |
-| Azure Storage emulator | `AddAzureStorage("Storage").RunAsEmulator(...)` | ❌ Not available |
-| Emulator callback | `.RunAsEmulator(emulator => emulator.WithDataVolume())` | ❌ Lambda not available |
-| Azure Blobs | `.AddBlobs("BlobConnection")` | ❌ Not available |
-| Project reference | `AddProject<Projects.X>("blazorweb")` | ⚠️ `addProject("blazorweb")` |
-
-**Key Limitation:** `AddAzureStorage` and `RunAsEmulator` with callback configuration are not
-available. Azure storage integration is a major gap.
+**Convertible:** Fully (after adding packages)  
+**Remaining Gaps:** None expected.
 
 ---
 
 ### 14. aspire-with-azure-functions (`samples/aspire-with-azure-functions/ImageGallery.AppHost/apphost.ts`)
 
-**Convertible:** Minimally  
-**Status:** Almost entirely blocked — Azure-specific APIs are not available.
+**Setup:**
+```bash
+aspire add azure-appcontainers
+aspire add azure-storage
+aspire add azure-functions
+```
 
-| Feature | C# API | TypeScript Status |
-|---------|--------|-------------------|
-| Azure Container App Env | `AddAzureContainerAppEnvironment("env")` | ❌ Not available |
-| Azure Storage | `AddAzureStorage("storage").RunAsEmulator()` | ❌ Not available |
-| Configure infrastructure | `.ConfigureInfrastructure(...)` | ❌ Not available |
-| URL display customization | `.WithUrls(...)` | ❌ Lambda callback not available |
-| Azure Blobs | `storage.AddBlobs("blobs")` | ❌ Not available |
-| Azure Queues | `storage.AddQueues("queues")` | ❌ Not available |
-| Azure Functions project | `AddAzureFunctionsProject<Projects.X>("name")` | ❌ Not available |
-| Role assignments | `.WithRoleAssignments(storage, ...)` | ❌ Not available |
-| Host storage | `.WithHostStorage(storage)` | ❌ Not available |
-| Project reference | `AddProject<Projects.X>("frontend")` | ⚠️ `addProject("frontend")` |
-
-**Key Limitation:** This sample is entirely Azure-focused. None of the Azure-specific hosting
-packages (Azure Storage, Functions, Container Apps) are available in the polyglot SDK.
+**Convertible:** Mostly (after adding packages)  
+**Remaining Gaps:**
+- `.ConfigureInfrastructure(...)` — Bicep infrastructure configuration using C# lambdas is not directly available. Default settings will be used.
+- `.WithUrlForEndpoint` lambda callbacks — URL display text customization not available.
 
 ---
 
 ## Cross-Cutting Issues Summary
 
-### Universally Available Features ✅
-These features work across all samples in the TypeScript polyglot SDK:
-- `createBuilder()` — Create the distributed application builder
-- `addRedis("name")` — Add Redis container resource
-- `addPostgres("name")` — Add PostgreSQL container resource
-- `addMySql("name")` — Add MySQL container resource
-- `addSqlServer("name")` — Add SQL Server container resource
-- `addContainer("name", "image", "tag")` — Add generic container resource
-- `.addDatabase("name")` — Add database to a database server
-- `.withDataVolume()` — Add data volume to container
-- `.withLifetime(ContainerLifetime.Persistent)` — Set container lifetime
-- `.withBindMount(source, target, isReadOnly)` — Add bind mount
-- `.withEnvironment("key", "value")` — Set environment variable
-- `.withArgs(...)` — Set container arguments
-- `.withHttpEndpoint({ targetPort: N })` — Add HTTP endpoint
-- `.withHttpHealthCheck("/path")` — Add HTTP health check
-- `.withExternalHttpEndpoints()` — Expose endpoints externally
-- `.withReference(resource)` — Add resource reference
-- `.waitFor(resource)` — Wait for resource to be ready
-- `.withReplicas(N)` — Set replica count
-- `.withRedisCommander()` / `.withRedisInsight()` — Redis admin tools
-- `.withPgAdmin()` — PostgreSQL admin tool
-- `getEndpoint("name")` — Get endpoint reference
-- `builder.executionContext` — Access execution context (run vs publish mode)
-- `builder.build().run()` — Build and run the application
+### Features Available After `aspire add` ✅
+These features work after adding the appropriate integration packages:
+- `createBuilder()` — Create the distributed application builder (core)
+- `addRedis("name")` — `aspire add redis`
+- `addPostgres("name")` / `.withPgAdmin()` / `.withPgWeb()` — `aspire add postgres`
+- `addMySql("name")` — `aspire add mysql`
+- `addSqlServer("name")` — `aspire add sqlserver`
+- `addJavaScriptApp()` / `addNodeApp()` / `addViteApp()` — `aspire add javascript`
+- `addUvicornApp()` / `.withUv()` — `aspire add python`
+- `addOrleans()` / `.withClustering()` / `.withGrainStorage()` — `aspire add orleans`
+- `addDockerComposeEnvironment()` — `aspire add docker`
+- `addHealthChecksUI()` / `.withHttpProbe()` — `aspire add docker` (or dedicated package)
+- `addAzureStorage()` / `.addBlobs()` / `.addQueues()` — `aspire add azure-storage`
+- `addAzureContainerAppEnvironment()` — `aspire add azure-appcontainers`
+- `addAzureFunctionsProject()` — `aspire add azure-functions`
+- Core capabilities (always available): `addContainer()`, `addProject()`, `addDockerfile()`, `addParameter()`, `.withBindMount()`, `.withEnvironment()`, `.withArgs()`, `.withHttpEndpoint()`, `.withHttpHealthCheck()`, `.withExternalHttpEndpoints()`, `.withReference()`, `.waitFor()`, `.waitForCompletion()`, `.withReplicas()`, `.withDataVolume()`, `.withLifetime()`, `.withOtlpExporter()`, `.withBuildArg()`, `getEndpoint()`, `builder.executionContext`, `builder.build().run()`
 
-### Universally Unavailable Features ❌
-These features are NOT available in any sample:
-1. **`AddProject<Projects.X>("name")` generic type parameter** — The TypeScript SDK uses `addProject("name")` without type-safe project binding. This means the AppHost server needs another mechanism to discover and bind .NET project references.
-2. **`WithUrlForEndpoint` with lambda callback** — URL display customization (display text, display location) requires callbacks that aren't available in the polyglot SDK.
-3. **Custom C# extension methods** — Any extension method defined in the sample's AppHost project (e.g., `AddOpenTelemetryCollector`, `AddTalkingClock`, `WithFriendlyUrls`) requires `[AspireExport]` annotation and NuGet packaging to be available.
+### Remaining Gaps ❌
+These features have no polyglot equivalent regardless of packages:
+1. **`.WithUrlForEndpoint` with lambda callback** — URL display customization (display text, display location) requires C# callbacks that can't be expressed in TypeScript.
+2. **`.ConfigureInfrastructure` with lambda** — Bicep infrastructure configuration requires C# lambdas for accessing provisioning types.
+3. **Custom C# extension methods** — Any extension method defined in the sample's AppHost project (e.g., `AddOpenTelemetryCollector`, `AddTalkingClock`, `WithFriendlyUrls`) requires `[AspireExport]` annotation and NuGet packaging.
+4. **`.WithHttpCommand`** — Custom dashboard commands are not exposed through ATS capabilities.
+5. **`.PublishAsDockerFile` / `.publishWithContainerFiles`** — Publish-time behaviors may not be available.
 
-### Major Feature Category Gaps ❌
-1. **JavaScript/Node.js hosting** (`Aspire.Hosting.JavaScript`): `AddJavaScriptApp`, `AddViteApp`, `AddNodeApp`, `WithNpm`, `WithRunScript`, `PublishAsDockerFile`
-2. **Python hosting** (`Aspire.Hosting.Python`): `AddUvicornApp`, `WithUv`
-3. **Azure integrations** (`Aspire.Hosting.Azure.*`): `AddAzureStorage`, `AddAzureFunctionsProject`, `AddAzureContainerAppEnvironment`, `RunAsEmulator`, `ConfigureInfrastructure`, `WithRoleAssignments`
-4. **Orleans** (`Aspire.Hosting.Orleans`): `AddOrleans`, `WithClustering`, `WithGrainStorage`
-5. **Docker Compose** (`Aspire.Hosting.Docker`): `AddDockerComposeEnvironment`
-6. **Dockerfile builds**: `AddDockerfile`, `WithBuildArg`
-7. **HealthChecks UI**: `AddHealthChecksUI`, `WithHttpProbe`
-8. **Parameters**: `AddParameter` with `publishValueAsDefault`
-9. **Completion waiting**: `WaitForCompletion` (different from `WaitFor`)
-10. **Dashboard features**: `WithHttpCommand`, `WithHostPort`, `WithExplicitStart`, `ExcludeFromManifest`
+### Sample Conversion Feasibility Matrix (with `aspire add`)
 
-### Sample Conversion Feasibility Matrix
+| Sample | `aspire add` Commands | Feasibility | Remaining Gaps |
+|--------|----------------------|-------------|----------------|
+| Metrics | (none) | ⚠️ Partial | Custom OTel collector extension, URL callbacks |
+| aspire-shop | `postgres`, `redis` | ✅ Mostly | HTTP commands, URL callbacks |
+| aspire-with-javascript | `javascript` | ✅ Mostly | `PublishAsDockerFile`, `publishWithContainerFiles` |
+| aspire-with-node | `javascript`, `redis` | ✅ Full | — |
+| aspire-with-python | `javascript`, `python`, `redis` | ✅ Mostly | `publishWithContainerFiles` |
+| client-apps-integration | (none) | ✅ Mostly | `withExplicitStart`, `excludeFromManifest` |
+| container-build | (none) | ✅ Mostly | `withDeveloperCertificateTrust` |
+| custom-resources | N/A | ❌ None | Custom C# resource types |
+| database-containers | `postgres`, `mysql`, `sqlserver` | ✅ Full | — |
+| database-migrations | `sqlserver` | ✅ Full | — |
+| health-checks-ui | `redis`, `docker` | ✅ Mostly | Custom `WithFriendlyUrls` extension |
+| orleans-voting | `redis`, `orleans` | ✅ Mostly | URL callbacks |
+| volume-mount | `sqlserver`, `azure-storage` | ✅ Full | — |
+| aspire-with-azure-functions | `azure-appcontainers`, `azure-storage`, `azure-functions` | ✅ Mostly | `ConfigureInfrastructure` lambda, URL callbacks |
 
-| Sample | Feasibility | Notes |
-|--------|-------------|-------|
-| Metrics | ⚠️ Partial | Container resources work; custom OTel collector extension missing |
-| aspire-shop | ✅ Mostly | Core orchestration works; HTTP commands, URL customization missing |
-| aspire-with-javascript | ❌ Minimal | JS/Vite hosting entirely unavailable |
-| aspire-with-node | ⚠️ Partial | Redis works; Node.js app hosting unavailable |
-| aspire-with-python | ❌ Minimal | Python/Vite hosting entirely unavailable |
-| client-apps-integration | ⚠️ Partial | API project works; platform checks, desktop apps unavailable |
-| container-build | ❌ Minimal | Dockerfile builds entirely unavailable |
-| custom-resources | ❌ None | Custom resources require C# implementation |
-| database-containers | ✅ Mostly | Core DB hosting works; PgWeb, creation scripts missing |
-| database-migrations | ✅ Mostly | Works except WaitForCompletion |
-| health-checks-ui | ⚠️ Partial | Core projects work; Compose, HealthChecks UI, probes missing |
-| orleans-voting | ❌ Minimal | Redis works; Orleans entirely unavailable |
-| volume-mount | ⚠️ Partial | SQL Server works; Azure Storage unavailable |
-| aspire-with-azure-functions | ❌ Minimal | Azure integrations entirely unavailable |
+### Recommendations
 
-### Recommendations for Aspire Team
-
-1. **Priority: Export JavaScript/Node.js hosting** — `AddJavaScriptApp`, `AddNodeApp`, `AddViteApp` should be annotated with `[AspireExport]` to enable polyglot samples involving JS frontends.
-2. **Priority: Export Dockerfile builds** — `AddDockerfile` and `WithBuildArg` are fundamental container capabilities that should be available in all languages.
-3. **Add `WithUrlForEndpoint` with simple string overload** — Instead of requiring a lambda, provide `withUrlForEndpoint("http", { displayText: "My App" })` as a simpler API.
-4. **Export Azure integrations** — Azure Storage, Functions, and Container Apps are common enough to warrant ATS export.
-5. **Add `WaitForCompletion`** — This is a commonly used capability for migration/init patterns.
-6. **Document `addProject` limitations** — Clarify how TypeScript apphosts discover and reference .NET projects without generic type parameters.
-7. **Support `AddParameter`** — Parameters with default values are important for publish-mode configuration.
-8. **Consider custom resource extensibility** — Provide a mechanism for TypeScript apphosts to define custom resource types or interact with custom C# extensions.
+1. **Add `[AspireExport]` to `WithUrlForEndpoint`** — Provide a non-lambda overload (e.g., `withUrlForEndpoint("http", { displayText: "My App" })`) for display customization.
+2. **Add `[AspireExport]` to `WithHttpCommand`** — Dashboard commands are useful for operations like database resets.
+3. **Document `addProject` behavior** — Clarify how TypeScript apphosts discover and reference .NET projects without generic type parameters.
+4. **Consider custom resource extensibility** — Provide a mechanism for TypeScript apphosts to interact with custom C# extensions that have `[AspireExport]` attributes.
 
 ---
 
@@ -415,8 +311,15 @@ iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
 # On Linux/macOS:
 curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
 
-# Navigate to sample directory and run
+# Navigate to sample directory
 cd samples/<sample-name>
+
+# Add required integration packages (see per-sample setup above)
+aspire add redis
+aspire add postgres
+# ... etc.
+
+# Run the polyglot apphost
 aspire run
 ```
 
@@ -424,19 +327,23 @@ aspire run
 
 When running `aspire run` with an `apphost.ts` present:
 1. The CLI detects the TypeScript apphost
-2. It scaffolds a .NET AppHost server project
-3. It generates the TypeScript SDK in `.modules/`
-4. It starts both the .NET server and Node.js guest
-5. The Aspire dashboard shows all declared resources
-6. Resources start in dependency order (via `waitFor`)
+2. It scaffolds a .NET AppHost server project (if not already present)
+3. `aspire add` installs NuGet packages and triggers SDK regeneration
+4. It generates the TypeScript SDK in `.modules/` with all available capabilities
+5. It starts both the .NET server and Node.js guest
+6. The Aspire dashboard shows all declared resources
+7. Resources start in dependency order (via `waitFor`)
 
 ### Known Runtime Issues
 
 1. **`.modules/` not pre-generated**: The TypeScript SDK is generated at runtime by the CLI. The
    `import ... from "./.modules/aspire.js"` will fail if run directly with `node` or `ts-node`.
    Always use `aspire run`.
-2. **Project discovery**: `addProject("name")` may not automatically discover .NET project files.
-   The CLI may need additional configuration or a manifest to map project names to paths.
-3. **Async chaining**: The TypeScript SDK uses `Thenable` wrappers for fluent async chaining.
+2. **Must run `aspire add` first**: Integration APIs (like `addRedis`, `addPostgres`) are only
+   available after adding the corresponding packages with `aspire add`. Without them, the generated
+   SDK won't include those capabilities.
+3. **Project discovery**: `addProject("name")` discovers .NET projects via the Aspire CLI's
+   project detection. Ensure project files are in the expected directory structure.
+4. **Async chaining**: The TypeScript SDK uses `Thenable` wrappers for fluent async chaining.
    Single `await` at the end of a chain is the expected pattern, but complex branching (like
    conditional `withDataVolume`) may require intermediate `await` calls.
