@@ -2,6 +2,10 @@
 //   aspire add azure-appcontainers
 //   aspire add azure-storage
 //   aspire add azure-functions
+//
+// Note: StorageBuiltInRole and withRoleAssignments are expected to be available
+// after aspire add azure-storage. If StorageBuiltInRole is not exported in the
+// generated SDK, the role assignment calls may need to be adjusted.
 
 import { createBuilder, StorageBuiltInRole } from "./.modules/aspire.js";
 

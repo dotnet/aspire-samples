@@ -2,9 +2,12 @@
 //   aspire add postgres
 //   aspire add mysql
 //   aspire add sqlserver
+//
+// Note: This sample reads init.sql using Node.js fs APIs (the TypeScript
+// equivalent of C#'s File.ReadAllText) and passes it to withCreationScript().
 
 import { createBuilder, ContainerLifetime } from "./.modules/aspire.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -37,7 +40,11 @@ const sqlserver = await builder.addSqlServer("sqlserver")
 
 // Read the SQL creation script and apply it to the database
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const initSql = readFileSync(join(__dirname, "init.sql"), "utf-8");
+const initSqlPath = join(__dirname, "init.sql");
+if (!existsSync(initSqlPath)) {
+    throw new Error(`SQL initialization script not found: ${initSqlPath}`);
+}
+const initSql = readFileSync(initSqlPath, "utf-8");
 const addressBookDb = sqlserver.addDatabase("AddressBook")
     .withCreationScript(initSql);
 

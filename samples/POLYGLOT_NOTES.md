@@ -259,7 +259,13 @@ These features work after adding the appropriate integration packages:
 - `addAzureStorage()` / `.addBlobs()` / `.addQueues()` — `aspire add azure-storage`
 - `addAzureContainerAppEnvironment()` — `aspire add azure-appcontainers`
 - `addAzureFunctionsProject()` — `aspire add azure-functions`
-- Core capabilities (always available): `addContainer()`, `addProject()`, `addDockerfile()`, `addParameter()`, `.withBindMount()`, `.withEnvironment()`, `.withArgs()`, `.withHttpEndpoint()`, `.withHttpHealthCheck()`, `.withExternalHttpEndpoints()`, `.withReference()`, `.waitFor()`, `.waitForCompletion()`, `.withReplicas()`, `.withDataVolume()`, `.withLifetime()`, `.withOtlpExporter()`, `.withBuildArg()`, `getEndpoint()`, `builder.executionContext`, `builder.build().run()`
+- Core capabilities (always available):
+  - `addContainer()`, `addProject()`, `addDockerfile()`, `addParameter()`
+  - `.withBindMount()`, `.withEnvironment()`, `.withArgs()`
+  - `.withHttpEndpoint()`, `.withHttpHealthCheck()`, `.withExternalHttpEndpoints()`
+  - `.withReference()`, `.waitFor()`, `.waitForCompletion()`, `.withReplicas()`
+  - `.withDataVolume()`, `.withLifetime()`, `.withOtlpExporter()`, `.withBuildArg()`
+  - `getEndpoint()`, `builder.executionContext`, `builder.build().run()`
 
 ### Remaining Gaps ❌
 These features have no polyglot equivalent regardless of packages:

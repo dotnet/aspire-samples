@@ -15,6 +15,9 @@ const sqlDatabase = sqlserver.addDatabase("sqldb");
 const blobs = builder.addAzureStorage("Storage")
     .runAsEmulator(emulator => emulator.withDataVolume())
     .addBlobs("BlobConnection");
+// Note: The emulator callback pattern above assumes the SDK supports arrow function
+// callbacks for RunAsEmulator. If not, you may need to call runAsEmulator() without
+// arguments and configure the data volume separately.
 
 const blazorweb = builder.addProject("blazorweb")
     .withReference(sqlDatabase)

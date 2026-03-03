@@ -1,6 +1,10 @@
 // Setup: Run the following commands to add required integrations:
 //   aspire add redis
 //   aspire add docker
+//
+// Note: ProbeType, addDockerComposeEnvironment, addHealthChecksUI, and withHttpProbe
+// are expected to be available after aspire add docker. If ProbeType is not exported
+// in the generated SDK, the withHttpProbe calls may need to be removed.
 
 import { createBuilder, ProbeType } from "./.modules/aspire.js";
 
