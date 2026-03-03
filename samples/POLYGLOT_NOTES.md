@@ -1,7 +1,14 @@
 # Polyglot AppHost TypeScript Conversion Notes
 
-This document logs all issues, gaps, limitations, and errors discovered while attempting to rewrite
-each sample's `AppHost.cs` as a polyglot `apphost.ts` using the Aspire TypeScript SDK.
+This document describes the conversion of each sample's `AppHost.cs` to a polyglot `apphost.ts`
+using the Aspire TypeScript SDK, and documents expected gaps based on the
+[Aspire Type System (ATS) spec](https://github.com/dotnet/aspire/blob/main/docs/specs/polyglot-apphost.md).
+
+> **⚠️ Validation Status:** These conversions have **not yet been validated** with `aspire run`.
+> The gap analysis below is based on the ATS specification and the `[AspireExport]` attribute
+> model. Actual API availability must be confirmed by running `aspire run` with the staging CLI,
+> which generates the `.modules/aspire.js` SDK from the installed NuGet packages. Some APIs
+> listed as available may not be exported yet, and some listed as gaps may already be supported.
 
 ## Overview
 
@@ -13,17 +20,21 @@ which communicates with a .NET AppHost Server via JSON-RPC.
 
 To run the polyglot TypeScript apphosts:
 
-1. Install the staging Aspire CLI:
+1. **Install the staging Aspire CLI** (the stable NuGet CLI does not include TypeScript polyglot support):
    ```powershell
+   # Windows (PowerShell):
    iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
    ```
-   Or on Linux/macOS:
    ```bash
+   # Linux/macOS:
    curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
    ```
+   > The stable CLI (`dotnet tool install -g Aspire.Cli`) does **not** detect `apphost.ts` files.
+   > You must use the native staging binary from aspire.dev.
 2. Node.js (v18+) or Bun must be installed
-3. **Add integration packages** using `aspire add {package}` for each sample (see per-sample setup below)
-4. Run `aspire run` from the sample directory containing `apphost.ts`
+3. A container runtime (Docker or Podman) must be running — Aspire handles all container orchestration automatically
+4. **Add integration packages** using `aspire add {package}` for each sample (see per-sample setup below)
+5. Run `aspire run` from the sample directory containing `apphost.ts`
 
 ### Adding Integrations with `aspire add`
 
@@ -46,6 +57,18 @@ The CLI will:
 - Regenerate the TypeScript SDK in `.modules/` with the new capabilities
 - Start the .NET AppHost server + Node.js/Bun guest runtime on `aspire run`
 
+### How to Validate
+
+To confirm which APIs are actually available after `aspire add`, inspect the generated
+`.modules/aspire.ts` file. It contains all exported builder classes, methods, enums, and DTOs.
+Compare against the `apphost.ts` to identify any remaining gaps.
+
+```bash
+cd samples/<sample-name>/<AppHost-dir>
+# After aspire add and aspire run, check:
+cat .modules/aspire.ts | grep -E "add(Redis|Postgres|MySql|SqlServer|Orleans|Container)"
+```
+
 ### Skipped Sample
 
 - **standalone-dashboard**: This is a standalone console application, not an Aspire AppHost sample. It
@@ -54,6 +77,10 @@ The CLI will:
 ---
 
 ## Per-Sample Setup and Gap Analysis
+
+> **Note:** The per-sample gap analysis below is based on the ATS specification and has not been
+> validated by running `aspire run` with the staging CLI. After validation with `aspire run`,
+> the actual generated `.modules/aspire.ts` should be inspected to confirm which APIs are available.
 
 Each sample requires specific `aspire add` commands to install its integration packages. Run these
 commands from the sample directory before using `aspire run`.
@@ -244,8 +271,10 @@ aspire add azure-functions
 
 ## Cross-Cutting Issues Summary
 
-### Features Available After `aspire add` ✅
-These features work after adding the appropriate integration packages:
+### Features Available After `aspire add` (Expected) ✅
+These features are expected to work after adding the appropriate integration packages.
+**This list has not been validated with `aspire run` — actual availability depends on which
+C# APIs have `[AspireExport]` attributes in their NuGet packages.**
 - `createBuilder()` — Create the distributed application builder (core)
 - `addRedis("name")` — `aspire add redis`
 - `addPostgres("name")` / `.withPgAdmin()` / `.withPgWeb()` — `aspire add postgres`
@@ -267,15 +296,19 @@ These features work after adding the appropriate integration packages:
   - `.withDataVolume()`, `.withLifetime()`, `.withOtlpExporter()`, `.withBuildArg()`
   - `getEndpoint()`, `builder.executionContext`, `builder.build().run()`
 
-### Remaining Gaps ❌
-These features have no polyglot equivalent regardless of packages:
+### Expected Remaining Gaps ❌
+These features are expected to have no polyglot equivalent regardless of packages
+(based on the ATS spec — lambda callbacks and custom C# extensions cannot cross the JSON-RPC boundary):
 1. **`.WithUrlForEndpoint` with lambda callback** — URL display customization (display text, display location) requires C# callbacks that can't be expressed in TypeScript.
 2. **`.ConfigureInfrastructure` with lambda** — Bicep infrastructure configuration requires C# lambdas for accessing provisioning types.
 3. **Custom C# extension methods** — Any extension method defined in the sample's AppHost project (e.g., `AddOpenTelemetryCollector`, `AddTalkingClock`, `WithFriendlyUrls`) requires `[AspireExport]` annotation and NuGet packaging.
 4. **`.WithHttpCommand`** — Custom dashboard commands are not exposed through ATS capabilities.
 5. **`.PublishAsDockerFile` / `.publishWithContainerFiles`** — Publish-time behaviors may not be available.
 
-### Sample Conversion Feasibility Matrix (with `aspire add`)
+### Sample Conversion Feasibility Matrix (Expected, with `aspire add`)
+
+> **Note:** These feasibility ratings are based on the ATS specification and have not been
+> validated by running `aspire run`. After validation, some entries may change.
 
 | Sample | `aspire add` Commands | Feasibility | Remaining Gaps |
 |--------|----------------------|-------------|----------------|
@@ -310,12 +343,16 @@ These features have no polyglot equivalent regardless of packages:
 To test any of these TypeScript apphosts:
 
 ```bash
-# Install staging Aspire CLI
-# On Windows:
+# Install the STAGING Aspire CLI (required for TypeScript polyglot support)
+# The stable CLI from NuGet (dotnet tool install -g Aspire.Cli) does NOT support apphost.ts.
+
+# On Windows (PowerShell):
 iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
 
 # On Linux/macOS:
 curl -fsSL https://aspire.dev/install.sh | bash -s -- --quality staging
+
+# Ensure Docker (or Podman) is running — Aspire handles all container orchestration
 
 # Navigate to sample directory
 cd samples/<sample-name>
@@ -331,25 +368,41 @@ aspire run
 
 ### Expected Behavior
 
-When running `aspire run` with an `apphost.ts` present:
-1. The CLI detects the TypeScript apphost
-2. It scaffolds a .NET AppHost server project (if not already present)
+When running `aspire run` with an `apphost.ts` present (staging CLI required):
+1. The CLI detects the TypeScript apphost via its `apphost.ts` detection pattern
+2. It scaffolds a .NET AppHost server project in a temp directory
 3. `aspire add` installs NuGet packages and triggers SDK regeneration
 4. It generates the TypeScript SDK in `.modules/` with all available capabilities
-5. It starts both the .NET server and Node.js guest
+5. It starts both the .NET server and Node.js guest (connected via JSON-RPC over Unix socket)
 6. The Aspire dashboard shows all declared resources
 7. Resources start in dependency order (via `waitFor`)
+8. Containers are automatically pulled and started by the .NET AppHost server
+
+### Validation Checklist
+
+After running `aspire run` for each sample, update this section with results:
+
+- [ ] Verify `.modules/aspire.ts` is generated with expected builder classes
+- [ ] Confirm each `aspire add` package produces the expected API methods
+- [ ] Update per-sample gap analysis with actual findings
+- [ ] Remove or update any `// POLYGLOT GAP:` comments that are resolved
+- [ ] Note any new gaps discovered in the generated SDK
 
 ### Known Runtime Issues
 
-1. **`.modules/` not pre-generated**: The TypeScript SDK is generated at runtime by the CLI. The
+1. **Staging CLI required**: The stable Aspire CLI (`dotnet tool install -g Aspire.Cli@13.1.2`)
+   does **not** detect `apphost.ts` files. You must install the native staging binary from
+   `https://aspire.dev/install.sh` (or `.ps1`) with `--quality staging`.
+2. **`.modules/` not pre-generated**: The TypeScript SDK is generated at runtime by the CLI. The
    `import ... from "./.modules/aspire.js"` will fail if run directly with `node` or `ts-node`.
    Always use `aspire run`.
-2. **Must run `aspire add` first**: Integration APIs (like `addRedis`, `addPostgres`) are only
+3. **Must run `aspire add` first**: Integration APIs (like `addRedis`, `addPostgres`) are only
    available after adding the corresponding packages with `aspire add`. Without them, the generated
    SDK won't include those capabilities.
-3. **Project discovery**: `addProject("name")` discovers .NET projects via the Aspire CLI's
+4. **Container runtime required**: Docker or Podman must be running. Aspire handles all container
+   orchestration automatically — no need to manually pull or start containers.
+5. **Project discovery**: `addProject("name")` discovers .NET projects via the Aspire CLI's
    project detection. Ensure project files are in the expected directory structure.
-4. **Async chaining**: The TypeScript SDK uses `Thenable` wrappers for fluent async chaining.
+6. **Async chaining**: The TypeScript SDK uses `Thenable` wrappers for fluent async chaining.
    Single `await` at the end of a chain is the expected pattern, but complex branching (like
    conditional `withDataVolume`) may require intermediate `await` calls.
