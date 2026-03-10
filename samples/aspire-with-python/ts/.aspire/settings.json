@@ -1,1 +1,9 @@
-{"appHostPath":"../apphost.ts"}
+{
+  "appHostPath": "../apphost.ts",
+  "sdkVersion": "13.2.0-preview.1.26159.1",
+  "packages": {
+    "Aspire.Hosting.JavaScript": "13.1.2",
+    "Aspire.Hosting.Python": "13.1.2",
+    "Aspire.Hosting.Redis": "13.1.2"
+  }
+}

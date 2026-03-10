@@ -1,3 +1,9 @@
 {
-  "appHostPath": "../apphost.ts"
+  "appHostPath": "../apphost.ts",
+  "sdkVersion": "13.2.0-preview.1.26159.1",
+  "packages": {
+    "Aspire.Hosting.Azure.AppContainers": "13.1.2",
+    "Aspire.Hosting.Azure.Storage": "13.1.2",
+    "Aspire.Hosting.Azure.Functions": "13.1.2"
+  }
 }
