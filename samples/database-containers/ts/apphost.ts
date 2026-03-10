@@ -40,7 +40,7 @@ const sqlserver = await builder.addSqlServer("sqlserver")
 
 // Read the SQL creation script and apply it to the database
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const initSqlPath = join(__dirname, "init.sql");
+const initSqlPath = join(__dirname, "../DatabaseContainers.ApiService/data/sqlserver/init.sql");
 if (!existsSync(initSqlPath)) {
     throw new Error(`SQL initialization script not found: ${initSqlPath}`);
 }
