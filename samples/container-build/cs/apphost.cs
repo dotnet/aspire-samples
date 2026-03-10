@@ -1,7 +1,5 @@
 #:sdk Aspire.AppHost.Sdk@13.1.0
 
-using Microsoft.Extensions.Hosting;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var goVersion = builder.AddParameter("goversion", "1.25.4", publishValueAsDefault: true);

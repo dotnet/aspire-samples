@@ -2,7 +2,8 @@ import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const goVersion = await builder.addParameter("goversion", { default: "1.25.4" });
+// Enter '1.25.4' when prompted for the Go version.
+const goVersion = await builder.addParameter("goversion", { secret: true });
 
 const context = await builder.executionContext.get();
 const isPublish = await context.isPublishMode.get();
