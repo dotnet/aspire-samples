@@ -1,40 +1,47 @@
-import { createBuilder } from './.modules/aspire.js';
+import { ContainerLifetime, createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const postgres = builder.addPostgres("postgres")
+const postgres = await builder.addPostgres("postgres")
     .withPgAdmin()
-    .withLifetime("persistent");
+    .withLifetime(ContainerLifetime.Persistent);
 
-if (builder.executionContext.isRunMode) {
+const context = await builder.executionContext.get();
+if (context.isRunMode && await context.isRunMode.get()) {
     await postgres.withDataVolume();
 }
 
-const catalogDb = postgres.addDatabase("catalogdb");
+const catalogDb = await postgres.addDatabase("catalogdb");
 
-const basketCache = builder.addRedis("basketcache")
+const basketCache = await builder.addRedis("basketcache")
     .withDataVolume()
     .withRedisCommander();
 
-const catalogDbManager = builder.addProject("catalogdbmanager", "../AspireShop.CatalogDbManager/AspireShop.CatalogDbManager.csproj", "https")
+const catalogDbManager = await builder.addProject("catalogdbmanager", "../AspireShop.CatalogDbManager/AspireShop.CatalogDbManager.csproj", "https")
     .withReference(catalogDb)
     .waitFor(catalogDb)
-    .withHttpHealthCheck("/health");
+    .withHttpHealthCheck({
+        path: "/health"
+    });
 
-const catalogService = builder.addProject("catalogservice", "../AspireShop.CatalogService/AspireShop.CatalogService.csproj", "https")
+const catalogService = await builder.addProject("catalogservice", "../AspireShop.CatalogService/AspireShop.CatalogService.csproj", "https")
     .withReference(catalogDb)
     .waitFor(catalogDbManager)
-    .withHttpHealthCheck("/health");
+    .withHttpHealthCheck({
+        path: "/health"
+    });
 
-const basketService = builder.addProject("basketservice", "../AspireShop.BasketService/AspireShop.BasketService.csproj", "https")
+const basketService = await builder.addProject("basketservice", "../AspireShop.BasketService/AspireShop.BasketService.csproj", "https")
     .withReference(basketCache)
     .waitFor(basketCache);
 
-builder.addProject("frontend", "../AspireShop.Frontend/AspireShop.Frontend.csproj", "https")
+const frontend = await builder.addProject("frontend", "../AspireShop.Frontend/AspireShop.Frontend.csproj", "https")
     .withExternalHttpEndpoints()
-    .withHttpHealthCheck("/health")
-    .withReference(basketService)
-    .withReference(catalogService)
+    .withHttpHealthCheck({
+        path: "/health"
+    })
+    .withServiceReference(basketService)
+    .withServiceReference(catalogService)
     .waitFor(catalogService);
 
 await builder.build().run();

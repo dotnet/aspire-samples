@@ -20,9 +20,7 @@ await builder.addJavaScriptApp("react", "../AspireJavaScript.React", { runScript
     .withExternalHttpEndpoints()
     .publishAsDockerFile();
 
-await builder.addJavaScriptApp("vue", "../AspireJavaScript.Vue")
-    .withRunScript("start")
-    .withNpm({ installCommand: "ci" })
+await builder.addJavaScriptApp("vue", "../AspireJavaScript.Vue", { runScriptName: "start" })
     .withServiceReference(weatherApi)
     .waitFor(weatherApi)
     .withHttpEndpoint({ env: "PORT" })
