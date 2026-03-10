@@ -26,6 +26,21 @@ import {
 // Handle Type Aliases (Internal - not exported to users)
 // ============================================================================
 
+/** Handle to OrleansService */
+type OrleansServiceHandle = Handle<'Aspire.Hosting.Orleans/Aspire.Hosting.Orleans.OrleansService'>;
+
+/** Handle to OrleansServiceClient */
+type OrleansServiceClientHandle = Handle<'Aspire.Hosting.Orleans/Aspire.Hosting.Orleans.OrleansServiceClient'>;
+
+/** Handle to RedisResource */
+type RedisResourceHandle = Handle<'Aspire.Hosting.Redis/Aspire.Hosting.ApplicationModel.RedisResource'>;
+
+/** Handle to RedisCommanderResource */
+type RedisCommanderResourceHandle = Handle<'Aspire.Hosting.Redis/Aspire.Hosting.Redis.RedisCommanderResource'>;
+
+/** Handle to RedisInsightResource */
+type RedisInsightResourceHandle = Handle<'Aspire.Hosting.Redis/Aspire.Hosting.Redis.RedisInsightResource'>;
+
 /** Handle to CommandLineArgsCallbackContext */
 type CommandLineArgsCallbackContextHandle = Handle<'Aspire.Hosting/Aspire.Hosting.ApplicationModel.CommandLineArgsCallbackContext'>;
 
@@ -339,6 +354,15 @@ export interface AddParameterOptions {
     secret?: boolean;
 }
 
+export interface AddRedisOptions {
+    port?: number;
+    password?: ParameterResource;
+}
+
+export interface AddRedisWithPortOptions {
+    port?: number;
+}
+
 export interface AppendFormattedOptions {
     format?: string;
 }
@@ -365,6 +389,15 @@ export interface WithBindMountOptions {
 
 export interface WithCommandOptions {
     commandOptions?: CommandOptions;
+}
+
+export interface WithDataBindMountOptions {
+    isReadOnly?: boolean;
+}
+
+export interface WithDataVolumeOptions {
+    name?: string;
+    isReadOnly?: boolean;
 }
 
 export interface WithDescriptionOptions {
@@ -395,6 +428,10 @@ export interface WithEndpointOptions {
 export interface WithExternalServiceHttpHealthCheckOptions {
     path?: string;
     statusCode?: number;
+}
+
+export interface WithHostPortOptions {
+    port?: number;
 }
 
 export interface WithHttpEndpointOptions {
@@ -446,11 +483,26 @@ export interface WithMcpServerOptions {
     endpointName?: string;
 }
 
+export interface WithPersistenceOptions {
+    interval?: number;
+    keysChangedThreshold?: number;
+}
+
 export interface WithPipelineStepFactoryOptions {
     dependsOn?: string[];
     requiredBy?: string[];
     tags?: string[];
     description?: string;
+}
+
+export interface WithRedisCommanderOptions {
+    configureContainer?: (obj: RedisCommanderResource) => Promise<void>;
+    containerName?: string;
+}
+
+export interface WithRedisInsightOptions {
+    configureContainer?: (obj: RedisInsightResource) => Promise<void>;
+    containerName?: string;
 }
 
 export interface WithReferenceOptions {
@@ -940,6 +992,290 @@ export class ExecuteCommandContext {
             );
         }
     };
+
+}
+
+// ============================================================================
+// OrleansService
+// ============================================================================
+
+/**
+ * Type class for OrleansService.
+ */
+export class OrleansService {
+    constructor(private _handle: OrleansServiceHandle, private _client: AspireClientRpc) {}
+
+    /** Serialize for JSON-RPC transport */
+    toJSON(): MarshalledHandle { return this._handle.toJSON(); }
+
+    /** Sets the Orleans cluster ID */
+    /** @internal */
+    async _withClusterIdInternal(clusterId: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, clusterId };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withClusterId',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withClusterId(clusterId: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._withClusterIdInternal(clusterId));
+    }
+
+    /** Sets the Orleans service ID */
+    /** @internal */
+    async _withServiceIdInternal(serviceId: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, serviceId };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withServiceId',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withServiceId(serviceId: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._withServiceIdInternal(serviceId));
+    }
+
+    /** Configures Orleans clustering using a resource connection */
+    /** @internal */
+    async _withClusteringInternal(provider: ResourceBuilderBase): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, provider };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withClustering',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withClustering(provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._withClusteringInternal(provider));
+    }
+
+    /** Configures Orleans development clustering */
+    /** @internal */
+    async _withDevelopmentClusteringInternal(): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withDevelopmentClustering',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withDevelopmentClustering(): OrleansServicePromise {
+        return new OrleansServicePromise(this._withDevelopmentClusteringInternal());
+    }
+
+    /** Adds an Orleans grain storage provider */
+    /** @internal */
+    async _withGrainStorageInternal(name: string, provider: ResourceBuilderBase): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name, provider };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withGrainStorage',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withGrainStorage(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._withGrainStorageInternal(name, provider));
+    }
+
+    /** Adds in-memory Orleans grain storage */
+    /** @internal */
+    async _withMemoryGrainStorageInternal(name: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withMemoryGrainStorage',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withMemoryGrainStorage(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._withMemoryGrainStorageInternal(name));
+    }
+
+    /** Adds an Orleans stream provider */
+    /** @internal */
+    async _withStreamingInternal(name: string, provider: ResourceBuilderBase): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name, provider };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withStreaming',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withStreaming(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._withStreamingInternal(name, provider));
+    }
+
+    /** Adds in-memory Orleans streaming */
+    /** @internal */
+    async _withMemoryStreamingInternal(name: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withMemoryStreaming',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withMemoryStreaming(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._withMemoryStreamingInternal(name));
+    }
+
+    /** Adds an Orleans broadcast channel provider */
+    /** @internal */
+    async _withBroadcastChannelInternal(name: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withBroadcastChannel',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withBroadcastChannel(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._withBroadcastChannelInternal(name));
+    }
+
+    /** Configures Orleans reminder storage */
+    /** @internal */
+    async _withRemindersInternal(provider: ResourceBuilderBase): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, provider };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withReminders',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withReminders(provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._withRemindersInternal(provider));
+    }
+
+    /** Configures in-memory Orleans reminders */
+    /** @internal */
+    async _withMemoryRemindersInternal(): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withMemoryReminders',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withMemoryReminders(): OrleansServicePromise {
+        return new OrleansServicePromise(this._withMemoryRemindersInternal());
+    }
+
+    /** Adds an Orleans grain directory provider */
+    /** @internal */
+    async _withGrainDirectoryInternal(name: string, provider: ResourceBuilderBase): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { orleansServiceBuilder: this._handle, name, provider };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/withGrainDirectory',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    withGrainDirectory(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._withGrainDirectoryInternal(name, provider));
+    }
+
+    /** Creates an Orleans client view for the service */
+    async asClient(): Promise<OrleansServiceClientHandle> {
+        const rpcArgs: Record<string, unknown> = { orleansService: this._handle };
+        return await this._client.invokeCapability<OrleansServiceClientHandle>(
+            'Aspire.Hosting.Orleans/asClient',
+            rpcArgs
+        );
+    }
+
+}
+
+/**
+ * Thenable wrapper for OrleansService that enables fluent chaining.
+ */
+export class OrleansServicePromise implements PromiseLike<OrleansService> {
+    constructor(private _promise: Promise<OrleansService>) {}
+
+    then<TResult1 = OrleansService, TResult2 = never>(
+        onfulfilled?: ((value: OrleansService) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Sets the Orleans cluster ID */
+    withClusterId(clusterId: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withClusterId(clusterId)));
+    }
+
+    /** Sets the Orleans service ID */
+    withServiceId(serviceId: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withServiceId(serviceId)));
+    }
+
+    /** Configures Orleans clustering using a resource connection */
+    withClustering(provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withClustering(provider)));
+    }
+
+    /** Configures Orleans development clustering */
+    withDevelopmentClustering(): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withDevelopmentClustering()));
+    }
+
+    /** Adds an Orleans grain storage provider */
+    withGrainStorage(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withGrainStorage(name, provider)));
+    }
+
+    /** Adds in-memory Orleans grain storage */
+    withMemoryGrainStorage(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withMemoryGrainStorage(name)));
+    }
+
+    /** Adds an Orleans stream provider */
+    withStreaming(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withStreaming(name, provider)));
+    }
+
+    /** Adds in-memory Orleans streaming */
+    withMemoryStreaming(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withMemoryStreaming(name)));
+    }
+
+    /** Adds an Orleans broadcast channel provider */
+    withBroadcastChannel(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withBroadcastChannel(name)));
+    }
+
+    /** Configures Orleans reminder storage */
+    withReminders(provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withReminders(provider)));
+    }
+
+    /** Configures in-memory Orleans reminders */
+    withMemoryReminders(): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withMemoryReminders()));
+    }
+
+    /** Adds an Orleans grain directory provider */
+    withGrainDirectory(name: string, provider: ResourceBuilderBase): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.withGrainDirectory(name, provider)));
+    }
+
+    /** Creates an Orleans client view for the service */
+    asClient(): Promise<OrleansServiceClientHandle> {
+        return this._promise.then(obj => obj.asClient());
+    }
 
 }
 
@@ -1711,6 +2047,57 @@ export class DistributedApplicationBuilder {
         return new CSharpAppResourcePromise(this._addCSharpAppWithOptionsInternal(name, path, configure));
     }
 
+    /** Adds a Redis container resource with specific port */
+    /** @internal */
+    async _addRedisWithPortInternal(name: string, port?: number): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/addRedisWithPort',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    addRedisWithPort(name: string, options?: AddRedisWithPortOptions): RedisResourcePromise {
+        const port = options?.port;
+        return new RedisResourcePromise(this._addRedisWithPortInternal(name, port));
+    }
+
+    /** Adds a Redis container resource */
+    /** @internal */
+    async _addRedisInternal(name: string, port?: number, password?: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        if (port !== undefined) rpcArgs.port = port;
+        if (password !== undefined) rpcArgs.password = password;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/addRedis',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    addRedis(name: string, options?: AddRedisOptions): RedisResourcePromise {
+        const port = options?.port;
+        const password = options?.password;
+        return new RedisResourcePromise(this._addRedisInternal(name, port, password));
+    }
+
+    /** Adds an Orleans service configuration */
+    /** @internal */
+    async _addOrleansInternal(name: string): Promise<OrleansService> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        const result = await this._client.invokeCapability<OrleansServiceHandle>(
+            'Aspire.Hosting.Orleans/addOrleans',
+            rpcArgs
+        );
+        return new OrleansService(result, this._client);
+    }
+
+    addOrleans(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._addOrleansInternal(name));
+    }
+
 }
 
 /**
@@ -1799,6 +2186,21 @@ export class DistributedApplicationBuilderPromise implements PromiseLike<Distrib
     /** Adds a C# application resource with configuration options */
     addCSharpAppWithOptions(name: string, path: string, configure: (obj: ProjectResourceOptions) => Promise<void>): CSharpAppResourcePromise {
         return new CSharpAppResourcePromise(this._promise.then(obj => obj.addCSharpAppWithOptions(name, path, configure)));
+    }
+
+    /** Adds a Redis container resource with specific port */
+    addRedisWithPort(name: string, options?: AddRedisWithPortOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.addRedisWithPort(name, options)));
+    }
+
+    /** Adds a Redis container resource */
+    addRedis(name: string, options?: AddRedisOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.addRedis(name, options)));
+    }
+
+    /** Adds an Orleans service configuration */
+    addOrleans(name: string): OrleansServicePromise {
+        return new OrleansServicePromise(this._promise.then(obj => obj.addOrleans(name)));
     }
 
 }
@@ -3056,239 +3458,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
     }
 
     /** @internal */
-    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
-        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBindMount',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a bind mount */
-    withBindMount(source: string, target: string, options?: WithBindMountOptions): ContainerResourcePromise {
-        const isReadOnly = options?.isReadOnly;
-        return new ContainerResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
-    }
-
-    /** @internal */
-    private async _withEntrypointInternal(entrypoint: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withEntrypoint',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container entrypoint */
-    withEntrypoint(entrypoint: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withEntrypointInternal(entrypoint));
-    }
-
-    /** @internal */
-    private async _withImageTagInternal(tag: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageTag',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image tag */
-    withImageTag(tag: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageTagInternal(tag));
-    }
-
-    /** @internal */
-    private async _withImageRegistryInternal(registry: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageRegistry',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image registry */
-    withImageRegistry(registry: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageRegistryInternal(registry));
-    }
-
-    /** @internal */
-    private async _withImageInternal(image: string, tag?: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
-        if (tag !== undefined) rpcArgs.tag = tag;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImage',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image */
-    withImage(image: string, options?: WithImageOptions): ContainerResourcePromise {
-        const tag = options?.tag;
-        return new ContainerResourcePromise(this._withImageInternal(image, tag));
-    }
-
-    /** @internal */
-    private async _withImageSHA256Internal(sha256: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageSHA256',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the image SHA256 digest */
-    withImageSHA256(sha256: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageSHA256Internal(sha256));
-    }
-
-    /** @internal */
-    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerRuntimeArgs',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds runtime arguments for the container */
-    withContainerRuntimeArgs(args: string[]): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerRuntimeArgsInternal(args));
-    }
-
-    /** @internal */
-    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withLifetime',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the lifetime behavior of the container resource */
-    withLifetime(lifetime: ContainerLifetime): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withLifetimeInternal(lifetime));
-    }
-
-    /** @internal */
-    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImagePullPolicy',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image pull policy */
-    withImagePullPolicy(pullPolicy: ImagePullPolicy): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
-    }
-
-    /** @internal */
-    private async _publishAsContainerInternal(): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/publishAsContainer',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures the resource to be published as a container */
-    publishAsContainer(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._publishAsContainerInternal());
-    }
-
-    /** @internal */
-    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
-        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
-        if (stage !== undefined) rpcArgs.stage = stage;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withDockerfile',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures the resource to use a Dockerfile */
-    withDockerfile(contextPath: string, options?: WithDockerfileOptions): ContainerResourcePromise {
-        const dockerfilePath = options?.dockerfilePath;
-        const stage = options?.stage;
-        return new ContainerResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
-    }
-
-    /** @internal */
-    private async _withContainerNameInternal(name: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerName',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container name */
-    withContainerName(name: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerNameInternal(name));
-    }
-
-    /** @internal */
-    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBuildArg',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a build argument from a parameter resource */
-    withBuildArg(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withBuildArgInternal(name, value));
-    }
-
-    /** @internal */
-    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBuildSecret',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a build secret from a parameter resource */
-    withBuildSecret(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withBuildSecretInternal(name, value));
-    }
-
-    /** @internal */
-    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withEndpointProxySupport',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures endpoint proxy support */
-    withEndpointProxySupport(proxyEnabled: boolean): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
-    }
-
-    /** @internal */
     private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<ContainerResource> {
         const rpcArgs: Record<string, unknown> = { builder: this._handle };
         if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
@@ -3305,21 +3474,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
         const buildImage = options?.buildImage;
         const runtimeImage = options?.runtimeImage;
         return new ContainerResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
-    }
-
-    /** @internal */
-    private async _withContainerNetworkAliasInternal(alias: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerNetworkAlias',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a network alias for the container */
-    withContainerNetworkAlias(alias: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerNetworkAliasInternal(alias));
     }
 
     /** @internal */
@@ -3369,21 +3523,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
     /** Configures OTLP telemetry export with specific protocol */
     withOtlpExporterProtocol(protocol: OtlpProtocol): ContainerResourcePromise {
         return new ContainerResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
-    }
-
-    /** @internal */
-    private async _publishAsConnectionStringInternal(): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/publishAsConnectionString',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Publishes the resource as a connection string */
-    publishAsConnectionString(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._publishAsConnectionStringInternal());
     }
 
     /** @internal */
@@ -4316,25 +4455,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
         return new ContainerResourcePromise(this._withPipelineConfigurationInternal(callback));
     }
 
-    /** @internal */
-    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
-        if (name !== undefined) rpcArgs.name = name;
-        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withVolume',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a volume */
-    withVolume(target: string, options?: WithVolumeOptions): ContainerResourcePromise {
-        const name = options?.name;
-        const isReadOnly = options?.isReadOnly;
-        return new ContainerResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
-    }
-
     /** Gets the resource name */
     async getResourceName(): Promise<string> {
         const rpcArgs: Record<string, unknown> = { resource: this._handle };
@@ -4342,6 +4462,36 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
             'Aspire.Hosting/getResourceName',
             rpcArgs
         );
+    }
+
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<ContainerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<ContainerResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new ContainerResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ContainerResourcePromise {
+        return new ContainerResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<ContainerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<ContainerResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new ContainerResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ContainerResourcePromise {
+        return new ContainerResourcePromise(this._withOrleansReferenceInternal(orleansService));
     }
 
 }
@@ -4366,89 +4516,9 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
         return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
     }
 
-    /** Adds a bind mount */
-    withBindMount(source: string, target: string, options?: WithBindMountOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
-    }
-
-    /** Sets the container entrypoint */
-    withEntrypoint(entrypoint: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
-    }
-
-    /** Sets the container image tag */
-    withImageTag(tag: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
-    }
-
-    /** Sets the container image registry */
-    withImageRegistry(registry: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
-    }
-
-    /** Sets the container image */
-    withImage(image: string, options?: WithImageOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
-    }
-
-    /** Sets the image SHA256 digest */
-    withImageSHA256(sha256: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
-    }
-
-    /** Adds runtime arguments for the container */
-    withContainerRuntimeArgs(args: string[]): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
-    }
-
-    /** Sets the lifetime behavior of the container resource */
-    withLifetime(lifetime: ContainerLifetime): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
-    }
-
-    /** Sets the container image pull policy */
-    withImagePullPolicy(pullPolicy: ImagePullPolicy): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
-    }
-
-    /** Configures the resource to be published as a container */
-    publishAsContainer(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
-    }
-
-    /** Configures the resource to use a Dockerfile */
-    withDockerfile(contextPath: string, options?: WithDockerfileOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
-    }
-
-    /** Sets the container name */
-    withContainerName(name: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
-    }
-
-    /** Adds a build argument from a parameter resource */
-    withBuildArg(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
-    }
-
-    /** Adds a build secret from a parameter resource */
-    withBuildSecret(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
-    }
-
-    /** Configures endpoint proxy support */
-    withEndpointProxySupport(proxyEnabled: boolean): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
-    }
-
     /** Sets the base image for a Dockerfile build */
     withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): ContainerResourcePromise {
         return new ContainerResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
-    }
-
-    /** Adds a network alias for the container */
-    withContainerNetworkAlias(alias: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
     }
 
     /** Configures an MCP server endpoint on the resource */
@@ -4464,11 +4534,6 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
     /** Configures OTLP telemetry export with specific protocol */
     withOtlpExporterProtocol(protocol: OtlpProtocol): ContainerResourcePromise {
         return new ContainerResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
-    }
-
-    /** Publishes the resource as a connection string */
-    publishAsConnectionString(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
     }
 
     /** Adds a required command dependency */
@@ -4736,14 +4801,19 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
         return new ContainerResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
     }
 
-    /** Adds a volume */
-    withVolume(target: string, options?: WithVolumeOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
-    }
-
     /** Gets the resource name */
     getResourceName(): Promise<string> {
         return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ContainerResourcePromise {
+        return new ContainerResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ContainerResourcePromise {
+        return new ContainerResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -5824,6 +5894,36 @@ export class CSharpAppResource extends ResourceBuilderBase<CSharpAppResourceHand
         );
     }
 
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<CSharpAppResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<CSharpAppResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new CSharpAppResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): CSharpAppResourcePromise {
+        return new CSharpAppResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<CSharpAppResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<CSharpAppResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new CSharpAppResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): CSharpAppResourcePromise {
+        return new CSharpAppResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
 }
 
 /**
@@ -6149,6 +6249,16 @@ export class CSharpAppResourcePromise implements PromiseLike<CSharpAppResource> 
     /** Gets the resource name */
     getResourceName(): Promise<string> {
         return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): CSharpAppResourcePromise {
+        return new CSharpAppResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): CSharpAppResourcePromise {
+        return new CSharpAppResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -7339,6 +7449,36 @@ export class DotnetToolResource extends ResourceBuilderBase<DotnetToolResourceHa
         );
     }
 
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<DotnetToolResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<DotnetToolResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new DotnetToolResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): DotnetToolResourcePromise {
+        return new DotnetToolResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<DotnetToolResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<DotnetToolResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new DotnetToolResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): DotnetToolResourcePromise {
+        return new DotnetToolResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
 }
 
 /**
@@ -7699,6 +7839,16 @@ export class DotnetToolResourcePromise implements PromiseLike<DotnetToolResource
     /** Gets the resource name */
     getResourceName(): Promise<string> {
         return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): DotnetToolResourcePromise {
+        return new DotnetToolResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): DotnetToolResourcePromise {
+        return new DotnetToolResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -8734,6 +8884,36 @@ export class ExecutableResource extends ResourceBuilderBase<ExecutableResourceHa
         );
     }
 
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<ExecutableResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<ExecutableResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new ExecutableResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ExecutableResourcePromise {
+        return new ExecutableResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<ExecutableResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<ExecutableResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new ExecutableResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ExecutableResourcePromise {
+        return new ExecutableResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
 }
 
 /**
@@ -9044,6 +9224,16 @@ export class ExecutableResourcePromise implements PromiseLike<ExecutableResource
     /** Gets the resource name */
     getResourceName(): Promise<string> {
         return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ExecutableResourcePromise {
+        return new ExecutableResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ExecutableResourcePromise {
+        return new ExecutableResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -11176,6 +11366,36 @@ export class ProjectResource extends ResourceBuilderBase<ProjectResourceHandle> 
         );
     }
 
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<ProjectResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<ProjectResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new ProjectResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ProjectResourcePromise {
+        return new ProjectResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<ProjectResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<ProjectResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new ProjectResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ProjectResourcePromise {
+        return new ProjectResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
 }
 
 /**
@@ -11491,6 +11711,5694 @@ export class ProjectResourcePromise implements PromiseLike<ProjectResource> {
     /** Gets the resource name */
     getResourceName(): Promise<string> {
         return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ProjectResourcePromise {
+        return new ProjectResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ProjectResourcePromise {
+        return new ProjectResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
+    }
+
+}
+
+// ============================================================================
+// RedisCommanderResource
+// ============================================================================
+
+export class RedisCommanderResource extends ResourceBuilderBase<RedisCommanderResourceHandle> {
+    constructor(handle: RedisCommanderResourceHandle, client: AspireClientRpc) {
+        super(handle, client);
+    }
+
+    /** @internal */
+    private async _withContainerRegistryInternal(registry: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withContainerRegistry',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withContainerRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withBindMount',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisCommanderResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new RedisCommanderResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withEntrypointInternal(entrypoint: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEntrypoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEntrypointInternal(entrypoint));
+    }
+
+    /** @internal */
+    private async _withImageTagInternal(tag: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withImageTag',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withImageTagInternal(tag));
+    }
+
+    /** @internal */
+    private async _withImageRegistryInternal(registry: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withImageRegistry',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withImageRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withImageInternal(image: string, tag?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
+        if (tag !== undefined) rpcArgs.tag = tag;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withImage',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisCommanderResourcePromise {
+        const tag = options?.tag;
+        return new RedisCommanderResourcePromise(this._withImageInternal(image, tag));
+    }
+
+    /** @internal */
+    private async _withImageSHA256Internal(sha256: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withImageSHA256',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withImageSHA256Internal(sha256));
+    }
+
+    /** @internal */
+    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withContainerRuntimeArgs',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withContainerRuntimeArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withLifetime',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withLifetimeInternal(lifetime));
+    }
+
+    /** @internal */
+    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withImagePullPolicy',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
+    }
+
+    /** @internal */
+    private async _publishAsContainerInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/publishAsContainer',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._publishAsContainerInternal());
+    }
+
+    /** @internal */
+    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
+        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
+        if (stage !== undefined) rpcArgs.stage = stage;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withDockerfile',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisCommanderResourcePromise {
+        const dockerfilePath = options?.dockerfilePath;
+        const stage = options?.stage;
+        return new RedisCommanderResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
+    }
+
+    /** @internal */
+    private async _withContainerNameInternal(name: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withContainerName',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withContainerNameInternal(name));
+    }
+
+    /** @internal */
+    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withBuildArg',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withBuildArgInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withBuildSecret',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withBuildSecretInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEndpointProxySupport',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
+    }
+
+    /** @internal */
+    private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
+        if (runtimeImage !== undefined) rpcArgs.runtimeImage = runtimeImage;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withDockerfileBaseImage',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisCommanderResourcePromise {
+        const buildImage = options?.buildImage;
+        const runtimeImage = options?.runtimeImage;
+        return new RedisCommanderResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
+    }
+
+    /** @internal */
+    private async _withContainerNetworkAliasInternal(alias: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withContainerNetworkAlias',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withContainerNetworkAliasInternal(alias));
+    }
+
+    /** @internal */
+    private async _withMcpServerInternal(path?: string, endpointName?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withMcpServer',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisCommanderResourcePromise {
+        const path = options?.path;
+        const endpointName = options?.endpointName;
+        return new RedisCommanderResourcePromise(this._withMcpServerInternal(path, endpointName));
+    }
+
+    /** @internal */
+    private async _withOtlpExporterInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withOtlpExporter',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withOtlpExporterInternal());
+    }
+
+    /** @internal */
+    private async _withOtlpExporterProtocolInternal(protocol: OtlpProtocol): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, protocol };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withOtlpExporterProtocol',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
+    }
+
+    /** @internal */
+    private async _publishAsConnectionStringInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/publishAsConnectionString',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._publishAsConnectionStringInternal());
+    }
+
+    /** @internal */
+    private async _withRequiredCommandInternal(command: string, helpLink?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, command };
+        if (helpLink !== undefined) rpcArgs.helpLink = helpLink;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withRequiredCommand',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisCommanderResourcePromise {
+        const helpLink = options?.helpLink;
+        return new RedisCommanderResourcePromise(this._withRequiredCommandInternal(command, helpLink));
+    }
+
+    /** @internal */
+    private async _withEnvironmentInternal(name: string, value: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironment',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentExpressionInternal(name: string, value: ReferenceExpression): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentExpression',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentExpressionInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackInternal(callback: (obj: EnvironmentCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as EnvironmentCallbackContextHandle;
+            const obj = new EnvironmentCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallback',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackAsyncInternal(callback: (arg: EnvironmentCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EnvironmentCallbackContextHandle;
+            const arg = new EnvironmentCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallbackAsync',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentEndpointInternal(name: string, endpointReference: EndpointReference): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, endpointReference };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentEndpointInternal(name, endpointReference));
+    }
+
+    /** @internal */
+    private async _withEnvironmentParameterInternal(name: string, parameter: ParameterResource): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, parameter };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentParameter',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentParameterInternal(name, parameter));
+    }
+
+    /** @internal */
+    private async _withEnvironmentConnectionStringInternal(envVarName: string, resource: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, envVarName, resource };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEnvironmentConnectionString',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withEnvironmentConnectionStringInternal(envVarName, resource));
+    }
+
+    /** @internal */
+    private async _withArgsInternal(args: string[]): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withArgs',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackInternal(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as CommandLineArgsCallbackContextHandle;
+            const obj = new CommandLineArgsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withArgsCallback',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withArgsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackAsyncInternal(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as CommandLineArgsCallbackContextHandle;
+            const arg = new CommandLineArgsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withArgsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withArgsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withReferenceInternal(source: ResourceBuilderBase, connectionName?: string, optional?: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (connectionName !== undefined) rpcArgs.connectionName = connectionName;
+        if (optional !== undefined) rpcArgs.optional = optional;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withReference',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisCommanderResourcePromise {
+        const connectionName = options?.connectionName;
+        const optional = options?.optional;
+        return new RedisCommanderResourcePromise(this._withReferenceInternal(source, connectionName, optional));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceInternal(source: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withServiceReference',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withServiceReferenceInternal(source));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceNamedInternal(source: ResourceBuilderBase, name: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, name };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withServiceReferenceNamed',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withServiceReferenceNamedInternal(source, name));
+    }
+
+    /** @internal */
+    private async _withReferenceUriInternal(name: string, uri: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, uri };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withReferenceUri',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withReferenceUriInternal(name, uri));
+    }
+
+    /** @internal */
+    private async _withReferenceExternalServiceInternal(externalService: ExternalServiceResource): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, externalService };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withReferenceExternalService',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withReferenceExternalServiceInternal(externalService));
+    }
+
+    /** @internal */
+    private async _withReferenceEndpointInternal(endpointReference: EndpointReference): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointReference };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withReferenceEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withReferenceEndpointInternal(endpointReference));
+    }
+
+    /** @internal */
+    private async _withEndpointInternal(port?: number, targetPort?: number, scheme?: string, name?: string, env?: string, isProxied?: boolean, isExternal?: boolean, protocol?: ProtocolType): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (scheme !== undefined) rpcArgs.scheme = scheme;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        if (isExternal !== undefined) rpcArgs.isExternal = isExternal;
+        if (protocol !== undefined) rpcArgs.protocol = protocol;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisCommanderResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const scheme = options?.scheme;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        const isExternal = options?.isExternal;
+        const protocol = options?.protocol;
+        return new RedisCommanderResourcePromise(this._withEndpointInternal(port, targetPort, scheme, name, env, isProxied, isExternal, protocol));
+    }
+
+    /** @internal */
+    private async _withHttpEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHttpEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisCommanderResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisCommanderResourcePromise(this._withHttpEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withHttpsEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHttpsEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisCommanderResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisCommanderResourcePromise(this._withHttpsEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withExternalHttpEndpointsInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withExternalHttpEndpoints',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withExternalHttpEndpointsInternal());
+    }
+
+    /** Gets an endpoint reference */
+    async getEndpoint(name: string): Promise<EndpointReference> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        return await this._client.invokeCapability<EndpointReference>(
+            'Aspire.Hosting/getEndpoint',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _asHttp2ServiceInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/asHttp2Service',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._asHttp2ServiceInternal());
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackInternal(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as ResourceUrlsCallbackContextHandle;
+            const obj = new ResourceUrlsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrlsCallback',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withUrlsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackAsyncInternal(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ResourceUrlsCallbackContextHandle;
+            const arg = new ResourceUrlsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrlsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withUrlsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlInternal(url: string, displayText?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrl',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisCommanderResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisCommanderResourcePromise(this._withUrlInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlExpressionInternal(url: ReferenceExpression, displayText?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrlExpression',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisCommanderResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisCommanderResourcePromise(this._withUrlExpressionInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointInternal(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const obj = wrapIfHandle(objData) as ResourceUrlAnnotation;
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpoint',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withUrlForEndpointInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointFactoryInternal(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EndpointReferenceHandle;
+            const arg = new EndpointReference(argHandle, this._client);
+            return await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpointFactory',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withUrlForEndpointFactoryInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _excludeFromManifestInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/excludeFromManifest',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._excludeFromManifestInternal());
+    }
+
+    /** @internal */
+    private async _waitForInternal(dependency: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/waitFor',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._waitForInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/waitForWithBehavior',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._waitForWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _waitForStartInternal(dependency: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/waitForStart',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._waitForStartInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForStartWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/waitForStartWithBehavior',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._waitForStartWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _withExplicitStartInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withExplicitStart',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withExplicitStartInternal());
+    }
+
+    /** @internal */
+    private async _waitForCompletionInternal(dependency: ResourceBuilderBase, exitCode?: number): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        if (exitCode !== undefined) rpcArgs.exitCode = exitCode;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/waitForCompletion',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisCommanderResourcePromise {
+        const exitCode = options?.exitCode;
+        return new RedisCommanderResourcePromise(this._waitForCompletionInternal(dependency, exitCode));
+    }
+
+    /** @internal */
+    private async _withHealthCheckInternal(key: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, key };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHealthCheck',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withHealthCheckInternal(key));
+    }
+
+    /** @internal */
+    private async _withHttpHealthCheckInternal(path?: string, statusCode?: number, endpointName?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (statusCode !== undefined) rpcArgs.statusCode = statusCode;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHttpHealthCheck',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisCommanderResourcePromise {
+        const path = options?.path;
+        const statusCode = options?.statusCode;
+        const endpointName = options?.endpointName;
+        return new RedisCommanderResourcePromise(this._withHttpHealthCheckInternal(path, statusCode, endpointName));
+    }
+
+    /** @internal */
+    private async _withCommandInternal(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, commandOptions?: CommandOptions): Promise<RedisCommanderResource> {
+        const executeCommandId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ExecuteCommandContextHandle;
+            const arg = new ExecuteCommandContext(argHandle, this._client);
+            return await executeCommand(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, displayName, executeCommand: executeCommandId };
+        if (commandOptions !== undefined) rpcArgs.commandOptions = commandOptions;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withCommand',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisCommanderResourcePromise {
+        const commandOptions = options?.commandOptions;
+        return new RedisCommanderResourcePromise(this._withCommandInternal(name, displayName, executeCommand, commandOptions));
+    }
+
+    /** @internal */
+    private async _withDeveloperCertificateTrustInternal(trust: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, trust };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withDeveloperCertificateTrust',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withDeveloperCertificateTrustInternal(trust));
+    }
+
+    /** @internal */
+    private async _withCertificateTrustScopeInternal(scope: CertificateTrustScope): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, scope };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withCertificateTrustScope',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withCertificateTrustScopeInternal(scope));
+    }
+
+    /** @internal */
+    private async _withHttpsDeveloperCertificateInternal(password?: ParameterResource): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (password !== undefined) rpcArgs.password = password;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHttpsDeveloperCertificate',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisCommanderResourcePromise {
+        const password = options?.password;
+        return new RedisCommanderResourcePromise(this._withHttpsDeveloperCertificateInternal(password));
+    }
+
+    /** @internal */
+    private async _withoutHttpsCertificateInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withoutHttpsCertificate',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withoutHttpsCertificateInternal());
+    }
+
+    /** @internal */
+    private async _withParentRelationshipInternal(parent: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, parent };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withParentRelationship',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withParentRelationshipInternal(parent));
+    }
+
+    /** @internal */
+    private async _withChildRelationshipInternal(child: ResourceBuilderBase): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, child };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withChildRelationship',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withChildRelationshipInternal(child));
+    }
+
+    /** @internal */
+    private async _withIconNameInternal(iconName: string, iconVariant?: IconVariant): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, iconName };
+        if (iconVariant !== undefined) rpcArgs.iconVariant = iconVariant;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withIconName',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisCommanderResourcePromise {
+        const iconVariant = options?.iconVariant;
+        return new RedisCommanderResourcePromise(this._withIconNameInternal(iconName, iconVariant));
+    }
+
+    /** @internal */
+    private async _withHttpProbeInternal(probeType: ProbeType, path?: string, initialDelaySeconds?: number, periodSeconds?: number, timeoutSeconds?: number, failureThreshold?: number, successThreshold?: number, endpointName?: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, probeType };
+        if (path !== undefined) rpcArgs.path = path;
+        if (initialDelaySeconds !== undefined) rpcArgs.initialDelaySeconds = initialDelaySeconds;
+        if (periodSeconds !== undefined) rpcArgs.periodSeconds = periodSeconds;
+        if (timeoutSeconds !== undefined) rpcArgs.timeoutSeconds = timeoutSeconds;
+        if (failureThreshold !== undefined) rpcArgs.failureThreshold = failureThreshold;
+        if (successThreshold !== undefined) rpcArgs.successThreshold = successThreshold;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withHttpProbe',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisCommanderResourcePromise {
+        const path = options?.path;
+        const initialDelaySeconds = options?.initialDelaySeconds;
+        const periodSeconds = options?.periodSeconds;
+        const timeoutSeconds = options?.timeoutSeconds;
+        const failureThreshold = options?.failureThreshold;
+        const successThreshold = options?.successThreshold;
+        const endpointName = options?.endpointName;
+        return new RedisCommanderResourcePromise(this._withHttpProbeInternal(probeType, path, initialDelaySeconds, periodSeconds, timeoutSeconds, failureThreshold, successThreshold, endpointName));
+    }
+
+    /** @internal */
+    private async _excludeFromMcpInternal(): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/excludeFromMcp',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._excludeFromMcpInternal());
+    }
+
+    /** @internal */
+    private async _withRemoteImageNameInternal(remoteImageName: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageName };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withRemoteImageName',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withRemoteImageNameInternal(remoteImageName));
+    }
+
+    /** @internal */
+    private async _withRemoteImageTagInternal(remoteImageTag: string): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageTag };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withRemoteImageTag',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withRemoteImageTagInternal(remoteImageTag));
+    }
+
+    /** @internal */
+    private async _withPipelineStepFactoryInternal(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, dependsOn?: string[], requiredBy?: string[], tags?: string[], description?: string): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineStepContextHandle;
+            const arg = new PipelineStepContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, stepName, callback: callbackId };
+        if (dependsOn !== undefined) rpcArgs.dependsOn = dependsOn;
+        if (requiredBy !== undefined) rpcArgs.requiredBy = requiredBy;
+        if (tags !== undefined) rpcArgs.tags = tags;
+        if (description !== undefined) rpcArgs.description = description;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withPipelineStepFactory',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisCommanderResourcePromise {
+        const dependsOn = options?.dependsOn;
+        const requiredBy = options?.requiredBy;
+        const tags = options?.tags;
+        const description = options?.description;
+        return new RedisCommanderResourcePromise(this._withPipelineStepFactoryInternal(stepName, callback, dependsOn, requiredBy, tags, description));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationAsyncInternal(callback: (arg: PipelineConfigurationContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineConfigurationContextHandle;
+            const arg = new PipelineConfigurationContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withPipelineConfigurationAsync',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withPipelineConfigurationAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationInternal(callback: (obj: PipelineConfigurationContext) => Promise<void>): Promise<RedisCommanderResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as PipelineConfigurationContextHandle;
+            const obj = new PipelineConfigurationContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withPipelineConfiguration',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withPipelineConfigurationInternal(callback));
+    }
+
+    /** @internal */
+    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting/withVolume',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisCommanderResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new RedisCommanderResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
+    }
+
+    /** Gets the resource name */
+    async getResourceName(): Promise<string> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle };
+        return await this._client.invokeCapability<string>(
+            'Aspire.Hosting/getResourceName',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _withHostPortInternal(port?: number): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisCommanderHostPort',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Sets the host port for Redis Commander */
+    withHostPort(options?: WithHostPortOptions): RedisCommanderResourcePromise {
+        const port = options?.port;
+        return new RedisCommanderResourcePromise(this._withHostPortInternal(port));
+    }
+
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<RedisCommanderResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<RedisCommanderResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new RedisCommanderResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
+}
+
+/**
+ * Thenable wrapper for RedisCommanderResource that enables fluent chaining.
+ * @example
+ * await builder.addSomething().withX().withY();
+ */
+export class RedisCommanderResourcePromise implements PromiseLike<RedisCommanderResource> {
+    constructor(private _promise: Promise<RedisCommanderResource>) {}
+
+    then<TResult1 = RedisCommanderResource, TResult2 = never>(
+        onfulfilled?: ((value: RedisCommanderResource) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withMcpServer(options)));
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withOtlpExporter()));
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withRequiredCommand(command, options)));
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironment(name, value)));
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentExpression(name, value)));
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentCallback(callback)));
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentCallbackAsync(callback)));
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentEndpoint(name, endpointReference)));
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentParameter(name, parameter)));
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEnvironmentConnectionString(envVarName, resource)));
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withArgs(args)));
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withArgsCallback(callback)));
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withArgsCallbackAsync(callback)));
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withReference(source, options)));
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withServiceReference(source)));
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withServiceReferenceNamed(source, name)));
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withReferenceUri(name, uri)));
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withReferenceExternalService(externalService)));
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withReferenceEndpoint(endpointReference)));
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withEndpoint(options)));
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHttpEndpoint(options)));
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHttpsEndpoint(options)));
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withExternalHttpEndpoints()));
+    }
+
+    /** Gets an endpoint reference */
+    getEndpoint(name: string): Promise<EndpointReference> {
+        return this._promise.then(obj => obj.getEndpoint(name));
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.asHttp2Service()));
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrlsCallback(callback)));
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrlsCallbackAsync(callback)));
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrl(url, options)));
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrlExpression(url, options)));
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrlForEndpoint(endpointName, callback)));
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withUrlForEndpointFactory(endpointName, callback)));
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.excludeFromManifest()));
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.waitFor(dependency)));
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.waitForWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.waitForStart(dependency)));
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.waitForStartWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withExplicitStart()));
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.waitForCompletion(dependency, options)));
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHealthCheck(key)));
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHttpHealthCheck(options)));
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withCommand(name, displayName, executeCommand, options)));
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withDeveloperCertificateTrust(trust)));
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withCertificateTrustScope(scope)));
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHttpsDeveloperCertificate(options)));
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withoutHttpsCertificate()));
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withParentRelationship(parent)));
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withChildRelationship(child)));
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withIconName(iconName, options)));
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHttpProbe(probeType, options)));
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.excludeFromMcp()));
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withRemoteImageName(remoteImageName)));
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withRemoteImageTag(remoteImageTag)));
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withPipelineStepFactory(stepName, callback, options)));
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withPipelineConfigurationAsync(callback)));
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
+    }
+
+    /** Gets the resource name */
+    getResourceName(): Promise<string> {
+        return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Sets the host port for Redis Commander */
+    withHostPort(options?: WithHostPortOptions): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withHostPort(options)));
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisCommanderResourcePromise {
+        return new RedisCommanderResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
+    }
+
+}
+
+// ============================================================================
+// RedisInsightResource
+// ============================================================================
+
+export class RedisInsightResource extends ResourceBuilderBase<RedisInsightResourceHandle> {
+    constructor(handle: RedisInsightResourceHandle, client: AspireClientRpc) {
+        super(handle, client);
+    }
+
+    /** @internal */
+    private async _withContainerRegistryInternal(registry: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withContainerRegistry',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withContainerRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withBindMount',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisInsightResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new RedisInsightResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withEntrypointInternal(entrypoint: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEntrypoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEntrypointInternal(entrypoint));
+    }
+
+    /** @internal */
+    private async _withImageTagInternal(tag: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withImageTag',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withImageTagInternal(tag));
+    }
+
+    /** @internal */
+    private async _withImageRegistryInternal(registry: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withImageRegistry',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withImageRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withImageInternal(image: string, tag?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
+        if (tag !== undefined) rpcArgs.tag = tag;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withImage',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisInsightResourcePromise {
+        const tag = options?.tag;
+        return new RedisInsightResourcePromise(this._withImageInternal(image, tag));
+    }
+
+    /** @internal */
+    private async _withImageSHA256Internal(sha256: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withImageSHA256',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withImageSHA256Internal(sha256));
+    }
+
+    /** @internal */
+    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withContainerRuntimeArgs',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withContainerRuntimeArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withLifetime',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withLifetimeInternal(lifetime));
+    }
+
+    /** @internal */
+    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withImagePullPolicy',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
+    }
+
+    /** @internal */
+    private async _publishAsContainerInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/publishAsContainer',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._publishAsContainerInternal());
+    }
+
+    /** @internal */
+    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
+        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
+        if (stage !== undefined) rpcArgs.stage = stage;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withDockerfile',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisInsightResourcePromise {
+        const dockerfilePath = options?.dockerfilePath;
+        const stage = options?.stage;
+        return new RedisInsightResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
+    }
+
+    /** @internal */
+    private async _withContainerNameInternal(name: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withContainerName',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withContainerNameInternal(name));
+    }
+
+    /** @internal */
+    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withBuildArg',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withBuildArgInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withBuildSecret',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withBuildSecretInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEndpointProxySupport',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
+    }
+
+    /** @internal */
+    private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
+        if (runtimeImage !== undefined) rpcArgs.runtimeImage = runtimeImage;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withDockerfileBaseImage',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisInsightResourcePromise {
+        const buildImage = options?.buildImage;
+        const runtimeImage = options?.runtimeImage;
+        return new RedisInsightResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
+    }
+
+    /** @internal */
+    private async _withContainerNetworkAliasInternal(alias: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withContainerNetworkAlias',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withContainerNetworkAliasInternal(alias));
+    }
+
+    /** @internal */
+    private async _withMcpServerInternal(path?: string, endpointName?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withMcpServer',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisInsightResourcePromise {
+        const path = options?.path;
+        const endpointName = options?.endpointName;
+        return new RedisInsightResourcePromise(this._withMcpServerInternal(path, endpointName));
+    }
+
+    /** @internal */
+    private async _withOtlpExporterInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withOtlpExporter',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withOtlpExporterInternal());
+    }
+
+    /** @internal */
+    private async _withOtlpExporterProtocolInternal(protocol: OtlpProtocol): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, protocol };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withOtlpExporterProtocol',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
+    }
+
+    /** @internal */
+    private async _publishAsConnectionStringInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/publishAsConnectionString',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._publishAsConnectionStringInternal());
+    }
+
+    /** @internal */
+    private async _withRequiredCommandInternal(command: string, helpLink?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, command };
+        if (helpLink !== undefined) rpcArgs.helpLink = helpLink;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withRequiredCommand',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisInsightResourcePromise {
+        const helpLink = options?.helpLink;
+        return new RedisInsightResourcePromise(this._withRequiredCommandInternal(command, helpLink));
+    }
+
+    /** @internal */
+    private async _withEnvironmentInternal(name: string, value: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironment',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentExpressionInternal(name: string, value: ReferenceExpression): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentExpression',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentExpressionInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackInternal(callback: (obj: EnvironmentCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as EnvironmentCallbackContextHandle;
+            const obj = new EnvironmentCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallback',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackAsyncInternal(callback: (arg: EnvironmentCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EnvironmentCallbackContextHandle;
+            const arg = new EnvironmentCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallbackAsync',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentEndpointInternal(name: string, endpointReference: EndpointReference): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, endpointReference };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentEndpointInternal(name, endpointReference));
+    }
+
+    /** @internal */
+    private async _withEnvironmentParameterInternal(name: string, parameter: ParameterResource): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, parameter };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentParameter',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentParameterInternal(name, parameter));
+    }
+
+    /** @internal */
+    private async _withEnvironmentConnectionStringInternal(envVarName: string, resource: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, envVarName, resource };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEnvironmentConnectionString',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withEnvironmentConnectionStringInternal(envVarName, resource));
+    }
+
+    /** @internal */
+    private async _withArgsInternal(args: string[]): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withArgs',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackInternal(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as CommandLineArgsCallbackContextHandle;
+            const obj = new CommandLineArgsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withArgsCallback',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withArgsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackAsyncInternal(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as CommandLineArgsCallbackContextHandle;
+            const arg = new CommandLineArgsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withArgsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withArgsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withReferenceInternal(source: ResourceBuilderBase, connectionName?: string, optional?: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (connectionName !== undefined) rpcArgs.connectionName = connectionName;
+        if (optional !== undefined) rpcArgs.optional = optional;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withReference',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisInsightResourcePromise {
+        const connectionName = options?.connectionName;
+        const optional = options?.optional;
+        return new RedisInsightResourcePromise(this._withReferenceInternal(source, connectionName, optional));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceInternal(source: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withServiceReference',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withServiceReferenceInternal(source));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceNamedInternal(source: ResourceBuilderBase, name: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, name };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withServiceReferenceNamed',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withServiceReferenceNamedInternal(source, name));
+    }
+
+    /** @internal */
+    private async _withReferenceUriInternal(name: string, uri: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, uri };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withReferenceUri',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withReferenceUriInternal(name, uri));
+    }
+
+    /** @internal */
+    private async _withReferenceExternalServiceInternal(externalService: ExternalServiceResource): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, externalService };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withReferenceExternalService',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withReferenceExternalServiceInternal(externalService));
+    }
+
+    /** @internal */
+    private async _withReferenceEndpointInternal(endpointReference: EndpointReference): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointReference };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withReferenceEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withReferenceEndpointInternal(endpointReference));
+    }
+
+    /** @internal */
+    private async _withEndpointInternal(port?: number, targetPort?: number, scheme?: string, name?: string, env?: string, isProxied?: boolean, isExternal?: boolean, protocol?: ProtocolType): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (scheme !== undefined) rpcArgs.scheme = scheme;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        if (isExternal !== undefined) rpcArgs.isExternal = isExternal;
+        if (protocol !== undefined) rpcArgs.protocol = protocol;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisInsightResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const scheme = options?.scheme;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        const isExternal = options?.isExternal;
+        const protocol = options?.protocol;
+        return new RedisInsightResourcePromise(this._withEndpointInternal(port, targetPort, scheme, name, env, isProxied, isExternal, protocol));
+    }
+
+    /** @internal */
+    private async _withHttpEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHttpEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisInsightResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisInsightResourcePromise(this._withHttpEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withHttpsEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHttpsEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisInsightResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisInsightResourcePromise(this._withHttpsEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withExternalHttpEndpointsInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withExternalHttpEndpoints',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withExternalHttpEndpointsInternal());
+    }
+
+    /** Gets an endpoint reference */
+    async getEndpoint(name: string): Promise<EndpointReference> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        return await this._client.invokeCapability<EndpointReference>(
+            'Aspire.Hosting/getEndpoint',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _asHttp2ServiceInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/asHttp2Service',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._asHttp2ServiceInternal());
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackInternal(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as ResourceUrlsCallbackContextHandle;
+            const obj = new ResourceUrlsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrlsCallback',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withUrlsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackAsyncInternal(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ResourceUrlsCallbackContextHandle;
+            const arg = new ResourceUrlsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrlsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withUrlsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlInternal(url: string, displayText?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrl',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisInsightResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisInsightResourcePromise(this._withUrlInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlExpressionInternal(url: ReferenceExpression, displayText?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrlExpression',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisInsightResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisInsightResourcePromise(this._withUrlExpressionInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointInternal(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const obj = wrapIfHandle(objData) as ResourceUrlAnnotation;
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpoint',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withUrlForEndpointInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointFactoryInternal(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EndpointReferenceHandle;
+            const arg = new EndpointReference(argHandle, this._client);
+            return await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpointFactory',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withUrlForEndpointFactoryInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _excludeFromManifestInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/excludeFromManifest',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._excludeFromManifestInternal());
+    }
+
+    /** @internal */
+    private async _waitForInternal(dependency: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/waitFor',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._waitForInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/waitForWithBehavior',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._waitForWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _waitForStartInternal(dependency: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/waitForStart',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._waitForStartInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForStartWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/waitForStartWithBehavior',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._waitForStartWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _withExplicitStartInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withExplicitStart',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withExplicitStartInternal());
+    }
+
+    /** @internal */
+    private async _waitForCompletionInternal(dependency: ResourceBuilderBase, exitCode?: number): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        if (exitCode !== undefined) rpcArgs.exitCode = exitCode;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/waitForCompletion',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisInsightResourcePromise {
+        const exitCode = options?.exitCode;
+        return new RedisInsightResourcePromise(this._waitForCompletionInternal(dependency, exitCode));
+    }
+
+    /** @internal */
+    private async _withHealthCheckInternal(key: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, key };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHealthCheck',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withHealthCheckInternal(key));
+    }
+
+    /** @internal */
+    private async _withHttpHealthCheckInternal(path?: string, statusCode?: number, endpointName?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (statusCode !== undefined) rpcArgs.statusCode = statusCode;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHttpHealthCheck',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisInsightResourcePromise {
+        const path = options?.path;
+        const statusCode = options?.statusCode;
+        const endpointName = options?.endpointName;
+        return new RedisInsightResourcePromise(this._withHttpHealthCheckInternal(path, statusCode, endpointName));
+    }
+
+    /** @internal */
+    private async _withCommandInternal(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, commandOptions?: CommandOptions): Promise<RedisInsightResource> {
+        const executeCommandId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ExecuteCommandContextHandle;
+            const arg = new ExecuteCommandContext(argHandle, this._client);
+            return await executeCommand(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, displayName, executeCommand: executeCommandId };
+        if (commandOptions !== undefined) rpcArgs.commandOptions = commandOptions;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withCommand',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisInsightResourcePromise {
+        const commandOptions = options?.commandOptions;
+        return new RedisInsightResourcePromise(this._withCommandInternal(name, displayName, executeCommand, commandOptions));
+    }
+
+    /** @internal */
+    private async _withDeveloperCertificateTrustInternal(trust: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, trust };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withDeveloperCertificateTrust',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withDeveloperCertificateTrustInternal(trust));
+    }
+
+    /** @internal */
+    private async _withCertificateTrustScopeInternal(scope: CertificateTrustScope): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, scope };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withCertificateTrustScope',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withCertificateTrustScopeInternal(scope));
+    }
+
+    /** @internal */
+    private async _withHttpsDeveloperCertificateInternal(password?: ParameterResource): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (password !== undefined) rpcArgs.password = password;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHttpsDeveloperCertificate',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisInsightResourcePromise {
+        const password = options?.password;
+        return new RedisInsightResourcePromise(this._withHttpsDeveloperCertificateInternal(password));
+    }
+
+    /** @internal */
+    private async _withoutHttpsCertificateInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withoutHttpsCertificate',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withoutHttpsCertificateInternal());
+    }
+
+    /** @internal */
+    private async _withParentRelationshipInternal(parent: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, parent };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withParentRelationship',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withParentRelationshipInternal(parent));
+    }
+
+    /** @internal */
+    private async _withChildRelationshipInternal(child: ResourceBuilderBase): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, child };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withChildRelationship',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withChildRelationshipInternal(child));
+    }
+
+    /** @internal */
+    private async _withIconNameInternal(iconName: string, iconVariant?: IconVariant): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, iconName };
+        if (iconVariant !== undefined) rpcArgs.iconVariant = iconVariant;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withIconName',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisInsightResourcePromise {
+        const iconVariant = options?.iconVariant;
+        return new RedisInsightResourcePromise(this._withIconNameInternal(iconName, iconVariant));
+    }
+
+    /** @internal */
+    private async _withHttpProbeInternal(probeType: ProbeType, path?: string, initialDelaySeconds?: number, periodSeconds?: number, timeoutSeconds?: number, failureThreshold?: number, successThreshold?: number, endpointName?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, probeType };
+        if (path !== undefined) rpcArgs.path = path;
+        if (initialDelaySeconds !== undefined) rpcArgs.initialDelaySeconds = initialDelaySeconds;
+        if (periodSeconds !== undefined) rpcArgs.periodSeconds = periodSeconds;
+        if (timeoutSeconds !== undefined) rpcArgs.timeoutSeconds = timeoutSeconds;
+        if (failureThreshold !== undefined) rpcArgs.failureThreshold = failureThreshold;
+        if (successThreshold !== undefined) rpcArgs.successThreshold = successThreshold;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withHttpProbe',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisInsightResourcePromise {
+        const path = options?.path;
+        const initialDelaySeconds = options?.initialDelaySeconds;
+        const periodSeconds = options?.periodSeconds;
+        const timeoutSeconds = options?.timeoutSeconds;
+        const failureThreshold = options?.failureThreshold;
+        const successThreshold = options?.successThreshold;
+        const endpointName = options?.endpointName;
+        return new RedisInsightResourcePromise(this._withHttpProbeInternal(probeType, path, initialDelaySeconds, periodSeconds, timeoutSeconds, failureThreshold, successThreshold, endpointName));
+    }
+
+    /** @internal */
+    private async _excludeFromMcpInternal(): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/excludeFromMcp',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._excludeFromMcpInternal());
+    }
+
+    /** @internal */
+    private async _withRemoteImageNameInternal(remoteImageName: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageName };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withRemoteImageName',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withRemoteImageNameInternal(remoteImageName));
+    }
+
+    /** @internal */
+    private async _withRemoteImageTagInternal(remoteImageTag: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageTag };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withRemoteImageTag',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withRemoteImageTagInternal(remoteImageTag));
+    }
+
+    /** @internal */
+    private async _withPipelineStepFactoryInternal(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, dependsOn?: string[], requiredBy?: string[], tags?: string[], description?: string): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineStepContextHandle;
+            const arg = new PipelineStepContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, stepName, callback: callbackId };
+        if (dependsOn !== undefined) rpcArgs.dependsOn = dependsOn;
+        if (requiredBy !== undefined) rpcArgs.requiredBy = requiredBy;
+        if (tags !== undefined) rpcArgs.tags = tags;
+        if (description !== undefined) rpcArgs.description = description;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withPipelineStepFactory',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisInsightResourcePromise {
+        const dependsOn = options?.dependsOn;
+        const requiredBy = options?.requiredBy;
+        const tags = options?.tags;
+        const description = options?.description;
+        return new RedisInsightResourcePromise(this._withPipelineStepFactoryInternal(stepName, callback, dependsOn, requiredBy, tags, description));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationAsyncInternal(callback: (arg: PipelineConfigurationContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineConfigurationContextHandle;
+            const arg = new PipelineConfigurationContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withPipelineConfigurationAsync',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withPipelineConfigurationAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationInternal(callback: (obj: PipelineConfigurationContext) => Promise<void>): Promise<RedisInsightResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as PipelineConfigurationContextHandle;
+            const obj = new PipelineConfigurationContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withPipelineConfiguration',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withPipelineConfigurationInternal(callback));
+    }
+
+    /** @internal */
+    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting/withVolume',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisInsightResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new RedisInsightResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
+    }
+
+    /** Gets the resource name */
+    async getResourceName(): Promise<string> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle };
+        return await this._client.invokeCapability<string>(
+            'Aspire.Hosting/getResourceName',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _withHostPortInternal(port?: number): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisInsightHostPort',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Sets the host port for Redis Insight */
+    withHostPort(options?: WithHostPortOptions): RedisInsightResourcePromise {
+        const port = options?.port;
+        return new RedisInsightResourcePromise(this._withHostPortInternal(port));
+    }
+
+    /** @internal */
+    private async _withDataVolumeInternal(name?: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (name !== undefined) rpcArgs.name = name;
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisInsightDataVolume',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a data volume for Redis Insight */
+    withDataVolume(options?: WithDataVolumeOptions): RedisInsightResourcePromise {
+        const name = options?.name;
+        return new RedisInsightResourcePromise(this._withDataVolumeInternal(name));
+    }
+
+    /** @internal */
+    private async _withDataBindMountInternal(source: string): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisInsightDataBindMount',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds a data bind mount for Redis Insight */
+    withDataBindMount(source: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withDataBindMountInternal(source));
+    }
+
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<RedisInsightResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<RedisInsightResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new RedisInsightResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
+}
+
+/**
+ * Thenable wrapper for RedisInsightResource that enables fluent chaining.
+ * @example
+ * await builder.addSomething().withX().withY();
+ */
+export class RedisInsightResourcePromise implements PromiseLike<RedisInsightResource> {
+    constructor(private _promise: Promise<RedisInsightResource>) {}
+
+    then<TResult1 = RedisInsightResource, TResult2 = never>(
+        onfulfilled?: ((value: RedisInsightResource) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withMcpServer(options)));
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withOtlpExporter()));
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withRequiredCommand(command, options)));
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironment(name, value)));
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentExpression(name, value)));
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentCallback(callback)));
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentCallbackAsync(callback)));
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentEndpoint(name, endpointReference)));
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentParameter(name, parameter)));
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEnvironmentConnectionString(envVarName, resource)));
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withArgs(args)));
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withArgsCallback(callback)));
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withArgsCallbackAsync(callback)));
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withReference(source, options)));
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withServiceReference(source)));
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withServiceReferenceNamed(source, name)));
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withReferenceUri(name, uri)));
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withReferenceExternalService(externalService)));
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withReferenceEndpoint(endpointReference)));
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withEndpoint(options)));
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHttpEndpoint(options)));
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHttpsEndpoint(options)));
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withExternalHttpEndpoints()));
+    }
+
+    /** Gets an endpoint reference */
+    getEndpoint(name: string): Promise<EndpointReference> {
+        return this._promise.then(obj => obj.getEndpoint(name));
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.asHttp2Service()));
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrlsCallback(callback)));
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrlsCallbackAsync(callback)));
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrl(url, options)));
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrlExpression(url, options)));
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrlForEndpoint(endpointName, callback)));
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withUrlForEndpointFactory(endpointName, callback)));
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.excludeFromManifest()));
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.waitFor(dependency)));
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.waitForWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.waitForStart(dependency)));
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.waitForStartWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withExplicitStart()));
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.waitForCompletion(dependency, options)));
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHealthCheck(key)));
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHttpHealthCheck(options)));
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withCommand(name, displayName, executeCommand, options)));
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withDeveloperCertificateTrust(trust)));
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withCertificateTrustScope(scope)));
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHttpsDeveloperCertificate(options)));
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withoutHttpsCertificate()));
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withParentRelationship(parent)));
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withChildRelationship(child)));
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withIconName(iconName, options)));
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHttpProbe(probeType, options)));
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.excludeFromMcp()));
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withRemoteImageName(remoteImageName)));
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withRemoteImageTag(remoteImageTag)));
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withPipelineStepFactory(stepName, callback, options)));
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withPipelineConfigurationAsync(callback)));
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
+    }
+
+    /** Gets the resource name */
+    getResourceName(): Promise<string> {
+        return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Sets the host port for Redis Insight */
+    withHostPort(options?: WithHostPortOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withHostPort(options)));
+    }
+
+    /** Adds a data volume for Redis Insight */
+    withDataVolume(options?: WithDataVolumeOptions): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withDataVolume(options)));
+    }
+
+    /** Adds a data bind mount for Redis Insight */
+    withDataBindMount(source: string): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withDataBindMount(source)));
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisInsightResourcePromise {
+        return new RedisInsightResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
+    }
+
+}
+
+// ============================================================================
+// RedisResource
+// ============================================================================
+
+export class RedisResource extends ResourceBuilderBase<RedisResourceHandle> {
+    constructor(handle: RedisResourceHandle, client: AspireClientRpc) {
+        super(handle, client);
+    }
+
+    /** Gets the PrimaryEndpoint property */
+    primaryEndpoint = {
+        get: async (): Promise<EndpointReference> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceHandle>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.primaryEndpoint',
+                { context: this._handle }
+            );
+            return new EndpointReference(handle, this._client);
+        },
+    };
+
+    /** Gets the Host property */
+    host = {
+        get: async (): Promise<EndpointReferenceExpression> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceExpressionHandle>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.host',
+                { context: this._handle }
+            );
+            return new EndpointReferenceExpression(handle, this._client);
+        },
+    };
+
+    /** Gets the Port property */
+    port = {
+        get: async (): Promise<EndpointReferenceExpression> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceExpressionHandle>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.port',
+                { context: this._handle }
+            );
+            return new EndpointReferenceExpression(handle, this._client);
+        },
+    };
+
+    /** Gets the TlsEnabled property */
+    tlsEnabled = {
+        get: async (): Promise<boolean> => {
+            return await this._client.invokeCapability<boolean>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.tlsEnabled',
+                { context: this._handle }
+            );
+        },
+        set: async (value: boolean): Promise<void> => {
+            await this._client.invokeCapability<void>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.setTlsEnabled',
+                { context: this._handle, value }
+            );
+        }
+    };
+
+    /** Gets the ConnectionStringExpression property */
+    connectionStringExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.connectionStringExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the UriExpression property */
+    uriExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.uriExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the Entrypoint property */
+    entrypoint = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.entrypoint',
+                { context: this._handle }
+            );
+        },
+        set: async (value: string): Promise<void> => {
+            await this._client.invokeCapability<void>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.setEntrypoint',
+                { context: this._handle, value }
+            );
+        }
+    };
+
+    /** Gets the ShellExecution property */
+    shellExecution = {
+        get: async (): Promise<boolean> => {
+            return await this._client.invokeCapability<boolean>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.shellExecution',
+                { context: this._handle }
+            );
+        },
+        set: async (value: boolean): Promise<void> => {
+            await this._client.invokeCapability<void>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.setShellExecution',
+                { context: this._handle, value }
+            );
+        }
+    };
+
+    /** Gets the Name property */
+    name = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/RedisResource.name',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** @internal */
+    private async _withContainerRegistryInternal(registry: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withContainerRegistry',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._withContainerRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withBindMount',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new RedisResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withEntrypointInternal(entrypoint: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEntrypoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEntrypointInternal(entrypoint));
+    }
+
+    /** @internal */
+    private async _withImageTagInternal(tag: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withImageTag',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withImageTagInternal(tag));
+    }
+
+    /** @internal */
+    private async _withImageRegistryInternal(registry: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withImageRegistry',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withImageRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withImageInternal(image: string, tag?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
+        if (tag !== undefined) rpcArgs.tag = tag;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withImage',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisResourcePromise {
+        const tag = options?.tag;
+        return new RedisResourcePromise(this._withImageInternal(image, tag));
+    }
+
+    /** @internal */
+    private async _withImageSHA256Internal(sha256: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withImageSHA256',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withImageSHA256Internal(sha256));
+    }
+
+    /** @internal */
+    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withContainerRuntimeArgs',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisResourcePromise {
+        return new RedisResourcePromise(this._withContainerRuntimeArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withLifetime',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisResourcePromise {
+        return new RedisResourcePromise(this._withLifetimeInternal(lifetime));
+    }
+
+    /** @internal */
+    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withImagePullPolicy',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisResourcePromise {
+        return new RedisResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
+    }
+
+    /** @internal */
+    private async _publishAsContainerInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/publishAsContainer',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisResourcePromise {
+        return new RedisResourcePromise(this._publishAsContainerInternal());
+    }
+
+    /** @internal */
+    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
+        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
+        if (stage !== undefined) rpcArgs.stage = stage;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withDockerfile',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisResourcePromise {
+        const dockerfilePath = options?.dockerfilePath;
+        const stage = options?.stage;
+        return new RedisResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
+    }
+
+    /** @internal */
+    private async _withContainerNameInternal(name: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withContainerName',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withContainerNameInternal(name));
+    }
+
+    /** @internal */
+    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withBuildArg',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._withBuildArgInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withBuildSecret',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._withBuildSecretInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEndpointProxySupport',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
+    }
+
+    /** @internal */
+    private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
+        if (runtimeImage !== undefined) rpcArgs.runtimeImage = runtimeImage;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withDockerfileBaseImage',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisResourcePromise {
+        const buildImage = options?.buildImage;
+        const runtimeImage = options?.runtimeImage;
+        return new RedisResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
+    }
+
+    /** @internal */
+    private async _withContainerNetworkAliasInternal(alias: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withContainerNetworkAlias',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withContainerNetworkAliasInternal(alias));
+    }
+
+    /** @internal */
+    private async _withMcpServerInternal(path?: string, endpointName?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withMcpServer',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisResourcePromise {
+        const path = options?.path;
+        const endpointName = options?.endpointName;
+        return new RedisResourcePromise(this._withMcpServerInternal(path, endpointName));
+    }
+
+    /** @internal */
+    private async _withOtlpExporterInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withOtlpExporter',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisResourcePromise {
+        return new RedisResourcePromise(this._withOtlpExporterInternal());
+    }
+
+    /** @internal */
+    private async _withOtlpExporterProtocolInternal(protocol: OtlpProtocol): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, protocol };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withOtlpExporterProtocol',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisResourcePromise {
+        return new RedisResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
+    }
+
+    /** @internal */
+    private async _publishAsConnectionStringInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/publishAsConnectionString',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisResourcePromise {
+        return new RedisResourcePromise(this._publishAsConnectionStringInternal());
+    }
+
+    /** @internal */
+    private async _withRequiredCommandInternal(command: string, helpLink?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, command };
+        if (helpLink !== undefined) rpcArgs.helpLink = helpLink;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withRequiredCommand',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisResourcePromise {
+        const helpLink = options?.helpLink;
+        return new RedisResourcePromise(this._withRequiredCommandInternal(command, helpLink));
+    }
+
+    /** @internal */
+    private async _withEnvironmentInternal(name: string, value: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironment',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentExpressionInternal(name: string, value: ReferenceExpression): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentExpression',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentExpressionInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackInternal(callback: (obj: EnvironmentCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as EnvironmentCallbackContextHandle;
+            const obj = new EnvironmentCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallback',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackAsyncInternal(callback: (arg: EnvironmentCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EnvironmentCallbackContextHandle;
+            const arg = new EnvironmentCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallbackAsync',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentEndpointInternal(name: string, endpointReference: EndpointReference): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, endpointReference };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentEndpointInternal(name, endpointReference));
+    }
+
+    /** @internal */
+    private async _withEnvironmentParameterInternal(name: string, parameter: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, parameter };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentParameter',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentParameterInternal(name, parameter));
+    }
+
+    /** @internal */
+    private async _withEnvironmentConnectionStringInternal(envVarName: string, resource: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, envVarName, resource };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEnvironmentConnectionString',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._withEnvironmentConnectionStringInternal(envVarName, resource));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyInternal(name: string, value: ReferenceExpression): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withConnectionProperty',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): RedisResourcePromise {
+        return new RedisResourcePromise(this._withConnectionPropertyInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyValueInternal(name: string, value: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withConnectionPropertyValue',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withConnectionPropertyValueInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withArgsInternal(args: string[]): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withArgs',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisResourcePromise {
+        return new RedisResourcePromise(this._withArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackInternal(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as CommandLineArgsCallbackContextHandle;
+            const obj = new CommandLineArgsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withArgsCallback',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withArgsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackAsyncInternal(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as CommandLineArgsCallbackContextHandle;
+            const arg = new CommandLineArgsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withArgsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withArgsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withReferenceInternal(source: ResourceBuilderBase, connectionName?: string, optional?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (connectionName !== undefined) rpcArgs.connectionName = connectionName;
+        if (optional !== undefined) rpcArgs.optional = optional;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withReference',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisResourcePromise {
+        const connectionName = options?.connectionName;
+        const optional = options?.optional;
+        return new RedisResourcePromise(this._withReferenceInternal(source, connectionName, optional));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceInternal(source: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withServiceReference',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._withServiceReferenceInternal(source));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceNamedInternal(source: ResourceBuilderBase, name: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, name };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withServiceReferenceNamed',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withServiceReferenceNamedInternal(source, name));
+    }
+
+    /** @internal */
+    private async _withReferenceUriInternal(name: string, uri: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, uri };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withReferenceUri',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withReferenceUriInternal(name, uri));
+    }
+
+    /** @internal */
+    private async _withReferenceExternalServiceInternal(externalService: ExternalServiceResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, externalService };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withReferenceExternalService',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._withReferenceExternalServiceInternal(externalService));
+    }
+
+    /** @internal */
+    private async _withReferenceEndpointInternal(endpointReference: EndpointReference): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointReference };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withReferenceEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisResourcePromise {
+        return new RedisResourcePromise(this._withReferenceEndpointInternal(endpointReference));
+    }
+
+    /** @internal */
+    private async _withEndpointInternal(port?: number, targetPort?: number, scheme?: string, name?: string, env?: string, isProxied?: boolean, isExternal?: boolean, protocol?: ProtocolType): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (scheme !== undefined) rpcArgs.scheme = scheme;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        if (isExternal !== undefined) rpcArgs.isExternal = isExternal;
+        if (protocol !== undefined) rpcArgs.protocol = protocol;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const scheme = options?.scheme;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        const isExternal = options?.isExternal;
+        const protocol = options?.protocol;
+        return new RedisResourcePromise(this._withEndpointInternal(port, targetPort, scheme, name, env, isProxied, isExternal, protocol));
+    }
+
+    /** @internal */
+    private async _withHttpEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHttpEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisResourcePromise(this._withHttpEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withHttpsEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHttpsEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new RedisResourcePromise(this._withHttpsEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withExternalHttpEndpointsInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withExternalHttpEndpoints',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisResourcePromise {
+        return new RedisResourcePromise(this._withExternalHttpEndpointsInternal());
+    }
+
+    /** Gets an endpoint reference */
+    async getEndpoint(name: string): Promise<EndpointReference> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        return await this._client.invokeCapability<EndpointReference>(
+            'Aspire.Hosting/getEndpoint',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _asHttp2ServiceInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/asHttp2Service',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisResourcePromise {
+        return new RedisResourcePromise(this._asHttp2ServiceInternal());
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackInternal(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as ResourceUrlsCallbackContextHandle;
+            const obj = new ResourceUrlsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrlsCallback',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withUrlsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackAsyncInternal(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ResourceUrlsCallbackContextHandle;
+            const arg = new ResourceUrlsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrlsCallbackAsync',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withUrlsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlInternal(url: string, displayText?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrl',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisResourcePromise(this._withUrlInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlExpressionInternal(url: ReferenceExpression, displayText?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrlExpression',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisResourcePromise {
+        const displayText = options?.displayText;
+        return new RedisResourcePromise(this._withUrlExpressionInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointInternal(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const obj = wrapIfHandle(objData) as ResourceUrlAnnotation;
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpoint',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withUrlForEndpointInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointFactoryInternal(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EndpointReferenceHandle;
+            const arg = new EndpointReference(argHandle, this._client);
+            return await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpointFactory',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withUrlForEndpointFactoryInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _excludeFromManifestInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/excludeFromManifest',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisResourcePromise {
+        return new RedisResourcePromise(this._excludeFromManifestInternal());
+    }
+
+    /** @internal */
+    private async _waitForInternal(dependency: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/waitFor',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._waitForInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/waitForWithBehavior',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisResourcePromise {
+        return new RedisResourcePromise(this._waitForWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _waitForStartInternal(dependency: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/waitForStart',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._waitForStartInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForStartWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/waitForStartWithBehavior',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisResourcePromise {
+        return new RedisResourcePromise(this._waitForStartWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _withExplicitStartInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withExplicitStart',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisResourcePromise {
+        return new RedisResourcePromise(this._withExplicitStartInternal());
+    }
+
+    /** @internal */
+    private async _waitForCompletionInternal(dependency: ResourceBuilderBase, exitCode?: number): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        if (exitCode !== undefined) rpcArgs.exitCode = exitCode;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/waitForCompletion',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisResourcePromise {
+        const exitCode = options?.exitCode;
+        return new RedisResourcePromise(this._waitForCompletionInternal(dependency, exitCode));
+    }
+
+    /** @internal */
+    private async _withHealthCheckInternal(key: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, key };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHealthCheck',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withHealthCheckInternal(key));
+    }
+
+    /** @internal */
+    private async _withHttpHealthCheckInternal(path?: string, statusCode?: number, endpointName?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (statusCode !== undefined) rpcArgs.statusCode = statusCode;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHttpHealthCheck',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisResourcePromise {
+        const path = options?.path;
+        const statusCode = options?.statusCode;
+        const endpointName = options?.endpointName;
+        return new RedisResourcePromise(this._withHttpHealthCheckInternal(path, statusCode, endpointName));
+    }
+
+    /** @internal */
+    private async _withCommandInternal(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, commandOptions?: CommandOptions): Promise<RedisResource> {
+        const executeCommandId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ExecuteCommandContextHandle;
+            const arg = new ExecuteCommandContext(argHandle, this._client);
+            return await executeCommand(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, displayName, executeCommand: executeCommandId };
+        if (commandOptions !== undefined) rpcArgs.commandOptions = commandOptions;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withCommand',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisResourcePromise {
+        const commandOptions = options?.commandOptions;
+        return new RedisResourcePromise(this._withCommandInternal(name, displayName, executeCommand, commandOptions));
+    }
+
+    /** @internal */
+    private async _withDeveloperCertificateTrustInternal(trust: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, trust };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withDeveloperCertificateTrust',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisResourcePromise {
+        return new RedisResourcePromise(this._withDeveloperCertificateTrustInternal(trust));
+    }
+
+    /** @internal */
+    private async _withCertificateTrustScopeInternal(scope: CertificateTrustScope): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, scope };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withCertificateTrustScope',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisResourcePromise {
+        return new RedisResourcePromise(this._withCertificateTrustScopeInternal(scope));
+    }
+
+    /** @internal */
+    private async _withHttpsDeveloperCertificateInternal(password?: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (password !== undefined) rpcArgs.password = password;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHttpsDeveloperCertificate',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisResourcePromise {
+        const password = options?.password;
+        return new RedisResourcePromise(this._withHttpsDeveloperCertificateInternal(password));
+    }
+
+    /** @internal */
+    private async _withoutHttpsCertificateInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withoutHttpsCertificate',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisResourcePromise {
+        return new RedisResourcePromise(this._withoutHttpsCertificateInternal());
+    }
+
+    /** @internal */
+    private async _withParentRelationshipInternal(parent: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, parent };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withParentRelationship',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._withParentRelationshipInternal(parent));
+    }
+
+    /** @internal */
+    private async _withChildRelationshipInternal(child: ResourceBuilderBase): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, child };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withChildRelationship',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._withChildRelationshipInternal(child));
+    }
+
+    /** @internal */
+    private async _withIconNameInternal(iconName: string, iconVariant?: IconVariant): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, iconName };
+        if (iconVariant !== undefined) rpcArgs.iconVariant = iconVariant;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withIconName',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisResourcePromise {
+        const iconVariant = options?.iconVariant;
+        return new RedisResourcePromise(this._withIconNameInternal(iconName, iconVariant));
+    }
+
+    /** @internal */
+    private async _withHttpProbeInternal(probeType: ProbeType, path?: string, initialDelaySeconds?: number, periodSeconds?: number, timeoutSeconds?: number, failureThreshold?: number, successThreshold?: number, endpointName?: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, probeType };
+        if (path !== undefined) rpcArgs.path = path;
+        if (initialDelaySeconds !== undefined) rpcArgs.initialDelaySeconds = initialDelaySeconds;
+        if (periodSeconds !== undefined) rpcArgs.periodSeconds = periodSeconds;
+        if (timeoutSeconds !== undefined) rpcArgs.timeoutSeconds = timeoutSeconds;
+        if (failureThreshold !== undefined) rpcArgs.failureThreshold = failureThreshold;
+        if (successThreshold !== undefined) rpcArgs.successThreshold = successThreshold;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withHttpProbe',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisResourcePromise {
+        const path = options?.path;
+        const initialDelaySeconds = options?.initialDelaySeconds;
+        const periodSeconds = options?.periodSeconds;
+        const timeoutSeconds = options?.timeoutSeconds;
+        const failureThreshold = options?.failureThreshold;
+        const successThreshold = options?.successThreshold;
+        const endpointName = options?.endpointName;
+        return new RedisResourcePromise(this._withHttpProbeInternal(probeType, path, initialDelaySeconds, periodSeconds, timeoutSeconds, failureThreshold, successThreshold, endpointName));
+    }
+
+    /** @internal */
+    private async _excludeFromMcpInternal(): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/excludeFromMcp',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisResourcePromise {
+        return new RedisResourcePromise(this._excludeFromMcpInternal());
+    }
+
+    /** @internal */
+    private async _withRemoteImageNameInternal(remoteImageName: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageName };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withRemoteImageName',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withRemoteImageNameInternal(remoteImageName));
+    }
+
+    /** @internal */
+    private async _withRemoteImageTagInternal(remoteImageTag: string): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageTag };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withRemoteImageTag',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._withRemoteImageTagInternal(remoteImageTag));
+    }
+
+    /** @internal */
+    private async _withPipelineStepFactoryInternal(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, dependsOn?: string[], requiredBy?: string[], tags?: string[], description?: string): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineStepContextHandle;
+            const arg = new PipelineStepContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, stepName, callback: callbackId };
+        if (dependsOn !== undefined) rpcArgs.dependsOn = dependsOn;
+        if (requiredBy !== undefined) rpcArgs.requiredBy = requiredBy;
+        if (tags !== undefined) rpcArgs.tags = tags;
+        if (description !== undefined) rpcArgs.description = description;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withPipelineStepFactory',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisResourcePromise {
+        const dependsOn = options?.dependsOn;
+        const requiredBy = options?.requiredBy;
+        const tags = options?.tags;
+        const description = options?.description;
+        return new RedisResourcePromise(this._withPipelineStepFactoryInternal(stepName, callback, dependsOn, requiredBy, tags, description));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationAsyncInternal(callback: (arg: PipelineConfigurationContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineConfigurationContextHandle;
+            const arg = new PipelineConfigurationContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withPipelineConfigurationAsync',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withPipelineConfigurationAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationInternal(callback: (obj: PipelineConfigurationContext) => Promise<void>): Promise<RedisResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as PipelineConfigurationContextHandle;
+            const obj = new PipelineConfigurationContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withPipelineConfiguration',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._withPipelineConfigurationInternal(callback));
+    }
+
+    /** @internal */
+    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting/withVolume',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new RedisResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
+    }
+
+    /** Gets the resource name */
+    async getResourceName(): Promise<string> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle };
+        return await this._client.invokeCapability<string>(
+            'Aspire.Hosting/getResourceName',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _withRedisCommanderInternal(configureContainer?: (obj: RedisCommanderResource) => Promise<void>, containerName?: string): Promise<RedisResource> {
+        const configureContainerId = configureContainer ? registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as RedisCommanderResourceHandle;
+            const obj = new RedisCommanderResource(objHandle, this._client);
+            await configureContainer(obj);
+        }) : undefined;
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (configureContainer !== undefined) rpcArgs.configureContainer = configureContainerId;
+        if (containerName !== undefined) rpcArgs.containerName = containerName;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisCommander',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds Redis Commander management UI */
+    withRedisCommander(options?: WithRedisCommanderOptions): RedisResourcePromise {
+        const configureContainer = options?.configureContainer;
+        const containerName = options?.containerName;
+        return new RedisResourcePromise(this._withRedisCommanderInternal(configureContainer, containerName));
+    }
+
+    /** @internal */
+    private async _withRedisInsightInternal(configureContainer?: (obj: RedisInsightResource) => Promise<void>, containerName?: string): Promise<RedisResource> {
+        const configureContainerId = configureContainer ? registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as RedisInsightResourceHandle;
+            const obj = new RedisInsightResource(objHandle, this._client);
+            await configureContainer(obj);
+        }) : undefined;
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (configureContainer !== undefined) rpcArgs.configureContainer = configureContainerId;
+        if (containerName !== undefined) rpcArgs.containerName = containerName;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withRedisInsight',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds Redis Insight management UI */
+    withRedisInsight(options?: WithRedisInsightOptions): RedisResourcePromise {
+        const configureContainer = options?.configureContainer;
+        const containerName = options?.containerName;
+        return new RedisResourcePromise(this._withRedisInsightInternal(configureContainer, containerName));
+    }
+
+    /** @internal */
+    private async _withDataVolumeInternal(name?: string, isReadOnly?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withDataVolume',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a data volume with persistence */
+    withDataVolume(options?: WithDataVolumeOptions): RedisResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new RedisResourcePromise(this._withDataVolumeInternal(name, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withDataBindMountInternal(source: string, isReadOnly?: boolean): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withDataBindMount',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds a data bind mount with persistence */
+    withDataBindMount(source: string, options?: WithDataBindMountOptions): RedisResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new RedisResourcePromise(this._withDataBindMountInternal(source, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withPersistenceInternal(interval?: number, keysChangedThreshold?: number): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (interval !== undefined) rpcArgs.interval = interval;
+        if (keysChangedThreshold !== undefined) rpcArgs.keysChangedThreshold = keysChangedThreshold;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withPersistence',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures Redis persistence */
+    withPersistence(options?: WithPersistenceOptions): RedisResourcePromise {
+        const interval = options?.interval;
+        const keysChangedThreshold = options?.keysChangedThreshold;
+        return new RedisResourcePromise(this._withPersistenceInternal(interval, keysChangedThreshold));
+    }
+
+    /** @internal */
+    private async _withPasswordInternal(password: ParameterResource): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, password };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withPassword',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Configures the password for Redis */
+    withPassword(password: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._withPasswordInternal(password));
+    }
+
+    /** @internal */
+    private async _withHostPortInternal(port?: number): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Redis/withHostPort',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Sets the host port for Redis */
+    withHostPort(options?: WithHostPortOptions): RedisResourcePromise {
+        const port = options?.port;
+        return new RedisResourcePromise(this._withHostPortInternal(port));
+    }
+
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisResourcePromise {
+        return new RedisResourcePromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<RedisResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<RedisResourceHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new RedisResource(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisResourcePromise {
+        return new RedisResourcePromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
+}
+
+/**
+ * Thenable wrapper for RedisResource that enables fluent chaining.
+ * @example
+ * await builder.addSomething().withX().withY();
+ */
+export class RedisResourcePromise implements PromiseLike<RedisResource> {
+    constructor(private _promise: Promise<RedisResource>) {}
+
+    then<TResult1 = RedisResource, TResult2 = never>(
+        onfulfilled?: ((value: RedisResource) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withMcpServer(options)));
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withOtlpExporter()));
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withRequiredCommand(command, options)));
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironment(name, value)));
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentExpression(name, value)));
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentCallback(callback)));
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentCallbackAsync(callback)));
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentEndpoint(name, endpointReference)));
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentParameter(name, parameter)));
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEnvironmentConnectionString(envVarName, resource)));
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withConnectionProperty(name, value)));
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withConnectionPropertyValue(name, value)));
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withArgs(args)));
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withArgsCallback(callback)));
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withArgsCallbackAsync(callback)));
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withReference(source, options)));
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withServiceReference(source)));
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withServiceReferenceNamed(source, name)));
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withReferenceUri(name, uri)));
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withReferenceExternalService(externalService)));
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withReferenceEndpoint(endpointReference)));
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withEndpoint(options)));
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHttpEndpoint(options)));
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHttpsEndpoint(options)));
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withExternalHttpEndpoints()));
+    }
+
+    /** Gets an endpoint reference */
+    getEndpoint(name: string): Promise<EndpointReference> {
+        return this._promise.then(obj => obj.getEndpoint(name));
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.asHttp2Service()));
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrlsCallback(callback)));
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrlsCallbackAsync(callback)));
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrl(url, options)));
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrlExpression(url, options)));
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrlForEndpoint(endpointName, callback)));
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withUrlForEndpointFactory(endpointName, callback)));
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.excludeFromManifest()));
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.waitFor(dependency)));
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.waitForWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.waitForStart(dependency)));
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.waitForStartWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withExplicitStart()));
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.waitForCompletion(dependency, options)));
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHealthCheck(key)));
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHttpHealthCheck(options)));
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withCommand(name, displayName, executeCommand, options)));
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withDeveloperCertificateTrust(trust)));
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withCertificateTrustScope(scope)));
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHttpsDeveloperCertificate(options)));
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withoutHttpsCertificate()));
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withParentRelationship(parent)));
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withChildRelationship(child)));
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withIconName(iconName, options)));
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHttpProbe(probeType, options)));
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.excludeFromMcp()));
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withRemoteImageName(remoteImageName)));
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withRemoteImageTag(remoteImageTag)));
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withPipelineStepFactory(stepName, callback, options)));
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withPipelineConfigurationAsync(callback)));
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
+    }
+
+    /** Gets the resource name */
+    getResourceName(): Promise<string> {
+        return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds Redis Commander management UI */
+    withRedisCommander(options?: WithRedisCommanderOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withRedisCommander(options)));
+    }
+
+    /** Adds Redis Insight management UI */
+    withRedisInsight(options?: WithRedisInsightOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withRedisInsight(options)));
+    }
+
+    /** Adds a data volume with persistence */
+    withDataVolume(options?: WithDataVolumeOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withDataVolume(options)));
+    }
+
+    /** Adds a data bind mount with persistence */
+    withDataBindMount(source: string, options?: WithDataBindMountOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withDataBindMount(source, options)));
+    }
+
+    /** Configures Redis persistence */
+    withPersistence(options?: WithPersistenceOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withPersistence(options)));
+    }
+
+    /** Configures the password for Redis */
+    withPassword(password: ParameterResource): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withPassword(password)));
+    }
+
+    /** Sets the host port for Redis */
+    withHostPort(options?: WithHostPortOptions): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withHostPort(options)));
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): RedisResourcePromise {
+        return new RedisResourcePromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -12892,6 +18800,36 @@ export class ResourceWithEnvironment extends ResourceBuilderBase<IResourceWithEn
         return new ResourceWithEnvironmentPromise(this._withoutHttpsCertificateInternal());
     }
 
+    /** @internal */
+    private async _withOrleansClientReferenceInternal(orleansServiceClient: OrleansServiceClientHandle): Promise<ResourceWithEnvironment> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansServiceClient };
+        const result = await this._client.invokeCapability<IResourceWithEnvironmentHandle>(
+            'Aspire.Hosting.Orleans/withOrleansClientReference',
+            rpcArgs
+        );
+        return new ResourceWithEnvironment(result, this._client);
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ResourceWithEnvironmentPromise {
+        return new ResourceWithEnvironmentPromise(this._withOrleansClientReferenceInternal(orleansServiceClient));
+    }
+
+    /** @internal */
+    private async _withOrleansReferenceInternal(orleansService: OrleansService): Promise<ResourceWithEnvironment> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, orleansService };
+        const result = await this._client.invokeCapability<IResourceWithEnvironmentHandle>(
+            'Aspire.Hosting.Orleans/withOrleansReference',
+            rpcArgs
+        );
+        return new ResourceWithEnvironment(result, this._client);
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ResourceWithEnvironmentPromise {
+        return new ResourceWithEnvironmentPromise(this._withOrleansReferenceInternal(orleansService));
+    }
+
 }
 
 /**
@@ -13002,6 +18940,16 @@ export class ResourceWithEnvironmentPromise implements PromiseLike<ResourceWithE
     /** Removes HTTPS certificate configuration */
     withoutHttpsCertificate(): ResourceWithEnvironmentPromise {
         return new ResourceWithEnvironmentPromise(this._promise.then(obj => obj.withoutHttpsCertificate()));
+    }
+
+    /** Adds an Orleans client reference to a resource */
+    withOrleansClientReference(orleansServiceClient: OrleansServiceClientHandle): ResourceWithEnvironmentPromise {
+        return new ResourceWithEnvironmentPromise(this._promise.then(obj => obj.withOrleansClientReference(orleansServiceClient)));
+    }
+
+    /** Adds an Orleans silo reference to a resource */
+    withOrleansReference(orleansService: OrleansService): ResourceWithEnvironmentPromise {
+        return new ResourceWithEnvironmentPromise(this._promise.then(obj => obj.withOrleansReference(orleansService)));
     }
 
 }
@@ -13277,6 +19225,7 @@ registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.EndpointRe
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.EndpointReferenceExpression', (handle, client) => new EndpointReferenceExpression(handle as EndpointReferenceExpressionHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.EnvironmentCallbackContext', (handle, client) => new EnvironmentCallbackContext(handle as EnvironmentCallbackContextHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.ExecuteCommandContext', (handle, client) => new ExecuteCommandContext(handle as ExecuteCommandContextHandle, client));
+registerHandleWrapper('Aspire.Hosting.Orleans/Aspire.Hosting.Orleans.OrleansService', (handle, client) => new OrleansService(handle as OrleansServiceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.Pipelines.PipelineConfigurationContext', (handle, client) => new PipelineConfigurationContext(handle as PipelineConfigurationContextHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.Pipelines.PipelineStep', (handle, client) => new PipelineStep(handle as PipelineStepHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.Pipelines.PipelineStepContext', (handle, client) => new PipelineStepContext(handle as PipelineStepContextHandle, client));
@@ -13294,6 +19243,9 @@ registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.Executable
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ExternalServiceResource', (handle, client) => new ExternalServiceResource(handle as ExternalServiceResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.ParameterResource', (handle, client) => new ParameterResource(handle as ParameterResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.ProjectResource', (handle, client) => new ProjectResource(handle as ProjectResourceHandle, client));
+registerHandleWrapper('Aspire.Hosting.Redis/Aspire.Hosting.Redis.RedisCommanderResource', (handle, client) => new RedisCommanderResource(handle as RedisCommanderResourceHandle, client));
+registerHandleWrapper('Aspire.Hosting.Redis/Aspire.Hosting.Redis.RedisInsightResource', (handle, client) => new RedisInsightResource(handle as RedisInsightResourceHandle, client));
+registerHandleWrapper('Aspire.Hosting.Redis/Aspire.Hosting.ApplicationModel.RedisResource', (handle, client) => new RedisResource(handle as RedisResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IContainerFilesDestinationResource', (handle, client) => new ContainerFilesDestinationResource(handle as IContainerFilesDestinationResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IResource', (handle, client) => new Resource(handle as IResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IResourceWithArgs', (handle, client) => new ResourceWithArgs(handle as IResourceWithArgsHandle, client));

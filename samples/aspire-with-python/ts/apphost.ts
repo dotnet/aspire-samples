@@ -1,9 +1,4 @@
-// Setup: Run the following commands to add required integrations:
-//   aspire add javascript
-//   aspire add python
-//   aspire add redis
-
-import { createBuilder } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
@@ -20,7 +15,6 @@ const frontend = builder.addViteApp("frontend", "../frontend")
     .withReference(app)
     .waitFor(app);
 
-// POLYGLOT GAP: app.publishWithContainerFiles(frontend, "./static") — bundling Vite output
-// into the Python app's static directory may not be available.
+app.publishWithContainerFiles(frontend, "./static");
 
 await builder.build().run();

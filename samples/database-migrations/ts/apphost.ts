@@ -1,21 +1,18 @@
-// Setup: Run the following commands to add required integrations:
-//   aspire add sqlserver
-
-import { createBuilder, ContainerLifetime } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const sqlserver = await builder.addSqlServer("sqlserver")
+const sqlserver = builder.addSqlServer("sqlserver")
     .withDataVolume()
-    .withLifetime(ContainerLifetime.Persistent);
+    .withLifetime("persistent");
 
 const db1 = sqlserver.addDatabase("db1");
 
-const migrationService = builder.addProject("migration")
+const migrationService = builder.addProject("migration", "../DatabaseMigrations.MigrationService/DatabaseMigrations.MigrationService.csproj", "https")
     .withReference(db1)
     .waitFor(db1);
 
-const api = builder.addProject("api")
+builder.addProject("api", "../DatabaseMigrations.ApiService/DatabaseMigrations.ApiService.csproj", "https")
     .withReference(db1)
     .waitForCompletion(migrationService);
 

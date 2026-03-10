@@ -1,42 +1,38 @@
-// Setup: Run the following commands to add required integrations:
-//   aspire add javascript
-
-import { createBuilder } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const weatherApi = builder.addProject("weatherapi")
+const weatherApi = builder.addProject("weatherapi", "../AspireJavaScript.MinimalApi/AspireJavaScript.MinimalApi.csproj", "https")
     .withExternalHttpEndpoints();
 
-const angular = builder.addJavaScriptApp("angular", "../AspireJavaScript.Angular", "start")
+builder.addJavaScriptApp("angular", "../AspireJavaScript.Angular", { runScriptName: "start" })
     .withReference(weatherApi)
     .waitFor(weatherApi)
     .withHttpEndpoint({ env: "PORT" })
-    .withExternalHttpEndpoints();
-// POLYGLOT GAP: .PublishAsDockerFile() — publish-time Dockerfile generation may not be available.
+    .withExternalHttpEndpoints()
+    .publishAsDockerFile();
 
-const react = builder.addJavaScriptApp("react", "../AspireJavaScript.React", "start")
+builder.addJavaScriptApp("react", "../AspireJavaScript.React", { runScriptName: "start" })
     .withReference(weatherApi)
     .waitFor(weatherApi)
     .withEnvironment("BROWSER", "none")
     .withHttpEndpoint({ env: "PORT" })
-    .withExternalHttpEndpoints();
-// POLYGLOT GAP: .PublishAsDockerFile() — publish-time Dockerfile generation may not be available.
+    .withExternalHttpEndpoints()
+    .publishAsDockerFile();
 
-const vue = builder.addJavaScriptApp("vue", "../AspireJavaScript.Vue")
+builder.addJavaScriptApp("vue", "../AspireJavaScript.Vue")
     .withRunScript("start")
     .withNpm({ installCommand: "ci" })
     .withReference(weatherApi)
     .waitFor(weatherApi)
     .withHttpEndpoint({ env: "PORT" })
-    .withExternalHttpEndpoints();
-// POLYGLOT GAP: .PublishAsDockerFile() — publish-time Dockerfile generation may not be available.
+    .withExternalHttpEndpoints()
+    .publishAsDockerFile();
 
 const reactVite = builder.addViteApp("reactvite", "../AspireJavaScript.Vite")
     .withReference(weatherApi)
     .withEnvironment("BROWSER", "none");
 
-// POLYGLOT GAP: weatherApi.publishWithContainerFiles(reactVite, "./wwwroot") — bundling Vite
-// output into a project's wwwroot may not be available.
+weatherApi.publishWithContainerFiles(reactVite, "./wwwroot");
 
 await builder.build().run();

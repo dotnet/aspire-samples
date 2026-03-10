@@ -1,25 +1,18 @@
-// Setup: Run the following commands to add required integrations:
-//   aspire add sqlserver
-//   aspire add azure-storage
-
-import { createBuilder, ContainerLifetime } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const sqlserver = await builder.addSqlServer("sqlserver")
+const sqlserver = builder.addSqlServer("sqlserver")
     .withDataVolume()
-    .withLifetime(ContainerLifetime.Persistent);
+    .withLifetime("persistent");
 
 const sqlDatabase = sqlserver.addDatabase("sqldb");
 
 const blobs = builder.addAzureStorage("Storage")
-    .runAsEmulator(emulator => emulator.withDataVolume())
+    .runAsEmulator()
     .addBlobs("BlobConnection");
-// Note: The emulator callback pattern above assumes the SDK supports arrow function
-// callbacks for RunAsEmulator. If not, you may need to call runAsEmulator() without
-// arguments and configure the data volume separately.
 
-const blazorweb = builder.addProject("blazorweb")
+builder.addProject("blazorweb", "../VolumeMount.BlazorWeb/VolumeMount.BlazorWeb.csproj", "https")
     .withReference(sqlDatabase)
     .waitFor(sqlDatabase)
     .withReference(blobs)

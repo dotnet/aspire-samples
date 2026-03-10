@@ -1,15 +1,9 @@
-// Setup: No standard packages — this sample uses custom C# resource extensions.
-//
-// POLYGLOT GAP: AddTalkingClock and AddTestResource are custom C# resource extensions
-// defined in CustomResources.AppHost. To use them from TypeScript, they would need
-// [AspireExport] attributes and distribution as a NuGet package, then added via:
-//   aspire add <custom-package-name>
-
-import { createBuilder } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-// builder.addTalkingClock("talking-clock");
-// builder.addTestResource("test");
+// Custom resources are defined in C# extensions and are not available in the TypeScript SDK.
+// This sample demonstrates the C# custom resource extensibility model.
+// See the cs/ directory for the full implementation.
 
 await builder.build().run();

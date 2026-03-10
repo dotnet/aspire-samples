@@ -1,8 +1,4 @@
-// Setup: Run the following commands to add required integrations:
-//   aspire add redis
-//   aspire add orleans
-
-import { createBuilder } from "./.modules/aspire.js";
+import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
@@ -12,11 +8,10 @@ const orleans = builder.addOrleans("voting-cluster")
     .withClustering(redis)
     .withGrainStorage("votes", redis);
 
-const votingFe = builder.addProject("voting-fe")
+builder.addProject("voting-fe", "../OrleansVoting.Service/OrleansVoting.Service.csproj", "https")
     .withReference(orleans)
     .waitFor(redis)
     .withReplicas(3)
     .withExternalHttpEndpoints();
-// POLYGLOT GAP: .WithUrlForEndpoint callbacks for display text/location are not available.
 
 await builder.build().run();

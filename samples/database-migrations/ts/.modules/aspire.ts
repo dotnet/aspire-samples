@@ -26,6 +26,12 @@ import {
 // Handle Type Aliases (Internal - not exported to users)
 // ============================================================================
 
+/** Handle to SqlServerDatabaseResource */
+type SqlServerDatabaseResourceHandle = Handle<'Aspire.Hosting.SqlServer/Aspire.Hosting.ApplicationModel.SqlServerDatabaseResource'>;
+
+/** Handle to SqlServerServerResource */
+type SqlServerServerResourceHandle = Handle<'Aspire.Hosting.SqlServer/Aspire.Hosting.ApplicationModel.SqlServerServerResource'>;
+
 /** Handle to CommandLineArgsCallbackContext */
 type CommandLineArgsCallbackContextHandle = Handle<'Aspire.Hosting/Aspire.Hosting.ApplicationModel.CommandLineArgsCallbackContext'>;
 
@@ -326,6 +332,10 @@ export interface AddContainerRegistryOptions {
     repository?: ParameterResource;
 }
 
+export interface AddDatabaseOptions {
+    databaseName?: string;
+}
+
 export interface AddDockerfileOptions {
     dockerfilePath?: string;
     stage?: string;
@@ -337,6 +347,11 @@ export interface AddParameterFromConfigurationOptions {
 
 export interface AddParameterOptions {
     secret?: boolean;
+}
+
+export interface AddSqlServerOptions {
+    password?: ParameterResource;
+    port?: number;
 }
 
 export interface AppendFormattedOptions {
@@ -367,6 +382,15 @@ export interface WithCommandOptions {
     commandOptions?: CommandOptions;
 }
 
+export interface WithDataBindMountOptions {
+    isReadOnly?: boolean;
+}
+
+export interface WithDataVolumeOptions {
+    name?: string;
+    isReadOnly?: boolean;
+}
+
 export interface WithDescriptionOptions {
     enableMarkdown?: boolean;
 }
@@ -395,6 +419,10 @@ export interface WithEndpointOptions {
 export interface WithExternalServiceHttpHealthCheckOptions {
     path?: string;
     statusCode?: number;
+}
+
+export interface WithHostPortOptions {
+    port?: number;
 }
 
 export interface WithHttpEndpointOptions {
@@ -1711,6 +1739,25 @@ export class DistributedApplicationBuilder {
         return new CSharpAppResourcePromise(this._addCSharpAppWithOptionsInternal(name, path, configure));
     }
 
+    /** Adds a SQL Server container resource */
+    /** @internal */
+    async _addSqlServerInternal(name: string, password?: ParameterResource, port?: number): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        if (password !== undefined) rpcArgs.password = password;
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting.SqlServer/addSqlServer',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    addSqlServer(name: string, options?: AddSqlServerOptions): SqlServerServerResourcePromise {
+        const password = options?.password;
+        const port = options?.port;
+        return new SqlServerServerResourcePromise(this._addSqlServerInternal(name, password, port));
+    }
+
 }
 
 /**
@@ -1799,6 +1846,11 @@ export class DistributedApplicationBuilderPromise implements PromiseLike<Distrib
     /** Adds a C# application resource with configuration options */
     addCSharpAppWithOptions(name: string, path: string, configure: (obj: ProjectResourceOptions) => Promise<void>): CSharpAppResourcePromise {
         return new CSharpAppResourcePromise(this._promise.then(obj => obj.addCSharpAppWithOptions(name, path, configure)));
+    }
+
+    /** Adds a SQL Server container resource */
+    addSqlServer(name: string, options?: AddSqlServerOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.addSqlServer(name, options)));
     }
 
 }
@@ -3056,239 +3108,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
     }
 
     /** @internal */
-    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
-        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBindMount',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a bind mount */
-    withBindMount(source: string, target: string, options?: WithBindMountOptions): ContainerResourcePromise {
-        const isReadOnly = options?.isReadOnly;
-        return new ContainerResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
-    }
-
-    /** @internal */
-    private async _withEntrypointInternal(entrypoint: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withEntrypoint',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container entrypoint */
-    withEntrypoint(entrypoint: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withEntrypointInternal(entrypoint));
-    }
-
-    /** @internal */
-    private async _withImageTagInternal(tag: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageTag',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image tag */
-    withImageTag(tag: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageTagInternal(tag));
-    }
-
-    /** @internal */
-    private async _withImageRegistryInternal(registry: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageRegistry',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image registry */
-    withImageRegistry(registry: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageRegistryInternal(registry));
-    }
-
-    /** @internal */
-    private async _withImageInternal(image: string, tag?: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
-        if (tag !== undefined) rpcArgs.tag = tag;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImage',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image */
-    withImage(image: string, options?: WithImageOptions): ContainerResourcePromise {
-        const tag = options?.tag;
-        return new ContainerResourcePromise(this._withImageInternal(image, tag));
-    }
-
-    /** @internal */
-    private async _withImageSHA256Internal(sha256: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImageSHA256',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the image SHA256 digest */
-    withImageSHA256(sha256: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImageSHA256Internal(sha256));
-    }
-
-    /** @internal */
-    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerRuntimeArgs',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds runtime arguments for the container */
-    withContainerRuntimeArgs(args: string[]): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerRuntimeArgsInternal(args));
-    }
-
-    /** @internal */
-    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withLifetime',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the lifetime behavior of the container resource */
-    withLifetime(lifetime: ContainerLifetime): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withLifetimeInternal(lifetime));
-    }
-
-    /** @internal */
-    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withImagePullPolicy',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container image pull policy */
-    withImagePullPolicy(pullPolicy: ImagePullPolicy): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
-    }
-
-    /** @internal */
-    private async _publishAsContainerInternal(): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/publishAsContainer',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures the resource to be published as a container */
-    publishAsContainer(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._publishAsContainerInternal());
-    }
-
-    /** @internal */
-    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
-        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
-        if (stage !== undefined) rpcArgs.stage = stage;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withDockerfile',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures the resource to use a Dockerfile */
-    withDockerfile(contextPath: string, options?: WithDockerfileOptions): ContainerResourcePromise {
-        const dockerfilePath = options?.dockerfilePath;
-        const stage = options?.stage;
-        return new ContainerResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
-    }
-
-    /** @internal */
-    private async _withContainerNameInternal(name: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerName',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Sets the container name */
-    withContainerName(name: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerNameInternal(name));
-    }
-
-    /** @internal */
-    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBuildArg',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a build argument from a parameter resource */
-    withBuildArg(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withBuildArgInternal(name, value));
-    }
-
-    /** @internal */
-    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withBuildSecret',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a build secret from a parameter resource */
-    withBuildSecret(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withBuildSecretInternal(name, value));
-    }
-
-    /** @internal */
-    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withEndpointProxySupport',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Configures endpoint proxy support */
-    withEndpointProxySupport(proxyEnabled: boolean): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
-    }
-
-    /** @internal */
     private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<ContainerResource> {
         const rpcArgs: Record<string, unknown> = { builder: this._handle };
         if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
@@ -3305,21 +3124,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
         const buildImage = options?.buildImage;
         const runtimeImage = options?.runtimeImage;
         return new ContainerResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
-    }
-
-    /** @internal */
-    private async _withContainerNetworkAliasInternal(alias: string): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withContainerNetworkAlias',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a network alias for the container */
-    withContainerNetworkAlias(alias: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._withContainerNetworkAliasInternal(alias));
     }
 
     /** @internal */
@@ -3369,21 +3173,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
     /** Configures OTLP telemetry export with specific protocol */
     withOtlpExporterProtocol(protocol: OtlpProtocol): ContainerResourcePromise {
         return new ContainerResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
-    }
-
-    /** @internal */
-    private async _publishAsConnectionStringInternal(): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { builder: this._handle };
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/publishAsConnectionString',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Publishes the resource as a connection string */
-    publishAsConnectionString(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._publishAsConnectionStringInternal());
     }
 
     /** @internal */
@@ -4316,25 +4105,6 @@ export class ContainerResource extends ResourceBuilderBase<ContainerResourceHand
         return new ContainerResourcePromise(this._withPipelineConfigurationInternal(callback));
     }
 
-    /** @internal */
-    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<ContainerResource> {
-        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
-        if (name !== undefined) rpcArgs.name = name;
-        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
-        const result = await this._client.invokeCapability<ContainerResourceHandle>(
-            'Aspire.Hosting/withVolume',
-            rpcArgs
-        );
-        return new ContainerResource(result, this._client);
-    }
-
-    /** Adds a volume */
-    withVolume(target: string, options?: WithVolumeOptions): ContainerResourcePromise {
-        const name = options?.name;
-        const isReadOnly = options?.isReadOnly;
-        return new ContainerResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
-    }
-
     /** Gets the resource name */
     async getResourceName(): Promise<string> {
         const rpcArgs: Record<string, unknown> = { resource: this._handle };
@@ -4366,89 +4136,9 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
         return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
     }
 
-    /** Adds a bind mount */
-    withBindMount(source: string, target: string, options?: WithBindMountOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
-    }
-
-    /** Sets the container entrypoint */
-    withEntrypoint(entrypoint: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
-    }
-
-    /** Sets the container image tag */
-    withImageTag(tag: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
-    }
-
-    /** Sets the container image registry */
-    withImageRegistry(registry: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
-    }
-
-    /** Sets the container image */
-    withImage(image: string, options?: WithImageOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
-    }
-
-    /** Sets the image SHA256 digest */
-    withImageSHA256(sha256: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
-    }
-
-    /** Adds runtime arguments for the container */
-    withContainerRuntimeArgs(args: string[]): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
-    }
-
-    /** Sets the lifetime behavior of the container resource */
-    withLifetime(lifetime: ContainerLifetime): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
-    }
-
-    /** Sets the container image pull policy */
-    withImagePullPolicy(pullPolicy: ImagePullPolicy): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
-    }
-
-    /** Configures the resource to be published as a container */
-    publishAsContainer(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
-    }
-
-    /** Configures the resource to use a Dockerfile */
-    withDockerfile(contextPath: string, options?: WithDockerfileOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
-    }
-
-    /** Sets the container name */
-    withContainerName(name: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
-    }
-
-    /** Adds a build argument from a parameter resource */
-    withBuildArg(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
-    }
-
-    /** Adds a build secret from a parameter resource */
-    withBuildSecret(name: string, value: ParameterResource): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
-    }
-
-    /** Configures endpoint proxy support */
-    withEndpointProxySupport(proxyEnabled: boolean): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
-    }
-
     /** Sets the base image for a Dockerfile build */
     withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): ContainerResourcePromise {
         return new ContainerResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
-    }
-
-    /** Adds a network alias for the container */
-    withContainerNetworkAlias(alias: string): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
     }
 
     /** Configures an MCP server endpoint on the resource */
@@ -4464,11 +4154,6 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
     /** Configures OTLP telemetry export with specific protocol */
     withOtlpExporterProtocol(protocol: OtlpProtocol): ContainerResourcePromise {
         return new ContainerResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
-    }
-
-    /** Publishes the resource as a connection string */
-    publishAsConnectionString(): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
     }
 
     /** Adds a required command dependency */
@@ -4734,11 +4419,6 @@ export class ContainerResourcePromise implements PromiseLike<ContainerResource> 
     /** Configures pipeline step dependencies via a callback */
     withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): ContainerResourcePromise {
         return new ContainerResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
-    }
-
-    /** Adds a volume */
-    withVolume(target: string, options?: WithVolumeOptions): ContainerResourcePromise {
-        return new ContainerResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
     }
 
     /** Gets the resource name */
@@ -11496,6 +11176,2641 @@ export class ProjectResourcePromise implements PromiseLike<ProjectResource> {
 }
 
 // ============================================================================
+// SqlServerDatabaseResource
+// ============================================================================
+
+export class SqlServerDatabaseResource extends ResourceBuilderBase<SqlServerDatabaseResourceHandle> {
+    constructor(handle: SqlServerDatabaseResourceHandle, client: AspireClientRpc) {
+        super(handle, client);
+    }
+
+    /** Gets the Parent property */
+    parent = {
+        get: async (): Promise<SqlServerServerResource> => {
+            const handle = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.parent',
+                { context: this._handle }
+            );
+            return new SqlServerServerResource(handle, this._client);
+        },
+    };
+
+    /** Gets the ConnectionStringExpression property */
+    connectionStringExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.connectionStringExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the UriExpression property */
+    uriExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.uriExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the JdbcConnectionString property */
+    jdbcConnectionString = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.jdbcConnectionString',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the DatabaseName property */
+    databaseName = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.databaseName',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the Name property */
+    name = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/SqlServerDatabaseResource.name',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** @internal */
+    private async _withContainerRegistryInternal(registry: ResourceBuilderBase): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withContainerRegistry',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withContainerRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
+        if (runtimeImage !== undefined) rpcArgs.runtimeImage = runtimeImage;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withDockerfileBaseImage',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): SqlServerDatabaseResourcePromise {
+        const buildImage = options?.buildImage;
+        const runtimeImage = options?.runtimeImage;
+        return new SqlServerDatabaseResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
+    }
+
+    /** @internal */
+    private async _withRequiredCommandInternal(command: string, helpLink?: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, command };
+        if (helpLink !== undefined) rpcArgs.helpLink = helpLink;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withRequiredCommand',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): SqlServerDatabaseResourcePromise {
+        const helpLink = options?.helpLink;
+        return new SqlServerDatabaseResourcePromise(this._withRequiredCommandInternal(command, helpLink));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyInternal(name: string, value: ReferenceExpression): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withConnectionProperty',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withConnectionPropertyInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyValueInternal(name: string, value: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withConnectionPropertyValue',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withConnectionPropertyValueInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackInternal(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as ResourceUrlsCallbackContextHandle;
+            const obj = new ResourceUrlsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withUrlsCallback',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withUrlsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackAsyncInternal(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ResourceUrlsCallbackContextHandle;
+            const arg = new ResourceUrlsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withUrlsCallbackAsync',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withUrlsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlInternal(url: string, displayText?: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withUrl',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): SqlServerDatabaseResourcePromise {
+        const displayText = options?.displayText;
+        return new SqlServerDatabaseResourcePromise(this._withUrlInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlExpressionInternal(url: ReferenceExpression, displayText?: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withUrlExpression',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): SqlServerDatabaseResourcePromise {
+        const displayText = options?.displayText;
+        return new SqlServerDatabaseResourcePromise(this._withUrlExpressionInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointInternal(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const obj = wrapIfHandle(objData) as ResourceUrlAnnotation;
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpoint',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withUrlForEndpointInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _excludeFromManifestInternal(): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/excludeFromManifest',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._excludeFromManifestInternal());
+    }
+
+    /** @internal */
+    private async _withExplicitStartInternal(): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withExplicitStart',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withExplicitStartInternal());
+    }
+
+    /** @internal */
+    private async _withHealthCheckInternal(key: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, key };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withHealthCheck',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withHealthCheckInternal(key));
+    }
+
+    /** @internal */
+    private async _withCommandInternal(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, commandOptions?: CommandOptions): Promise<SqlServerDatabaseResource> {
+        const executeCommandId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ExecuteCommandContextHandle;
+            const arg = new ExecuteCommandContext(argHandle, this._client);
+            return await executeCommand(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, displayName, executeCommand: executeCommandId };
+        if (commandOptions !== undefined) rpcArgs.commandOptions = commandOptions;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withCommand',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): SqlServerDatabaseResourcePromise {
+        const commandOptions = options?.commandOptions;
+        return new SqlServerDatabaseResourcePromise(this._withCommandInternal(name, displayName, executeCommand, commandOptions));
+    }
+
+    /** @internal */
+    private async _withParentRelationshipInternal(parent: ResourceBuilderBase): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, parent };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withParentRelationship',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withParentRelationshipInternal(parent));
+    }
+
+    /** @internal */
+    private async _withChildRelationshipInternal(child: ResourceBuilderBase): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, child };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withChildRelationship',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withChildRelationshipInternal(child));
+    }
+
+    /** @internal */
+    private async _withIconNameInternal(iconName: string, iconVariant?: IconVariant): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, iconName };
+        if (iconVariant !== undefined) rpcArgs.iconVariant = iconVariant;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withIconName',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): SqlServerDatabaseResourcePromise {
+        const iconVariant = options?.iconVariant;
+        return new SqlServerDatabaseResourcePromise(this._withIconNameInternal(iconName, iconVariant));
+    }
+
+    /** @internal */
+    private async _excludeFromMcpInternal(): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/excludeFromMcp',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._excludeFromMcpInternal());
+    }
+
+    /** @internal */
+    private async _withRemoteImageNameInternal(remoteImageName: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageName };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withRemoteImageName',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withRemoteImageNameInternal(remoteImageName));
+    }
+
+    /** @internal */
+    private async _withRemoteImageTagInternal(remoteImageTag: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageTag };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withRemoteImageTag',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withRemoteImageTagInternal(remoteImageTag));
+    }
+
+    /** @internal */
+    private async _withPipelineStepFactoryInternal(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, dependsOn?: string[], requiredBy?: string[], tags?: string[], description?: string): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineStepContextHandle;
+            const arg = new PipelineStepContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, stepName, callback: callbackId };
+        if (dependsOn !== undefined) rpcArgs.dependsOn = dependsOn;
+        if (requiredBy !== undefined) rpcArgs.requiredBy = requiredBy;
+        if (tags !== undefined) rpcArgs.tags = tags;
+        if (description !== undefined) rpcArgs.description = description;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withPipelineStepFactory',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): SqlServerDatabaseResourcePromise {
+        const dependsOn = options?.dependsOn;
+        const requiredBy = options?.requiredBy;
+        const tags = options?.tags;
+        const description = options?.description;
+        return new SqlServerDatabaseResourcePromise(this._withPipelineStepFactoryInternal(stepName, callback, dependsOn, requiredBy, tags, description));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationAsyncInternal(callback: (arg: PipelineConfigurationContext) => Promise<void>): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineConfigurationContextHandle;
+            const arg = new PipelineConfigurationContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withPipelineConfigurationAsync',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withPipelineConfigurationAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationInternal(callback: (obj: PipelineConfigurationContext) => Promise<void>): Promise<SqlServerDatabaseResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as PipelineConfigurationContextHandle;
+            const obj = new PipelineConfigurationContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting/withPipelineConfiguration',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withPipelineConfigurationInternal(callback));
+    }
+
+    /** Gets the resource name */
+    async getResourceName(): Promise<string> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle };
+        return await this._client.invokeCapability<string>(
+            'Aspire.Hosting/getResourceName',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _withCreationScriptInternal(script: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, script };
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting.SqlServer/withCreationScript',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Defines the SQL script used to create the database */
+    withCreationScript(script: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._withCreationScriptInternal(script));
+    }
+
+}
+
+/**
+ * Thenable wrapper for SqlServerDatabaseResource that enables fluent chaining.
+ * @example
+ * await builder.addSomething().withX().withY();
+ */
+export class SqlServerDatabaseResourcePromise implements PromiseLike<SqlServerDatabaseResource> {
+    constructor(private _promise: Promise<SqlServerDatabaseResource>) {}
+
+    then<TResult1 = SqlServerDatabaseResource, TResult2 = never>(
+        onfulfilled?: ((value: SqlServerDatabaseResource) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withRequiredCommand(command, options)));
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withConnectionProperty(name, value)));
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withConnectionPropertyValue(name, value)));
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withUrlsCallback(callback)));
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withUrlsCallbackAsync(callback)));
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withUrl(url, options)));
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withUrlExpression(url, options)));
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withUrlForEndpoint(endpointName, callback)));
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.excludeFromManifest()));
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withExplicitStart()));
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withHealthCheck(key)));
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withCommand(name, displayName, executeCommand, options)));
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withParentRelationship(parent)));
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withChildRelationship(child)));
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withIconName(iconName, options)));
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.excludeFromMcp()));
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withRemoteImageName(remoteImageName)));
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withRemoteImageTag(remoteImageTag)));
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withPipelineStepFactory(stepName, callback, options)));
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withPipelineConfigurationAsync(callback)));
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
+    }
+
+    /** Gets the resource name */
+    getResourceName(): Promise<string> {
+        return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Defines the SQL script used to create the database */
+    withCreationScript(script: string): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.withCreationScript(script)));
+    }
+
+}
+
+// ============================================================================
+// SqlServerServerResource
+// ============================================================================
+
+export class SqlServerServerResource extends ResourceBuilderBase<SqlServerServerResourceHandle> {
+    constructor(handle: SqlServerServerResourceHandle, client: AspireClientRpc) {
+        super(handle, client);
+    }
+
+    /** Gets the PrimaryEndpoint property */
+    primaryEndpoint = {
+        get: async (): Promise<EndpointReference> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceHandle>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.primaryEndpoint',
+                { context: this._handle }
+            );
+            return new EndpointReference(handle, this._client);
+        },
+    };
+
+    /** Gets the Host property */
+    host = {
+        get: async (): Promise<EndpointReferenceExpression> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceExpressionHandle>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.host',
+                { context: this._handle }
+            );
+            return new EndpointReferenceExpression(handle, this._client);
+        },
+    };
+
+    /** Gets the Port property */
+    port = {
+        get: async (): Promise<EndpointReferenceExpression> => {
+            const handle = await this._client.invokeCapability<EndpointReferenceExpressionHandle>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.port',
+                { context: this._handle }
+            );
+            return new EndpointReferenceExpression(handle, this._client);
+        },
+    };
+
+    /** Gets the UserNameReference property */
+    userNameReference = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.userNameReference',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the UriExpression property */
+    uriExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.uriExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the JdbcConnectionString property */
+    jdbcConnectionString = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.jdbcConnectionString',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the ConnectionStringExpression property */
+    connectionStringExpression = {
+        get: async (): Promise<ReferenceExpression> => {
+            return await this._client.invokeCapability<ReferenceExpression>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.connectionStringExpression',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** Gets the Databases property */
+    private _databases?: AspireDict<string, string>;
+    get databases(): AspireDict<string, string> {
+        if (!this._databases) {
+            this._databases = new AspireDict<string, string>(
+                this._handle,
+                this._client,
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.databases',
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.databases'
+            );
+        }
+        return this._databases;
+    }
+
+    /** Gets the Entrypoint property */
+    entrypoint = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.entrypoint',
+                { context: this._handle }
+            );
+        },
+        set: async (value: string): Promise<void> => {
+            await this._client.invokeCapability<void>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.setEntrypoint',
+                { context: this._handle, value }
+            );
+        }
+    };
+
+    /** Gets the ShellExecution property */
+    shellExecution = {
+        get: async (): Promise<boolean> => {
+            return await this._client.invokeCapability<boolean>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.shellExecution',
+                { context: this._handle }
+            );
+        },
+        set: async (value: boolean): Promise<void> => {
+            await this._client.invokeCapability<void>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.setShellExecution',
+                { context: this._handle, value }
+            );
+        }
+    };
+
+    /** Gets the Name property */
+    name = {
+        get: async (): Promise<string> => {
+            return await this._client.invokeCapability<string>(
+                'Aspire.Hosting.ApplicationModel/SqlServerServerResource.name',
+                { context: this._handle }
+            );
+        },
+    };
+
+    /** @internal */
+    private async _withContainerRegistryInternal(registry: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withContainerRegistry',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withContainerRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withBindMountInternal(source: string, target: string, isReadOnly?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, target };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withBindMount',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): SqlServerServerResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new SqlServerServerResourcePromise(this._withBindMountInternal(source, target, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withEntrypointInternal(entrypoint: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, entrypoint };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEntrypoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEntrypointInternal(entrypoint));
+    }
+
+    /** @internal */
+    private async _withImageTagInternal(tag: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, tag };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withImageTag',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withImageTagInternal(tag));
+    }
+
+    /** @internal */
+    private async _withImageRegistryInternal(registry: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, registry };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withImageRegistry',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withImageRegistryInternal(registry));
+    }
+
+    /** @internal */
+    private async _withImageInternal(image: string, tag?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, image };
+        if (tag !== undefined) rpcArgs.tag = tag;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withImage',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): SqlServerServerResourcePromise {
+        const tag = options?.tag;
+        return new SqlServerServerResourcePromise(this._withImageInternal(image, tag));
+    }
+
+    /** @internal */
+    private async _withImageSHA256Internal(sha256: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, sha256 };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withImageSHA256',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withImageSHA256Internal(sha256));
+    }
+
+    /** @internal */
+    private async _withContainerRuntimeArgsInternal(args: string[]): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withContainerRuntimeArgs',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withContainerRuntimeArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withLifetimeInternal(lifetime: ContainerLifetime): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, lifetime };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withLifetime',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withLifetimeInternal(lifetime));
+    }
+
+    /** @internal */
+    private async _withImagePullPolicyInternal(pullPolicy: ImagePullPolicy): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, pullPolicy };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withImagePullPolicy',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withImagePullPolicyInternal(pullPolicy));
+    }
+
+    /** @internal */
+    private async _publishAsContainerInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/publishAsContainer',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._publishAsContainerInternal());
+    }
+
+    /** @internal */
+    private async _withDockerfileInternal(contextPath: string, dockerfilePath?: string, stage?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, contextPath };
+        if (dockerfilePath !== undefined) rpcArgs.dockerfilePath = dockerfilePath;
+        if (stage !== undefined) rpcArgs.stage = stage;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withDockerfile',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): SqlServerServerResourcePromise {
+        const dockerfilePath = options?.dockerfilePath;
+        const stage = options?.stage;
+        return new SqlServerServerResourcePromise(this._withDockerfileInternal(contextPath, dockerfilePath, stage));
+    }
+
+    /** @internal */
+    private async _withContainerNameInternal(name: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withContainerName',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withContainerNameInternal(name));
+    }
+
+    /** @internal */
+    private async _withBuildArgInternal(name: string, value: ParameterResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withBuildArg',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withBuildArgInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withBuildSecretInternal(name: string, value: ParameterResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withBuildSecret',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withBuildSecretInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEndpointProxySupportInternal(proxyEnabled: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, proxyEnabled };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEndpointProxySupport',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEndpointProxySupportInternal(proxyEnabled));
+    }
+
+    /** @internal */
+    private async _withDockerfileBaseImageInternal(buildImage?: string, runtimeImage?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (buildImage !== undefined) rpcArgs.buildImage = buildImage;
+        if (runtimeImage !== undefined) rpcArgs.runtimeImage = runtimeImage;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withDockerfileBaseImage',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): SqlServerServerResourcePromise {
+        const buildImage = options?.buildImage;
+        const runtimeImage = options?.runtimeImage;
+        return new SqlServerServerResourcePromise(this._withDockerfileBaseImageInternal(buildImage, runtimeImage));
+    }
+
+    /** @internal */
+    private async _withContainerNetworkAliasInternal(alias: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, alias };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withContainerNetworkAlias',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withContainerNetworkAliasInternal(alias));
+    }
+
+    /** @internal */
+    private async _withMcpServerInternal(path?: string, endpointName?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withMcpServer',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): SqlServerServerResourcePromise {
+        const path = options?.path;
+        const endpointName = options?.endpointName;
+        return new SqlServerServerResourcePromise(this._withMcpServerInternal(path, endpointName));
+    }
+
+    /** @internal */
+    private async _withOtlpExporterInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withOtlpExporter',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withOtlpExporterInternal());
+    }
+
+    /** @internal */
+    private async _withOtlpExporterProtocolInternal(protocol: OtlpProtocol): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, protocol };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withOtlpExporterProtocol',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withOtlpExporterProtocolInternal(protocol));
+    }
+
+    /** @internal */
+    private async _publishAsConnectionStringInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/publishAsConnectionString',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._publishAsConnectionStringInternal());
+    }
+
+    /** @internal */
+    private async _withRequiredCommandInternal(command: string, helpLink?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, command };
+        if (helpLink !== undefined) rpcArgs.helpLink = helpLink;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withRequiredCommand',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): SqlServerServerResourcePromise {
+        const helpLink = options?.helpLink;
+        return new SqlServerServerResourcePromise(this._withRequiredCommandInternal(command, helpLink));
+    }
+
+    /** @internal */
+    private async _withEnvironmentInternal(name: string, value: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironment',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentExpressionInternal(name: string, value: ReferenceExpression): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentExpression',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentExpressionInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackInternal(callback: (obj: EnvironmentCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as EnvironmentCallbackContextHandle;
+            const obj = new EnvironmentCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallback',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentCallbackAsyncInternal(callback: (arg: EnvironmentCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EnvironmentCallbackContextHandle;
+            const arg = new EnvironmentCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentCallbackAsync',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withEnvironmentEndpointInternal(name: string, endpointReference: EndpointReference): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, endpointReference };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentEndpointInternal(name, endpointReference));
+    }
+
+    /** @internal */
+    private async _withEnvironmentParameterInternal(name: string, parameter: ParameterResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, parameter };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentParameter',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentParameterInternal(name, parameter));
+    }
+
+    /** @internal */
+    private async _withEnvironmentConnectionStringInternal(envVarName: string, resource: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, envVarName, resource };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEnvironmentConnectionString',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withEnvironmentConnectionStringInternal(envVarName, resource));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyInternal(name: string, value: ReferenceExpression): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withConnectionProperty',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withConnectionPropertyInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withConnectionPropertyValueInternal(name: string, value: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, value };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withConnectionPropertyValue',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withConnectionPropertyValueInternal(name, value));
+    }
+
+    /** @internal */
+    private async _withArgsInternal(args: string[]): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, args };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withArgs',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withArgsInternal(args));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackInternal(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as CommandLineArgsCallbackContextHandle;
+            const obj = new CommandLineArgsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withArgsCallback',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withArgsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withArgsCallbackAsyncInternal(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as CommandLineArgsCallbackContextHandle;
+            const arg = new CommandLineArgsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withArgsCallbackAsync',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withArgsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withReferenceInternal(source: ResourceBuilderBase, connectionName?: string, optional?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (connectionName !== undefined) rpcArgs.connectionName = connectionName;
+        if (optional !== undefined) rpcArgs.optional = optional;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withReference',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): SqlServerServerResourcePromise {
+        const connectionName = options?.connectionName;
+        const optional = options?.optional;
+        return new SqlServerServerResourcePromise(this._withReferenceInternal(source, connectionName, optional));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceInternal(source: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withServiceReference',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withServiceReferenceInternal(source));
+    }
+
+    /** @internal */
+    private async _withServiceReferenceNamedInternal(source: ResourceBuilderBase, name: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source, name };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withServiceReferenceNamed',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withServiceReferenceNamedInternal(source, name));
+    }
+
+    /** @internal */
+    private async _withReferenceUriInternal(name: string, uri: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, uri };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withReferenceUri',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withReferenceUriInternal(name, uri));
+    }
+
+    /** @internal */
+    private async _withReferenceExternalServiceInternal(externalService: ExternalServiceResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, externalService };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withReferenceExternalService',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withReferenceExternalServiceInternal(externalService));
+    }
+
+    /** @internal */
+    private async _withReferenceEndpointInternal(endpointReference: EndpointReference): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointReference };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withReferenceEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withReferenceEndpointInternal(endpointReference));
+    }
+
+    /** @internal */
+    private async _withEndpointInternal(port?: number, targetPort?: number, scheme?: string, name?: string, env?: string, isProxied?: boolean, isExternal?: boolean, protocol?: ProtocolType): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (scheme !== undefined) rpcArgs.scheme = scheme;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        if (isExternal !== undefined) rpcArgs.isExternal = isExternal;
+        if (protocol !== undefined) rpcArgs.protocol = protocol;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): SqlServerServerResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const scheme = options?.scheme;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        const isExternal = options?.isExternal;
+        const protocol = options?.protocol;
+        return new SqlServerServerResourcePromise(this._withEndpointInternal(port, targetPort, scheme, name, env, isProxied, isExternal, protocol));
+    }
+
+    /** @internal */
+    private async _withHttpEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHttpEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): SqlServerServerResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new SqlServerServerResourcePromise(this._withHttpEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withHttpsEndpointInternal(port?: number, targetPort?: number, name?: string, env?: string, isProxied?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        if (targetPort !== undefined) rpcArgs.targetPort = targetPort;
+        if (name !== undefined) rpcArgs.name = name;
+        if (env !== undefined) rpcArgs.env = env;
+        if (isProxied !== undefined) rpcArgs.isProxied = isProxied;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHttpsEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): SqlServerServerResourcePromise {
+        const port = options?.port;
+        const targetPort = options?.targetPort;
+        const name = options?.name;
+        const env = options?.env;
+        const isProxied = options?.isProxied;
+        return new SqlServerServerResourcePromise(this._withHttpsEndpointInternal(port, targetPort, name, env, isProxied));
+    }
+
+    /** @internal */
+    private async _withExternalHttpEndpointsInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withExternalHttpEndpoints',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withExternalHttpEndpointsInternal());
+    }
+
+    /** Gets an endpoint reference */
+    async getEndpoint(name: string): Promise<EndpointReference> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        return await this._client.invokeCapability<EndpointReference>(
+            'Aspire.Hosting/getEndpoint',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _asHttp2ServiceInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/asHttp2Service',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._asHttp2ServiceInternal());
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackInternal(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as ResourceUrlsCallbackContextHandle;
+            const obj = new ResourceUrlsCallbackContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrlsCallback',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withUrlsCallbackInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlsCallbackAsyncInternal(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ResourceUrlsCallbackContextHandle;
+            const arg = new ResourceUrlsCallbackContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrlsCallbackAsync',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withUrlsCallbackAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withUrlInternal(url: string, displayText?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrl',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): SqlServerServerResourcePromise {
+        const displayText = options?.displayText;
+        return new SqlServerServerResourcePromise(this._withUrlInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlExpressionInternal(url: ReferenceExpression, displayText?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, url };
+        if (displayText !== undefined) rpcArgs.displayText = displayText;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrlExpression',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): SqlServerServerResourcePromise {
+        const displayText = options?.displayText;
+        return new SqlServerServerResourcePromise(this._withUrlExpressionInternal(url, displayText));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointInternal(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const obj = wrapIfHandle(objData) as ResourceUrlAnnotation;
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpoint',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withUrlForEndpointInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _withUrlForEndpointFactoryInternal(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as EndpointReferenceHandle;
+            const arg = new EndpointReference(argHandle, this._client);
+            return await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, endpointName, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withUrlForEndpointFactory',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withUrlForEndpointFactoryInternal(endpointName, callback));
+    }
+
+    /** @internal */
+    private async _excludeFromManifestInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/excludeFromManifest',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._excludeFromManifestInternal());
+    }
+
+    /** @internal */
+    private async _waitForInternal(dependency: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/waitFor',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._waitForInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/waitForWithBehavior',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._waitForWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _waitForStartInternal(dependency: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/waitForStart',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._waitForStartInternal(dependency));
+    }
+
+    /** @internal */
+    private async _waitForStartWithBehaviorInternal(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency, waitBehavior };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/waitForStartWithBehavior',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._waitForStartWithBehaviorInternal(dependency, waitBehavior));
+    }
+
+    /** @internal */
+    private async _withExplicitStartInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withExplicitStart',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withExplicitStartInternal());
+    }
+
+    /** @internal */
+    private async _waitForCompletionInternal(dependency: ResourceBuilderBase, exitCode?: number): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, dependency };
+        if (exitCode !== undefined) rpcArgs.exitCode = exitCode;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/waitForCompletion',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): SqlServerServerResourcePromise {
+        const exitCode = options?.exitCode;
+        return new SqlServerServerResourcePromise(this._waitForCompletionInternal(dependency, exitCode));
+    }
+
+    /** @internal */
+    private async _withHealthCheckInternal(key: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, key };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHealthCheck',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withHealthCheckInternal(key));
+    }
+
+    /** @internal */
+    private async _withHttpHealthCheckInternal(path?: string, statusCode?: number, endpointName?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (path !== undefined) rpcArgs.path = path;
+        if (statusCode !== undefined) rpcArgs.statusCode = statusCode;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHttpHealthCheck',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): SqlServerServerResourcePromise {
+        const path = options?.path;
+        const statusCode = options?.statusCode;
+        const endpointName = options?.endpointName;
+        return new SqlServerServerResourcePromise(this._withHttpHealthCheckInternal(path, statusCode, endpointName));
+    }
+
+    /** @internal */
+    private async _withCommandInternal(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, commandOptions?: CommandOptions): Promise<SqlServerServerResource> {
+        const executeCommandId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as ExecuteCommandContextHandle;
+            const arg = new ExecuteCommandContext(argHandle, this._client);
+            return await executeCommand(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name, displayName, executeCommand: executeCommandId };
+        if (commandOptions !== undefined) rpcArgs.commandOptions = commandOptions;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withCommand',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): SqlServerServerResourcePromise {
+        const commandOptions = options?.commandOptions;
+        return new SqlServerServerResourcePromise(this._withCommandInternal(name, displayName, executeCommand, commandOptions));
+    }
+
+    /** @internal */
+    private async _withDeveloperCertificateTrustInternal(trust: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, trust };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withDeveloperCertificateTrust',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withDeveloperCertificateTrustInternal(trust));
+    }
+
+    /** @internal */
+    private async _withCertificateTrustScopeInternal(scope: CertificateTrustScope): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, scope };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withCertificateTrustScope',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withCertificateTrustScopeInternal(scope));
+    }
+
+    /** @internal */
+    private async _withHttpsDeveloperCertificateInternal(password?: ParameterResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (password !== undefined) rpcArgs.password = password;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHttpsDeveloperCertificate',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): SqlServerServerResourcePromise {
+        const password = options?.password;
+        return new SqlServerServerResourcePromise(this._withHttpsDeveloperCertificateInternal(password));
+    }
+
+    /** @internal */
+    private async _withoutHttpsCertificateInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withoutHttpsCertificate',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withoutHttpsCertificateInternal());
+    }
+
+    /** @internal */
+    private async _withParentRelationshipInternal(parent: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, parent };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withParentRelationship',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withParentRelationshipInternal(parent));
+    }
+
+    /** @internal */
+    private async _withChildRelationshipInternal(child: ResourceBuilderBase): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, child };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withChildRelationship',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withChildRelationshipInternal(child));
+    }
+
+    /** @internal */
+    private async _withIconNameInternal(iconName: string, iconVariant?: IconVariant): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, iconName };
+        if (iconVariant !== undefined) rpcArgs.iconVariant = iconVariant;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withIconName',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): SqlServerServerResourcePromise {
+        const iconVariant = options?.iconVariant;
+        return new SqlServerServerResourcePromise(this._withIconNameInternal(iconName, iconVariant));
+    }
+
+    /** @internal */
+    private async _withHttpProbeInternal(probeType: ProbeType, path?: string, initialDelaySeconds?: number, periodSeconds?: number, timeoutSeconds?: number, failureThreshold?: number, successThreshold?: number, endpointName?: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, probeType };
+        if (path !== undefined) rpcArgs.path = path;
+        if (initialDelaySeconds !== undefined) rpcArgs.initialDelaySeconds = initialDelaySeconds;
+        if (periodSeconds !== undefined) rpcArgs.periodSeconds = periodSeconds;
+        if (timeoutSeconds !== undefined) rpcArgs.timeoutSeconds = timeoutSeconds;
+        if (failureThreshold !== undefined) rpcArgs.failureThreshold = failureThreshold;
+        if (successThreshold !== undefined) rpcArgs.successThreshold = successThreshold;
+        if (endpointName !== undefined) rpcArgs.endpointName = endpointName;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withHttpProbe',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): SqlServerServerResourcePromise {
+        const path = options?.path;
+        const initialDelaySeconds = options?.initialDelaySeconds;
+        const periodSeconds = options?.periodSeconds;
+        const timeoutSeconds = options?.timeoutSeconds;
+        const failureThreshold = options?.failureThreshold;
+        const successThreshold = options?.successThreshold;
+        const endpointName = options?.endpointName;
+        return new SqlServerServerResourcePromise(this._withHttpProbeInternal(probeType, path, initialDelaySeconds, periodSeconds, timeoutSeconds, failureThreshold, successThreshold, endpointName));
+    }
+
+    /** @internal */
+    private async _excludeFromMcpInternal(): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/excludeFromMcp',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._excludeFromMcpInternal());
+    }
+
+    /** @internal */
+    private async _withRemoteImageNameInternal(remoteImageName: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageName };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withRemoteImageName',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withRemoteImageNameInternal(remoteImageName));
+    }
+
+    /** @internal */
+    private async _withRemoteImageTagInternal(remoteImageTag: string): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, remoteImageTag };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withRemoteImageTag',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withRemoteImageTagInternal(remoteImageTag));
+    }
+
+    /** @internal */
+    private async _withPipelineStepFactoryInternal(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, dependsOn?: string[], requiredBy?: string[], tags?: string[], description?: string): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineStepContextHandle;
+            const arg = new PipelineStepContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, stepName, callback: callbackId };
+        if (dependsOn !== undefined) rpcArgs.dependsOn = dependsOn;
+        if (requiredBy !== undefined) rpcArgs.requiredBy = requiredBy;
+        if (tags !== undefined) rpcArgs.tags = tags;
+        if (description !== undefined) rpcArgs.description = description;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withPipelineStepFactory',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): SqlServerServerResourcePromise {
+        const dependsOn = options?.dependsOn;
+        const requiredBy = options?.requiredBy;
+        const tags = options?.tags;
+        const description = options?.description;
+        return new SqlServerServerResourcePromise(this._withPipelineStepFactoryInternal(stepName, callback, dependsOn, requiredBy, tags, description));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationAsyncInternal(callback: (arg: PipelineConfigurationContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (argData: unknown) => {
+            const argHandle = wrapIfHandle(argData) as PipelineConfigurationContextHandle;
+            const arg = new PipelineConfigurationContext(argHandle, this._client);
+            await callback(arg);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withPipelineConfigurationAsync',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withPipelineConfigurationAsyncInternal(callback));
+    }
+
+    /** @internal */
+    private async _withPipelineConfigurationInternal(callback: (obj: PipelineConfigurationContext) => Promise<void>): Promise<SqlServerServerResource> {
+        const callbackId = registerCallback(async (objData: unknown) => {
+            const objHandle = wrapIfHandle(objData) as PipelineConfigurationContextHandle;
+            const obj = new PipelineConfigurationContext(objHandle, this._client);
+            await callback(obj);
+        });
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, callback: callbackId };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withPipelineConfiguration',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withPipelineConfigurationInternal(callback));
+    }
+
+    /** @internal */
+    private async _withVolumeInternal(target: string, name?: string, isReadOnly?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle, target };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting/withVolume',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): SqlServerServerResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new SqlServerServerResourcePromise(this._withVolumeInternal(target, name, isReadOnly));
+    }
+
+    /** Gets the resource name */
+    async getResourceName(): Promise<string> {
+        const rpcArgs: Record<string, unknown> = { resource: this._handle };
+        return await this._client.invokeCapability<string>(
+            'Aspire.Hosting/getResourceName',
+            rpcArgs
+        );
+    }
+
+    /** @internal */
+    private async _addDatabaseInternal(name: string, databaseName?: string): Promise<SqlServerDatabaseResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, name };
+        if (databaseName !== undefined) rpcArgs.databaseName = databaseName;
+        const result = await this._client.invokeCapability<SqlServerDatabaseResourceHandle>(
+            'Aspire.Hosting.SqlServer/addDatabase',
+            rpcArgs
+        );
+        return new SqlServerDatabaseResource(result, this._client);
+    }
+
+    /** Adds a SQL Server database resource */
+    addDatabase(name: string, options?: AddDatabaseOptions): SqlServerDatabaseResourcePromise {
+        const databaseName = options?.databaseName;
+        return new SqlServerDatabaseResourcePromise(this._addDatabaseInternal(name, databaseName));
+    }
+
+    /** @internal */
+    private async _withDataVolumeInternal(name?: string, isReadOnly?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (name !== undefined) rpcArgs.name = name;
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting.SqlServer/withDataVolume',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a named volume for the SQL Server data folder */
+    withDataVolume(options?: WithDataVolumeOptions): SqlServerServerResourcePromise {
+        const name = options?.name;
+        const isReadOnly = options?.isReadOnly;
+        return new SqlServerServerResourcePromise(this._withDataVolumeInternal(name, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withDataBindMountInternal(source: string, isReadOnly?: boolean): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, source };
+        if (isReadOnly !== undefined) rpcArgs.isReadOnly = isReadOnly;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting.SqlServer/withDataBindMount',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Adds a bind mount for the SQL Server data folder */
+    withDataBindMount(source: string, options?: WithDataBindMountOptions): SqlServerServerResourcePromise {
+        const isReadOnly = options?.isReadOnly;
+        return new SqlServerServerResourcePromise(this._withDataBindMountInternal(source, isReadOnly));
+    }
+
+    /** @internal */
+    private async _withPasswordInternal(password: ParameterResource): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle, password };
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting.SqlServer/withPassword',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Configures the password for the SQL Server resource */
+    withPassword(password: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._withPasswordInternal(password));
+    }
+
+    /** @internal */
+    private async _withHostPortInternal(port?: number): Promise<SqlServerServerResource> {
+        const rpcArgs: Record<string, unknown> = { builder: this._handle };
+        if (port !== undefined) rpcArgs.port = port;
+        const result = await this._client.invokeCapability<SqlServerServerResourceHandle>(
+            'Aspire.Hosting.SqlServer/withHostPort',
+            rpcArgs
+        );
+        return new SqlServerServerResource(result, this._client);
+    }
+
+    /** Sets the host port for the SQL Server resource */
+    withHostPort(options?: WithHostPortOptions): SqlServerServerResourcePromise {
+        const port = options?.port;
+        return new SqlServerServerResourcePromise(this._withHostPortInternal(port));
+    }
+
+}
+
+/**
+ * Thenable wrapper for SqlServerServerResource that enables fluent chaining.
+ * @example
+ * await builder.addSomething().withX().withY();
+ */
+export class SqlServerServerResourcePromise implements PromiseLike<SqlServerServerResource> {
+    constructor(private _promise: Promise<SqlServerServerResource>) {}
+
+    then<TResult1 = SqlServerServerResource, TResult2 = never>(
+        onfulfilled?: ((value: SqlServerServerResource) => TResult1 | PromiseLike<TResult1>) | null,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    ): PromiseLike<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    /** Configures a resource to use a container registry */
+    withContainerRegistry(registry: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withContainerRegistry(registry)));
+    }
+
+    /** Adds a bind mount */
+    withBindMount(source: string, target: string, options?: WithBindMountOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withBindMount(source, target, options)));
+    }
+
+    /** Sets the container entrypoint */
+    withEntrypoint(entrypoint: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEntrypoint(entrypoint)));
+    }
+
+    /** Sets the container image tag */
+    withImageTag(tag: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withImageTag(tag)));
+    }
+
+    /** Sets the container image registry */
+    withImageRegistry(registry: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withImageRegistry(registry)));
+    }
+
+    /** Sets the container image */
+    withImage(image: string, options?: WithImageOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withImage(image, options)));
+    }
+
+    /** Sets the image SHA256 digest */
+    withImageSHA256(sha256: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withImageSHA256(sha256)));
+    }
+
+    /** Adds runtime arguments for the container */
+    withContainerRuntimeArgs(args: string[]): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withContainerRuntimeArgs(args)));
+    }
+
+    /** Sets the lifetime behavior of the container resource */
+    withLifetime(lifetime: ContainerLifetime): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withLifetime(lifetime)));
+    }
+
+    /** Sets the container image pull policy */
+    withImagePullPolicy(pullPolicy: ImagePullPolicy): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withImagePullPolicy(pullPolicy)));
+    }
+
+    /** Configures the resource to be published as a container */
+    publishAsContainer(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.publishAsContainer()));
+    }
+
+    /** Configures the resource to use a Dockerfile */
+    withDockerfile(contextPath: string, options?: WithDockerfileOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withDockerfile(contextPath, options)));
+    }
+
+    /** Sets the container name */
+    withContainerName(name: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withContainerName(name)));
+    }
+
+    /** Adds a build argument from a parameter resource */
+    withBuildArg(name: string, value: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withBuildArg(name, value)));
+    }
+
+    /** Adds a build secret from a parameter resource */
+    withBuildSecret(name: string, value: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withBuildSecret(name, value)));
+    }
+
+    /** Configures endpoint proxy support */
+    withEndpointProxySupport(proxyEnabled: boolean): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEndpointProxySupport(proxyEnabled)));
+    }
+
+    /** Sets the base image for a Dockerfile build */
+    withDockerfileBaseImage(options?: WithDockerfileBaseImageOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withDockerfileBaseImage(options)));
+    }
+
+    /** Adds a network alias for the container */
+    withContainerNetworkAlias(alias: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withContainerNetworkAlias(alias)));
+    }
+
+    /** Configures an MCP server endpoint on the resource */
+    withMcpServer(options?: WithMcpServerOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withMcpServer(options)));
+    }
+
+    /** Configures OTLP telemetry export */
+    withOtlpExporter(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withOtlpExporter()));
+    }
+
+    /** Configures OTLP telemetry export with specific protocol */
+    withOtlpExporterProtocol(protocol: OtlpProtocol): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withOtlpExporterProtocol(protocol)));
+    }
+
+    /** Publishes the resource as a connection string */
+    publishAsConnectionString(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.publishAsConnectionString()));
+    }
+
+    /** Adds a required command dependency */
+    withRequiredCommand(command: string, options?: WithRequiredCommandOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withRequiredCommand(command, options)));
+    }
+
+    /** Sets an environment variable */
+    withEnvironment(name: string, value: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironment(name, value)));
+    }
+
+    /** Adds an environment variable with a reference expression */
+    withEnvironmentExpression(name: string, value: ReferenceExpression): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentExpression(name, value)));
+    }
+
+    /** Sets environment variables via callback */
+    withEnvironmentCallback(callback: (obj: EnvironmentCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentCallback(callback)));
+    }
+
+    /** Sets environment variables via async callback */
+    withEnvironmentCallbackAsync(callback: (arg: EnvironmentCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentCallbackAsync(callback)));
+    }
+
+    /** Sets an environment variable from an endpoint reference */
+    withEnvironmentEndpoint(name: string, endpointReference: EndpointReference): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentEndpoint(name, endpointReference)));
+    }
+
+    /** Sets an environment variable from a parameter resource */
+    withEnvironmentParameter(name: string, parameter: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentParameter(name, parameter)));
+    }
+
+    /** Sets an environment variable from a connection string resource */
+    withEnvironmentConnectionString(envVarName: string, resource: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEnvironmentConnectionString(envVarName, resource)));
+    }
+
+    /** Adds a connection property with a reference expression */
+    withConnectionProperty(name: string, value: ReferenceExpression): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withConnectionProperty(name, value)));
+    }
+
+    /** Adds a connection property with a string value */
+    withConnectionPropertyValue(name: string, value: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withConnectionPropertyValue(name, value)));
+    }
+
+    /** Adds arguments */
+    withArgs(args: string[]): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withArgs(args)));
+    }
+
+    /** Sets command-line arguments via callback */
+    withArgsCallback(callback: (obj: CommandLineArgsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withArgsCallback(callback)));
+    }
+
+    /** Sets command-line arguments via async callback */
+    withArgsCallbackAsync(callback: (arg: CommandLineArgsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withArgsCallbackAsync(callback)));
+    }
+
+    /** Adds a reference to another resource */
+    withReference(source: ResourceBuilderBase, options?: WithReferenceOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withReference(source, options)));
+    }
+
+    /** Adds a service discovery reference to another resource */
+    withServiceReference(source: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withServiceReference(source)));
+    }
+
+    /** Adds a named service discovery reference */
+    withServiceReferenceNamed(source: ResourceBuilderBase, name: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withServiceReferenceNamed(source, name)));
+    }
+
+    /** Adds a reference to a URI */
+    withReferenceUri(name: string, uri: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withReferenceUri(name, uri)));
+    }
+
+    /** Adds a reference to an external service */
+    withReferenceExternalService(externalService: ExternalServiceResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withReferenceExternalService(externalService)));
+    }
+
+    /** Adds a reference to an endpoint */
+    withReferenceEndpoint(endpointReference: EndpointReference): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withReferenceEndpoint(endpointReference)));
+    }
+
+    /** Adds a network endpoint */
+    withEndpoint(options?: WithEndpointOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withEndpoint(options)));
+    }
+
+    /** Adds an HTTP endpoint */
+    withHttpEndpoint(options?: WithHttpEndpointOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHttpEndpoint(options)));
+    }
+
+    /** Adds an HTTPS endpoint */
+    withHttpsEndpoint(options?: WithHttpsEndpointOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHttpsEndpoint(options)));
+    }
+
+    /** Makes HTTP endpoints externally accessible */
+    withExternalHttpEndpoints(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withExternalHttpEndpoints()));
+    }
+
+    /** Gets an endpoint reference */
+    getEndpoint(name: string): Promise<EndpointReference> {
+        return this._promise.then(obj => obj.getEndpoint(name));
+    }
+
+    /** Configures resource for HTTP/2 */
+    asHttp2Service(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.asHttp2Service()));
+    }
+
+    /** Customizes displayed URLs via callback */
+    withUrlsCallback(callback: (obj: ResourceUrlsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrlsCallback(callback)));
+    }
+
+    /** Customizes displayed URLs via async callback */
+    withUrlsCallbackAsync(callback: (arg: ResourceUrlsCallbackContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrlsCallbackAsync(callback)));
+    }
+
+    /** Adds or modifies displayed URLs */
+    withUrl(url: string, options?: WithUrlOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrl(url, options)));
+    }
+
+    /** Adds a URL using a reference expression */
+    withUrlExpression(url: ReferenceExpression, options?: WithUrlExpressionOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrlExpression(url, options)));
+    }
+
+    /** Customizes the URL for a specific endpoint via callback */
+    withUrlForEndpoint(endpointName: string, callback: (obj: ResourceUrlAnnotation) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrlForEndpoint(endpointName, callback)));
+    }
+
+    /** Adds a URL for a specific endpoint via factory callback */
+    withUrlForEndpointFactory(endpointName: string, callback: (arg: EndpointReference) => Promise<ResourceUrlAnnotation>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withUrlForEndpointFactory(endpointName, callback)));
+    }
+
+    /** Excludes the resource from the deployment manifest */
+    excludeFromManifest(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.excludeFromManifest()));
+    }
+
+    /** Waits for another resource to be ready */
+    waitFor(dependency: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.waitFor(dependency)));
+    }
+
+    /** Waits for another resource with specific behavior */
+    waitForWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.waitForWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Waits for another resource to start */
+    waitForStart(dependency: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.waitForStart(dependency)));
+    }
+
+    /** Waits for another resource to start with specific behavior */
+    waitForStartWithBehavior(dependency: ResourceBuilderBase, waitBehavior: WaitBehavior): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.waitForStartWithBehavior(dependency, waitBehavior)));
+    }
+
+    /** Prevents resource from starting automatically */
+    withExplicitStart(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withExplicitStart()));
+    }
+
+    /** Waits for resource completion */
+    waitForCompletion(dependency: ResourceBuilderBase, options?: WaitForCompletionOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.waitForCompletion(dependency, options)));
+    }
+
+    /** Adds a health check by key */
+    withHealthCheck(key: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHealthCheck(key)));
+    }
+
+    /** Adds an HTTP health check */
+    withHttpHealthCheck(options?: WithHttpHealthCheckOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHttpHealthCheck(options)));
+    }
+
+    /** Adds a resource command */
+    withCommand(name: string, displayName: string, executeCommand: (arg: ExecuteCommandContext) => Promise<ExecuteCommandResult>, options?: WithCommandOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withCommand(name, displayName, executeCommand, options)));
+    }
+
+    /** Configures developer certificate trust */
+    withDeveloperCertificateTrust(trust: boolean): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withDeveloperCertificateTrust(trust)));
+    }
+
+    /** Sets the certificate trust scope */
+    withCertificateTrustScope(scope: CertificateTrustScope): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withCertificateTrustScope(scope)));
+    }
+
+    /** Configures HTTPS with a developer certificate */
+    withHttpsDeveloperCertificate(options?: WithHttpsDeveloperCertificateOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHttpsDeveloperCertificate(options)));
+    }
+
+    /** Removes HTTPS certificate configuration */
+    withoutHttpsCertificate(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withoutHttpsCertificate()));
+    }
+
+    /** Sets the parent relationship */
+    withParentRelationship(parent: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withParentRelationship(parent)));
+    }
+
+    /** Sets a child relationship */
+    withChildRelationship(child: ResourceBuilderBase): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withChildRelationship(child)));
+    }
+
+    /** Sets the icon for the resource */
+    withIconName(iconName: string, options?: WithIconNameOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withIconName(iconName, options)));
+    }
+
+    /** Adds an HTTP health probe to the resource */
+    withHttpProbe(probeType: ProbeType, options?: WithHttpProbeOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHttpProbe(probeType, options)));
+    }
+
+    /** Excludes the resource from MCP server exposure */
+    excludeFromMcp(): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.excludeFromMcp()));
+    }
+
+    /** Sets the remote image name for publishing */
+    withRemoteImageName(remoteImageName: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withRemoteImageName(remoteImageName)));
+    }
+
+    /** Sets the remote image tag for publishing */
+    withRemoteImageTag(remoteImageTag: string): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withRemoteImageTag(remoteImageTag)));
+    }
+
+    /** Adds a pipeline step to the resource */
+    withPipelineStepFactory(stepName: string, callback: (arg: PipelineStepContext) => Promise<void>, options?: WithPipelineStepFactoryOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withPipelineStepFactory(stepName, callback, options)));
+    }
+
+    /** Configures pipeline step dependencies via an async callback */
+    withPipelineConfigurationAsync(callback: (arg: PipelineConfigurationContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withPipelineConfigurationAsync(callback)));
+    }
+
+    /** Configures pipeline step dependencies via a callback */
+    withPipelineConfiguration(callback: (obj: PipelineConfigurationContext) => Promise<void>): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withPipelineConfiguration(callback)));
+    }
+
+    /** Adds a volume */
+    withVolume(target: string, options?: WithVolumeOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withVolume(target, options)));
+    }
+
+    /** Gets the resource name */
+    getResourceName(): Promise<string> {
+        return this._promise.then(obj => obj.getResourceName());
+    }
+
+    /** Adds a SQL Server database resource */
+    addDatabase(name: string, options?: AddDatabaseOptions): SqlServerDatabaseResourcePromise {
+        return new SqlServerDatabaseResourcePromise(this._promise.then(obj => obj.addDatabase(name, options)));
+    }
+
+    /** Adds a named volume for the SQL Server data folder */
+    withDataVolume(options?: WithDataVolumeOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withDataVolume(options)));
+    }
+
+    /** Adds a bind mount for the SQL Server data folder */
+    withDataBindMount(source: string, options?: WithDataBindMountOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withDataBindMount(source, options)));
+    }
+
+    /** Configures the password for the SQL Server resource */
+    withPassword(password: ParameterResource): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withPassword(password)));
+    }
+
+    /** Sets the host port for the SQL Server resource */
+    withHostPort(options?: WithHostPortOptions): SqlServerServerResourcePromise {
+        return new SqlServerServerResourcePromise(this._promise.then(obj => obj.withHostPort(options)));
+    }
+
+}
+
+// ============================================================================
 // ContainerFilesDestinationResource
 // ============================================================================
 
@@ -13294,6 +15609,8 @@ registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.Executable
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ExternalServiceResource', (handle, client) => new ExternalServiceResource(handle as ExternalServiceResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.ParameterResource', (handle, client) => new ParameterResource(handle as ParameterResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.ProjectResource', (handle, client) => new ProjectResource(handle as ProjectResourceHandle, client));
+registerHandleWrapper('Aspire.Hosting.SqlServer/Aspire.Hosting.ApplicationModel.SqlServerDatabaseResource', (handle, client) => new SqlServerDatabaseResource(handle as SqlServerDatabaseResourceHandle, client));
+registerHandleWrapper('Aspire.Hosting.SqlServer/Aspire.Hosting.ApplicationModel.SqlServerServerResource', (handle, client) => new SqlServerServerResource(handle as SqlServerServerResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IContainerFilesDestinationResource', (handle, client) => new ContainerFilesDestinationResource(handle as IContainerFilesDestinationResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IResource', (handle, client) => new Resource(handle as IResourceHandle, client));
 registerHandleWrapper('Aspire.Hosting/Aspire.Hosting.ApplicationModel.IResourceWithArgs', (handle, client) => new ResourceWithArgs(handle as IResourceWithArgsHandle, client));

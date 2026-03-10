@@ -1,8 +1,10 @@
 {
   "appHostPath": "../apphost.ts",
+  "language": "typescript/nodejs",
+  "channel": "staging",
   "sdkVersion": "13.2.0-preview.1.26159.1",
   "packages": {
-    "Aspire.Hosting.SqlServer": "13.1.2",
-    "Aspire.Hosting.Azure.Storage": "13.1.2"
+    "Aspire.Hosting.SqlServer": "13.2.0-preview.1.26159.1",
+    "Aspire.Hosting.Azure.Storage": "13.2.0-preview.1.26159.1"
   }
 }
