@@ -15,7 +15,10 @@ The app also includes a standard class library project, **VolumeMount.ServiceDef
 
 ## Running the app
 
-1. If using the Aspire CLI, run `aspire run` from this directory.
+1. If using the Aspire CLI, first navigate to the desired AppHost language directory, then run the app:
+
+   - **C# AppHost**: `cd cs` then `aspire run`
+   - **TypeScript AppHost**: `cd ts` then `aspire run`
 
    If using VS Code, open this directory as a workspace and launch the `VolumeMount.AppHost` project using either the Aspire or C# debuggers.
 

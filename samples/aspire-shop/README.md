@@ -18,7 +18,10 @@ The app also includes a .NET class library project, **AspireShop.ServiceDefaults
 
 ## Running the app
 
-If using the Aspire CLI, run `aspire run` from this directory.
+If using the Aspire CLI, first navigate to the desired AppHost language directory, then run the app:
+
+- **C# AppHost**: `cd cs` then `aspire run`
+- **TypeScript AppHost**: `cd ts` then `aspire run`
 
 If using VS Code, open this directory as a workspace and launch the `AspireShop.AppHost` project using either the Aspire or C# debuggers.
 
