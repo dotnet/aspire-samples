@@ -25,7 +25,7 @@ await ginapp
     })
     .withExternalHttpEndpoints()
     .withOtlpExporter()
-    .withDeveloperCertificateTrust();
+    .withDeveloperCertificateTrust(true);
 
 if (isPublish) {
     await ginapp

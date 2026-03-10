@@ -8,10 +8,10 @@ const orleans = await builder.addOrleans("voting-cluster")
     .withClustering(redis)
     .withGrainStorage("votes", redis);
 
-await builder.addProject("voting-fe", "../OrleansVoting.Service/OrleansVoting.Service.csproj", "https")
-    .withReference(orleans)
-    .waitFor(redis)
+const votingFe = await builder.addCSharpAppWithOptions("voting-fe", "../OrleansVoting.Service/OrleansVoting.Service.csproj", async (opts) => {})
     .withReplicas(3)
+    .withOrleansReference(orleans)
+    .waitFor(redis)
     .withExternalHttpEndpoints();
 
 await builder.build().run();
