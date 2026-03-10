@@ -4,5 +4,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="CustomResources.AppHost/CustomResources.AppHost.csproj" />
+  <Project Path="cs/CustomResources.AppHost/CustomResources.AppHost.csproj" />
 </Solution>

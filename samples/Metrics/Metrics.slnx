@@ -2,7 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
-  <Project Path="MetricsApp.AppHost/MetricsApp.AppHost.csproj" />
+  <Project Path="cs/MetricsApp.AppHost/MetricsApp.AppHost.csproj" />
   <Project Path="MetricsApp.Client/MetricsApp.Client.csproj" />
   <Project Path="MetricsApp/MetricsApp.csproj" />
   <Project Path="ServiceDefaults/ServiceDefaults.csproj" />

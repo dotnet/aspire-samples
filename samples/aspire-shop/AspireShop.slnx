@@ -3,7 +3,7 @@
     <File Path="deploy-az-cli.md" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="AspireShop.AppHost/AspireShop.AppHost.csproj" />
+  <Project Path="cs/AspireShop.AppHost/AspireShop.AppHost.csproj" />
   <Project Path="AspireShop.BasketService/AspireShop.BasketService.csproj" />
   <Project Path="AspireShop.CatalogDb/AspireShop.CatalogDb.csproj" />
   <Project Path="AspireShop.CatalogDbManager/AspireShop.CatalogDbManager.csproj" />

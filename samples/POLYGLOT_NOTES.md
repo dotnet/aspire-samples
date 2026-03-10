@@ -12,8 +12,12 @@ using the Aspire TypeScript SDK, and documents expected gaps based on the
 
 ## Overview
 
-Each sample directory now contains an `apphost.ts` file alongside the existing `AppHost.cs`. The
-TypeScript versions use the Aspire polyglot apphost SDK (`createBuilder()` from `.modules/aspire.js`)
+Each sample directory now contains a `cs/` and `ts/` subdirectory to isolate the C# and TypeScript
+AppHosts respectively. The `cs/` folder contains the C# AppHost (either a `.csproj` project or
+file-based `apphost.cs`), while `ts/` contains the TypeScript `apphost.ts`. Shared service projects
+remain at the sample root.
+
+The TypeScript versions use the Aspire polyglot apphost SDK (`createBuilder()` from `.modules/aspire.js`)
 which communicates with a .NET AppHost Server via JSON-RPC.
 
 ### Prerequisites
@@ -65,7 +69,7 @@ To confirm which APIs are actually available after `aspire add`, inspect the gen
 Compare against the `apphost.ts` to identify any remaining gaps.
 
 ```bash
-cd samples/<sample-name>/<AppHost-dir>
+cd samples/<sample-name>/ts
 # After aspire add and aspire run, check:
 cat .modules/aspire.ts | grep -E "add(Redis|Postgres|MySql|SqlServer|Orleans|Container)"
 ```
@@ -86,7 +90,7 @@ cat .modules/aspire.ts | grep -E "add(Redis|Postgres|MySql|SqlServer|Orleans|Con
 Each sample requires specific `aspire add` commands to install its integration packages. Run these
 commands from the sample directory before using `aspire run`.
 
-### 1. Metrics (`samples/Metrics/MetricsApp.AppHost/apphost.ts`)
+### 1. Metrics (`samples/Metrics/ts/apphost.ts`)
 
 **Setup:** No additional packages required (uses core container and project APIs).
 
@@ -97,7 +101,7 @@ commands from the sample directory before using `aspire run`.
 
 ---
 
-### 2. aspire-shop (`samples/aspire-shop/AspireShop.AppHost/apphost.ts`)
+### 2. aspire-shop (`samples/aspire-shop/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -112,7 +116,7 @@ aspire add redis
 
 ---
 
-### 3. aspire-with-javascript (`samples/aspire-with-javascript/AspireJavaScript.AppHost/apphost.ts`)
+### 3. aspire-with-javascript (`samples/aspire-with-javascript/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -126,7 +130,7 @@ aspire add javascript
 
 ---
 
-### 4. aspire-with-node (`samples/aspire-with-node/AspireWithNode.AppHost/apphost.ts`)
+### 4. aspire-with-node (`samples/aspire-with-node/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -139,7 +143,7 @@ aspire add redis
 
 ---
 
-### 5. aspire-with-python (`samples/aspire-with-python/apphost.ts`)
+### 5. aspire-with-python (`samples/aspire-with-python/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -154,7 +158,7 @@ aspire add redis
 
 ---
 
-### 6. client-apps-integration (`samples/client-apps-integration/ClientAppsIntegration.AppHost/apphost.ts`)
+### 6. client-apps-integration (`samples/client-apps-integration/ts/apphost.ts`)
 
 **Setup:** No additional packages required.
 
@@ -165,7 +169,7 @@ aspire add redis
 
 ---
 
-### 7. container-build (`samples/container-build/apphost.ts`)
+### 7. container-build (`samples/container-build/ts/apphost.ts`)
 
 **Setup:** No additional packages required (uses core Dockerfile and parameter APIs).
 
@@ -175,7 +179,7 @@ aspire add redis
 
 ---
 
-### 8. custom-resources (`samples/custom-resources/CustomResources.AppHost/apphost.ts`)
+### 8. custom-resources (`samples/custom-resources/ts/apphost.ts`)
 
 **Setup:** N/A — This sample uses custom C# resource extensions (`AddTalkingClock`, `AddTestResource`).
 
@@ -185,7 +189,7 @@ aspire add redis
 
 ---
 
-### 9. database-containers (`samples/database-containers/DatabaseContainers.AppHost/apphost.ts`)
+### 9. database-containers (`samples/database-containers/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -200,7 +204,7 @@ aspire add sqlserver
 
 ---
 
-### 10. database-migrations (`samples/database-migrations/DatabaseMigrations.AppHost/apphost.ts`)
+### 10. database-migrations (`samples/database-migrations/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -213,7 +217,7 @@ aspire add sqlserver
 
 ---
 
-### 11. health-checks-ui (`samples/health-checks-ui/HealthChecksUI.AppHost/apphost.ts`)
+### 11. health-checks-ui (`samples/health-checks-ui/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -227,7 +231,7 @@ aspire add docker
 
 ---
 
-### 12. orleans-voting (`samples/orleans-voting/OrleansVoting.AppHost/apphost.ts`)
+### 12. orleans-voting (`samples/orleans-voting/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -241,7 +245,7 @@ aspire add orleans
 
 ---
 
-### 13. volume-mount (`samples/volume-mount/VolumeMount.AppHost/apphost.ts`)
+### 13. volume-mount (`samples/volume-mount/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -254,7 +258,7 @@ aspire add azure-storage
 
 ---
 
-### 14. aspire-with-azure-functions (`samples/aspire-with-azure-functions/ImageGallery.AppHost/apphost.ts`)
+### 14. aspire-with-azure-functions (`samples/aspire-with-azure-functions/ts/apphost.ts`)
 
 **Setup:**
 ```bash
@@ -355,8 +359,8 @@ iex "& { $(irm https://aspire.dev/install.ps1) } -Quality staging"
 
 # Ensure Docker (or Podman) is running — Aspire handles all container orchestration
 
-# Navigate to sample directory
-cd samples/<sample-name>
+# Navigate to sample's ts directory
+cd samples/<sample-name>/ts
 
 # Add required integration packages (see per-sample setup above)
 aspire add redis
