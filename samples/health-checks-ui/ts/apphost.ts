@@ -2,19 +2,23 @@ import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-builder.addDockerComposeEnvironment("compose");
+await builder.addDockerComposeEnvironment("compose");
 
-const cache = builder.addRedis("cache");
+const cache = await builder.addRedis("cache");
 
-const apiService = builder.addProject("apiservice", "../HealthChecksUI.ApiService/HealthChecksUI.ApiService.csproj", "https")
-    .withHttpHealthCheck("/health");
+const apiService = await builder.addProject("apiservice", "../HealthChecksUI.ApiService/HealthChecksUI.ApiService.csproj", "https")
+    .withHttpHealthCheck({
+        path: "/health"
+    });
 
-const webFrontend = builder.addProject("webfrontend", "../HealthChecksUI.Web/HealthChecksUI.Web.csproj", "https")
+const webFrontend = await builder.addProject("webfrontend", "../HealthChecksUI.Web/HealthChecksUI.Web.csproj", "https")
     .withReference(cache)
     .waitFor(cache)
-    .withReference(apiService)
+    .withServiceReference(apiService)
     .waitFor(apiService)
-    .withHttpHealthCheck("/health")
+    .withHttpHealthCheck({
+        path: "/health"
+    })
     .withExternalHttpEndpoints();
 
 // Note: AddHealthChecksUI is not yet available in the TypeScript SDK.

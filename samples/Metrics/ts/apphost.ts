@@ -2,16 +2,16 @@ import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const prometheus = builder.addContainer("prometheus", "prom/prometheus:v3.2.1")
+const prometheus = await builder.addContainer("prometheus", "prom/prometheus:v3.2.1")
     .withBindMount("../prometheus", "/etc/prometheus", { isReadOnly: true })
     .withArgs(["--web.enable-otlp-receiver", "--config.file=/etc/prometheus/prometheus.yml"])
     .withHttpEndpoint({ targetPort: 9090 });
 
-const grafana = builder.addContainer("grafana", "grafana/grafana")
+const grafana = await builder.addContainer("grafana", "grafana/grafana")
     .withBindMount("../grafana/config", "/etc/grafana", { isReadOnly: true })
     .withBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", { isReadOnly: true })
     .withHttpEndpoint({ targetPort: 3000 });
 
-builder.addProject("app", "../MetricsApp/MetricsApp.csproj", "https");
+await builder.addProject("app", "../MetricsApp/MetricsApp.csproj", "https");
 
 await builder.build().run();

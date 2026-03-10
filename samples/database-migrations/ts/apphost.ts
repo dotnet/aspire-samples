@@ -1,18 +1,18 @@
-import { createBuilder } from './.modules/aspire.js';
+import { ContainerLifetime, createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const sqlserver = builder.addSqlServer("sqlserver")
+const sqlserver = await builder.addSqlServer("sqlserver")
     .withDataVolume()
-    .withLifetime("persistent");
+    .withLifetime(ContainerLifetime.Persistent);
 
-const db1 = sqlserver.addDatabase("db1");
+const db1 = await sqlserver.addDatabase("db1");
 
-const migrationService = builder.addProject("migration", "../DatabaseMigrations.MigrationService/DatabaseMigrations.MigrationService.csproj", "https")
+const migrationService = await builder.addProject("migration", "../DatabaseMigrations.MigrationService/DatabaseMigrations.MigrationService.csproj", "https")
     .withReference(db1)
     .waitFor(db1);
 
-builder.addProject("api", "../DatabaseMigrations.ApiService/DatabaseMigrations.ApiService.csproj", "https")
+await builder.addProject("api", "../DatabaseMigrations.ApiService/DatabaseMigrations.ApiService.csproj", "https")
     .withReference(db1)
     .waitForCompletion(migrationService);
 

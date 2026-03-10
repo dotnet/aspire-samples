@@ -2,21 +2,21 @@ import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-builder.addAzureContainerAppEnvironment("env");
+await builder.addAzureContainerAppEnvironment("env");
 
-const storage = builder.addAzureStorage("storage")
+const storage = await builder.addAzureStorage("storage")
     .runAsEmulator();
 
-const blobs = storage.addBlobs("blobs");
-const queues = storage.addQueues("queues");
+const blobs = await storage.addBlobs("blobs");
+const queues = await storage.addQueues("queues");
 
-const functions = builder.addAzureFunctionsProject("functions", "../ImageGallery.Functions/ImageGallery.Functions.csproj")
+const functions = await builder.addAzureFunctionsProject("functions", "../ImageGallery.Functions/ImageGallery.Functions.csproj")
     .withReference(queues)
     .withReference(blobs)
     .waitFor(storage)
     .withHostStorage(storage);
 
-builder.addProject("frontend", "../ImageGallery.FrontEnd/ImageGallery.FrontEnd.csproj", "https")
+await builder.addProject("frontend", "../ImageGallery.FrontEnd/ImageGallery.FrontEnd.csproj", "https")
     .withReference(queues)
     .withReference(blobs)
     .waitFor(functions)

@@ -2,19 +2,21 @@ import { createBuilder } from './.modules/aspire.js';
 
 const builder = await createBuilder();
 
-const cache = builder.addRedis("cache");
+const cache = await builder.addRedis("cache");
 
-const app = builder.addUvicornApp("app", "../app", "main:app")
+const app = await builder.addUvicornApp("app", "../app", "main:app")
     .withUv()
     .withExternalHttpEndpoints()
     .withReference(cache)
     .waitFor(cache)
-    .withHttpHealthCheck("/health");
+    .withHttpHealthCheck({
+        path: "/health"
+    });
 
-const frontend = builder.addViteApp("frontend", "../frontend")
-    .withReference(app)
+const frontend = await builder.addViteApp("frontend", "../frontend")
+    .withServiceReference(app)
     .waitFor(app);
 
-app.publishWithContainerFiles(frontend, "./static");
+await app.publishWithContainerFiles(frontend, "./static");
 
 await builder.build().run();
