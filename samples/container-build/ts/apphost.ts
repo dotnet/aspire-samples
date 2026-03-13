@@ -8,16 +8,12 @@ const goVersion = await builder.addParameter("goversion", { secret: true });
 const context = await builder.executionContext.get();
 const isPublish = await context.isPublishMode.get();
 
-let ginapp;
-
-if (isPublish) {
-    ginapp = await builder.addDockerfile("ginapp", "../ginapp")
-        .withBuildArg("GO_VERSION", goVersion);
-} else {
-    ginapp = await builder.addDockerfile("ginapp", "../ginapp", { dockerfilePath: "Dockerfile.dev" })
+const ginapp = builder.executionContext.isPublishMode
+    ? builder.addDockerfile("ginapp", "../ginapp")
+        .withBuildArg("GO_VERSION", goVersion)
+    : builder.addDockerfile("ginapp", "../ginapp", { dockerfilePath: "Dockerfile.dev" })
         .withBuildArg("GO_VERSION", goVersion)
         .withBindMount("../ginapp", "/app");
-}
 
 await ginapp
     .withHttpEndpoint({ targetPort: 5555, env: "PORT" })
