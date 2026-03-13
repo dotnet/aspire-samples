@@ -1,0 +1,10 @@
+{
+  "appHostPath": "../apphost.ts",
+  "language": "typescript/nodejs",
+  "channel": "staging",
+  "sdkVersion": "13.2.0-preview.1.26159.1",
+  "packages": {
+    "Aspire.Hosting.Redis": "13.2.0-preview.1.26159.1",
+    "Aspire.Hosting.PostgreSQL": "13.2.0-preview.1.26159.1"
+  }
+}

@@ -20,7 +20,10 @@ The app is based on the Aspire Starter App template, with the following addition
 
 ## Running the app
 
-If using the Aspire CLI, run `aspire run` from this directory.
+If using the Aspire CLI, first navigate to the desired AppHost language directory, then run the app:
+
+- **C# AppHost**: `cd cs` then `aspire run`
+- **TypeScript AppHost**: `cd ts` then `aspire run`
 
 If using Visual Studio, open the solution file `ClientAppsIntegration.slnx` and launch/debug the `ClientAppsIntegration.AppHost` project.
 

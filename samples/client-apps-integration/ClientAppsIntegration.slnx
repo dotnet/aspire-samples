@@ -4,7 +4,7 @@
   </Folder>
   <Project Path="ClientAppsIntegration.ApiService/ClientAppsIntegration.ApiService.csproj" />
   <Project Path="ClientAppsIntegration.AppDefaults/ClientAppsIntegration.AppDefaults.csproj" />
-  <Project Path="ClientAppsIntegration.AppHost/ClientAppsIntegration.AppHost.csproj" />
+  <Project Path="cs/ClientAppsIntegration.AppHost/ClientAppsIntegration.AppHost.csproj" />
   <Project Path="ClientAppsIntegration.ServiceDefaults/ClientAppsIntegration.ServiceDefaults.csproj" />
   <Project Path="ClientAppsIntegration.WinForms/ClientAppsIntegration.WinForms.csproj" />
   <Project Path="ClientAppsIntegration.WPF/ClientAppsIntegration.WPF.csproj" />

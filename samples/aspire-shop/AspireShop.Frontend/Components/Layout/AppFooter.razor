@@ -1,27 +1,20 @@
 ﻿@using System.Runtime.InteropServices
 
-<div class="d-flex align-items-center justify-content-center pa-4">
-    <span class="text">
+<footer class="site-footer">
+    <div class="footer-inner">
         <a href="https://github.com/dotnet/aspire-samples/blob/main/LICENSE"
-           rel="noopener noreferrer" target="_blank"
-           class="animated-underline">
-            &copy; @DateTime.Today.Year
-            &bull;
-            MIT Licensed
+           rel="noopener noreferrer" target="_blank" class="footer-link">
+            &copy; @DateTime.Today.Year &bull; MIT Licensed
         </a>
-    </span>
-    <span class="text">
-        @Message
-    </span>
-    <span class="text">
+        <span class="footer-divider">&middot;</span>
+        <span class="footer-text">@Message</span>
+        <span class="footer-divider">&middot;</span>
         <a href="https://github.com/dotnet/aspire-samples/tree/main/samples/AspireShop"
-           rel="noopener noreferrer" target="_blank"
-           class="animated-underline">
-            <i class="fa fa-github" aria-hidden="true"></i>
-            GitHub Repository
+           rel="noopener noreferrer" target="_blank" class="footer-link">
+            <i class="fa fa-github" aria-hidden="true"></i> GitHub
         </a>
-    </span>
-</div>
+    </div>
+</footer>
 
 @code {
     string Message = $"Powered by {RuntimeInformation.FrameworkDescription}";

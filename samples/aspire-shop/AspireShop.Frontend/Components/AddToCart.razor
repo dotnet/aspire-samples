@@ -3,8 +3,9 @@
 
 <EditForm Model="this" FormName="@($"addtocart-{Item.Id}")" OnSubmit="HandleAddToCart" data-enhance>
     <input type="hidden" name="itemid" value="@Item.Id" />
-    <button type="submit" class="align-content-end cart-button" title=@($"Add {@Item.Name} to cart?")>
+    <button type="submit" class="add-to-cart-btn" title=@($"Add {@Item.Name} to cart?")>
         <i class="fa fa-cart-plus" aria-hidden="true"></i>
+        <span>Add</span>
     </button>
 </EditForm>
 

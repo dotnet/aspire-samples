@@ -26,6 +26,24 @@ Samples for [Aspire](https://aspire.dev).
 | [HealthChecksUI](./samples/health-checks-ui) | C# | ASP.NET Core, Containers, Docker Compose | Demonstrates resources with separate isolated endpoints for health checks. |
 | [Azure Functions](./samples/aspire-with-azure-functions) | C# | ASP.NET Core, Blazor, Azure Functions, Azure Blob Storage | Shows how to integrate [Azure Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview) with Aspire. |
 
+## Sample Directory Structure
+
+Each sample contains `cs/` and `ts/` subfolders that isolate the C# and TypeScript [polyglot AppHosts](https://learn.microsoft.com/dotnet/aspire/app-host/polyglot-apphost) respectively. Shared service projects remain at the sample root.
+
+To run a sample with the **C# AppHost**:
+
+```bash
+cd samples/<sample-name>/cs
+aspire run
+```
+
+To run a sample with the **TypeScript AppHost** (requires the [staging Aspire CLI](./samples/POLYGLOT_NOTES.md)):
+
+```bash
+cd samples/<sample-name>/ts
+aspire run
+```
+
 ## eShop
 
 [eShop](https://github.com/dotnet/eshop) is a reference application implementing an eCommerce web site on a services-based architecture using Aspire.
