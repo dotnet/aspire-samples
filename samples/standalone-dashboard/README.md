@@ -24,12 +24,12 @@ This sample runs the Aspire dashboard from a Docker container. It requires Docke
 The following command starts the Aspire dashboard in a Docker container:
 
 ``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/dotnet/nightly/aspire-dashboard:13.6
+docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/aspire/nightly/dashboard:13.6
 ```
 
 The docker command:
 
-- Starts a container from the `mcr.microsoft.com/dotnet/nightly/aspire-dashboard:13.6` prerelease image.
+- Starts a container from the `mcr.microsoft.com/aspire/nightly/dashboard:13.6` prerelease image.
 - The container has two ports:
   - Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
   - Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.
