@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  ASPIRE_CLI_VERSION: '13.5.0'
+  ASPIRE_CLI_VERSION: '13.6.0'
   NODE_VERSION: '24.18.0'
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
   
     - name: Install Docker (latest version)
       if: runner.os == 'Linux'
-      uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 # v5.4.0
+      uses: docker/setup-docker-action@2bf61fb9464cc67f0cbdeabed6aa0380accd1c70 # v5.5.0
 
     - name: Install Azure Functions Core Tools
       if: runner.os == 'Linux'
@@ -75,12 +75,17 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
 
+    - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      with:
+        distribution: temurin
+        java-version: '21'
+
     - name: Install Aspire CLI (Ubuntu)
       if: runner.os == 'Linux'
       shell: bash
       run: |
         install_path="$RUNNER_TEMP/aspire-cli"
-        curl -sSL https://aspire.dev/install.sh | bash -s -- --install-path "$install_path" --version "$ASPIRE_CLI_VERSION" --skip-path
+        curl -fsSL https://aspire.dev/install.sh | bash -s -- --install-path "$install_path" --version "$ASPIRE_CLI_VERSION" --skip-path
         echo "$install_path" >> "$GITHUB_PATH"
         echo "ASPIRE_CLI=$install_path/aspire" >> "$GITHUB_ENV"
         "$install_path/aspire" --version
@@ -116,6 +121,13 @@ jobs:
       if: runner.os == 'Linux'
       shell: bash
       run: bash ./build/validate-javascript.sh
+
+    - name: Test Spring Petclinic API
+      shell: pwsh
+      working-directory: ./samples/spring-petclinic/api
+      run: |
+        $mavenWrapper = if ($IsWindows) { '.\mvnw.cmd' } else { './mvnw' }
+        & $mavenWrapper test
 
     - name: Build (Ubuntu)
       if: runner.os == 'Linux'

@@ -41,7 +41,8 @@ If using the .NET CLI, run `dotnet run` from the `AspireShop.AppHost` directory.
 
 Once the app is running, the Aspire dashboard will launch in your browser:
 
-![Aspire dashboard](./images/aspire-dashboard.png)
+![Aspire dashboard showing the JavaScript sample resources (light theme)](./images/aspire-dashboard-light.png#gh-light-mode-only)
+![Aspire dashboard showing the JavaScript sample resources (dark theme)](./images/aspire-dashboard-dark.png#gh-dark-mode-only)
 
 From the dashboard, you can navigate to the Angular, React, Vue, and Vite apps.
 

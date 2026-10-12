@@ -13,8 +13,8 @@ configuration:
           Approve and auto-squash-merge PRs to main labeled 'auto-merge'.
           The label is only applied automatically to Dependabot PRs (see label-prs.yml),
           so this effectively gates auto-merge to bot-authored or maintainer-opted-in PRs.
-          Branch protection requires CI Gate to pass against the latest main,
-          so GitHub will only complete the merge after current validation succeeds.
+          Branch protection requires CI Gate to pass on the PR branch without
+          requiring it to be up to date with main before merging.
         triggerOnOwnActions: true
         if:
           - payloadType: Pull_Request

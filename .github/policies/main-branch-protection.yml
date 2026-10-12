@@ -16,6 +16,6 @@ configuration:
       requiresLinearHistory: false
       requiredStatusChecks:
         - CI Gate
-      requiresStrictStatusChecks: true
+      requiresStrictStatusChecks: false
       restrictsPushes: false
       restrictsReviewDismissals: false

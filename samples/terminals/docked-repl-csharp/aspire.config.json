@@ -1,0 +1,4 @@
+{
+  "appHost": { "path": "apphost.cs" },
+  "sdk": { "version": "13.6.0" }
+}

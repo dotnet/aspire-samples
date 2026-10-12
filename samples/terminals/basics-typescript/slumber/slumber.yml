@@ -1,0 +1,33 @@
+requests:
+  create_note:
+    name: 01 - Create a note
+    method: PUT
+    url: "{{ env('BASE_URL') }}/notes/welcome"
+    body:
+      type: json
+      data:
+        text: Hello from Slumber!
+  list_notes:
+    name: 02 - List notes
+    method: GET
+    url: "{{ env('BASE_URL') }}/notes"
+  read_note:
+    name: 03 - Read welcome
+    method: GET
+    url: "{{ env('BASE_URL') }}/notes/welcome"
+  update_note:
+    name: 04 - Update welcome
+    method: PUT
+    url: "{{ env('BASE_URL') }}/notes/welcome"
+    body:
+      type: json
+      data:
+        text: Updated from Slumber!
+  delete_note:
+    name: 05 - Delete welcome
+    method: DELETE
+    url: "{{ env('BASE_URL') }}/notes/welcome"
+  health:
+    name: 06 - API and Redis health
+    method: GET
+    url: "{{ env('BASE_URL') }}/health"

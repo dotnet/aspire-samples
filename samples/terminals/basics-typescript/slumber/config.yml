@@ -1,0 +1,8 @@
+theme:
+  primary_color: "#a78bfa"
+  primary_text_color: "#111827"
+  secondary_color: "#67e8f9"
+  success_color: "#6ee7b7"
+  background_color: "#111827"
+  text_color: "#f3f4f6"
+  border_color: "#94a3b8"

@@ -17,12 +17,12 @@
   },
   "dependencies": {
     "@fontsource-variable/outfit": "5.3.0",
-    "@lucide/vue": "1.27.0",
+    "@lucide/vue": "1.49.0",
     "vue": "^3.5.41"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.16.1",
-    "@tsconfig/node20": "^20.1.9",
+    "@tsconfig/node20": "^20.1.10",
     "@types/node": "^26.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/eslint-config-prettier": "^10.2.0",
@@ -31,10 +31,10 @@
     "eslint": "^10.8.1",
     "eslint-plugin-vue": "^10.10.0",
     "npm-run-all2": "^9.0.3",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.9",
     "typescript": "~6.0.3",
     "vite": "^8.2.1",
-    "vue-tsc": "^3.3.8"
+    "vue-tsc": "^3.3.11"
   },
   "overrides": {
     "postcss": "8.5.23"

@@ -1,0 +1,128 @@
+<header class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Aspire + Java</p>
+    <h1>Spring Petclinic</h1>
+    <p class="intro">
+      Angular, Spring Boot, and PostgreSQL running together through a TypeScript AppHost.
+    </p>
+  </div>
+  <div class="status">
+    <span class="status-dot"></span>
+    Aspire managed
+  </div>
+</header>
+
+<main>
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  <section class="stats" aria-label="Petclinic totals">
+    <article>
+      <span>Owners</span>
+      <strong>{{ stats()?.owners ?? '-' }}</strong>
+    </article>
+    <article>
+      <span>Pets</span>
+      <strong>{{ stats()?.pets ?? '-' }}</strong>
+    </article>
+    <article>
+      <span>Veterinarians</span>
+      <strong>{{ stats()?.vets ?? '-' }}</strong>
+    </article>
+  </section>
+
+  <div class="content-grid">
+    <section>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">PostgreSQL data</p>
+          <h2>Pet owners</h2>
+        </div>
+        @if (loading()) {
+          <span class="loading">Loading...</span>
+        }
+      </div>
+
+      <div class="owner-grid">
+        @for (owner of owners(); track owner.id) {
+          <article class="owner-card">
+            <div class="owner-name">
+              <div class="avatar">{{ owner.firstName[0] }}{{ owner.lastName[0] }}</div>
+              <div>
+                <h3>{{ owner.firstName }} {{ owner.lastName }}</h3>
+                <p>{{ owner.city }} · {{ owner.telephone }}</p>
+              </div>
+            </div>
+
+            <p class="address">{{ owner.address }}</p>
+
+            <div class="pets">
+              @for (pet of owner.pets; track pet.id) {
+                <span><b>{{ pet.name }}</b> · {{ pet.type }}</span>
+              } @empty {
+                <span>No pets registered</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <aside>
+      <section class="panel">
+        <p class="eyebrow">Write through the API</p>
+        <h2>Add an owner</h2>
+        <form #ownerForm="ngForm" (ngSubmit)="addOwner(ownerForm)">
+          <div class="form-row">
+            <label>
+              First name
+              <input name="firstName" [(ngModel)]="newOwner.firstName" required />
+            </label>
+            <label>
+              Last name
+              <input name="lastName" [(ngModel)]="newOwner.lastName" required />
+            </label>
+          </div>
+          <label>
+            Address
+            <input name="address" [(ngModel)]="newOwner.address" required />
+          </label>
+          <div class="form-row">
+            <label>
+              City
+              <input name="city" [(ngModel)]="newOwner.city" required />
+            </label>
+            <label>
+              Telephone
+              <input name="telephone" [(ngModel)]="newOwner.telephone" required />
+            </label>
+          </div>
+          <button type="submit" [disabled]="ownerForm.invalid || saving()">
+            {{ saving() ? 'Saving...' : 'Add owner' }}
+          </button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">Spring Boot API</p>
+        <h2>Veterinary team</h2>
+        <div class="vet-list">
+          @for (vet of vets(); track vet.id) {
+            <div>
+              <strong>{{ vet.firstName }} {{ vet.lastName }}</strong>
+              <span>{{ vet.specialty }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <span>TypeScript AppHost</span>
+  <span>Angular</span>
+  <span>Spring Boot</span>
+  <span>PostgreSQL</span>
+</footer>

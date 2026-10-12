@@ -1,4 +1,9 @@
 variables:
+  # Keep these aligned with .devcontainer/devcontainer.json and .github/workflows/ci.yml.
+  - name: AspireCliVersion
+    value: '13.6.0'
+  - name: NodeVersion
+    value: '24.18.0'
   - ${{ if eq(variables['System.TeamProject'], 'public') }}:
     - name: PoolProvider
       value: NetCore-Public
@@ -51,15 +56,61 @@ extends:
       jobs:
       - job: Windows
         timeoutInMinutes: 60
+        variables:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+          ASPIRE_CLI_TELEMETRY_OPTOUT: 'true'
+          ${{ if ne(variables['System.TeamProject'], 'public') }}:
+            NPM_CONFIG_USERCONFIG: $(Build.SourcesDirectory)\eng\internal\.npmrc
+            ASPIRE_CLI_NUGET_SERVICE_INDEX: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json
         
         steps:
         - checkout: self
           clean: true
+        - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+          - powershell: |
+              Copy-Item -LiteralPath "$(Build.SourcesDirectory)\eng\internal\NuGet.config" -Destination "$(Build.SourcesDirectory)\nuget.config" -Force -ErrorAction Stop
+            displayName: Use Azure DevOps NuGet feeds
         - task: UseDotNet@2
           displayName: Install global.json SDK
           inputs:
             useGlobalJson: true
             workingDirectory: $(Build.SourcesDirectory)/build
+        - task: NodeTool@0
+          displayName: Install Node.js
+          inputs:
+            versionSpec: $(NodeVersion)
+        - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+          - task: npmAuthenticate@0
+            displayName: Authenticate Azure DevOps npm feed
+            inputs:
+              workingFile: $(Build.SourcesDirectory)\eng\internal\.npmrc
+          - powershell: |
+              $registry = npm config get registry
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+              $registry = $registry.TrimEnd('/') + '/'
+              $legacyRegistry = 'https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/'
+
+              # npm redirects npmjs.org URLs by default, but retains other registry URLs.
+              Get-ChildItem -LiteralPath "$(Build.SourcesDirectory)\samples" -Filter package-lock.json -Recurse -File | ForEach-Object {
+                  $content = [System.IO.File]::ReadAllText($_.FullName)
+                  $updated = $content.Replace($legacyRegistry, $registry)
+                  if ($updated -cne $content) {
+                      [System.IO.File]::WriteAllText($_.FullName, $updated)
+                      Write-Host "Updated npm registry in $($_.FullName)"
+                  }
+              }
+            displayName: Normalize legacy npm registry URLs
+        - powershell: |
+              $toolPath = "$(Agent.TempDirectory)\aspire-cli"
+              dotnet tool install Aspire.Cli --version "$(AspireCliVersion)" --tool-path "$toolPath" --configfile "$(Build.SourcesDirectory)\nuget.config"
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+              $aspirePath = Join-Path $toolPath 'aspire.cmd'
+              & $aspirePath --version
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+              Write-Host "##vso[task.setvariable variable=ASPIRE_CLI]$aspirePath"
+          displayName: Install Aspire CLI
         - powershell: |
               $(Build.SourcesDirectory)/build/build.cmd
           displayName: build.cmd

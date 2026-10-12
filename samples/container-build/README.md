@@ -2,7 +2,8 @@
 
 This sample demonstrates integrating applications into an Aspire app via Dockerfiles and container-based builds. This is especially helpful to integrate applications written in languages that Aspire does not have a native integration for, or to reduce the prerequisites required to run the application.
 
-![Screenshot of the Aspire dashboard showing the ginapp container resource built from a Dockerfile](./images/aspire-dashboard-container-build.png)
+![Screenshot of the Aspire dashboard showing the ginapp container resource built from a Dockerfile (light theme)](./images/aspire-dashboard-container-build-light.png#gh-light-mode-only)
+![Screenshot of the Aspire dashboard showing the ginapp container resource built from a Dockerfile (dark theme)](./images/aspire-dashboard-container-build-dark.png#gh-dark-mode-only)
 
 The sample integrates a simple app written using [Go](https://go.dev/) and the [Gin Web Framework](https://gin-gonic.com/) by using a [Dockerfile](./ginapp/Dockerfile):
 

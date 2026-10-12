@@ -1,6 +1,6 @@
 # MailDev and MailKit custom integrations
 
-This sample demonstrates how to build custom .NET Aspire hosting and client integrations with Aspire 13.5. The runnable AppHost is written in TypeScript and consumes the C# hosting integration through the Aspire Type System (ATS).
+This sample demonstrates how to build custom .NET Aspire hosting and client integrations with Aspire 13.6. The runnable AppHost is written in TypeScript and consumes the C# hosting integration through the Aspire Type System (ATS).
 
 ## Projects
 
@@ -58,10 +58,9 @@ The AppHost model retains parameter and endpoint references instead of embedding
 
 ## Run the sample
 
-Prerequisites are .NET 10, Node.js 24 or a supported Node.js 20/22 release, Docker, and Aspire CLI 13.5.
+Prerequisites are .NET 10, Node.js 24 or a supported Node.js 20/22 release, Docker, and the [Aspire 13.6 prerelease CLI used by this repository](../../README.md#aspire-version).
 
 ```powershell
-aspire update --self --channel staging
 aspire restore
 npm install
 npm run aspire:build

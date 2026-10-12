@@ -20,6 +20,6 @@
     "@opentelemetry/instrumentation-http": "^0.219.0",
     "@opentelemetry/instrumentation-express": "^0.66.0",
     "@opentelemetry/api": "^1.9.1",
-    "@grpc/grpc-js": "^1.14.4"
+    "@grpc/grpc-js": "^1.14.6"
   }
 }

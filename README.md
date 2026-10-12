@@ -6,11 +6,32 @@ Samples for [Aspire](https://aspire.dev).
 
 [Aspire](https://aspire.dev) is a developer-first toolset that streamlines integrating front-ends, APIs, containers, and databases with your apps. [Learn more about Aspire here](https://aspire.dev/get-started/what-is-aspire/).
 
+## Aspire version
+
+These samples use the released Aspire **13.6.0** CLI and SDK.
+The repository's [`nuget.config`](./nuget.config) restores packages from NuGet.org.
+The Java hosting integration is published as a preview package alongside this release.
+
+Install the matching Aspire CLI before building or running the samples:
+
+```bash
+curl -fsSL https://aspire.dev/install.sh | bash -s -- --version 13.6.0
+```
+
+On Windows, use PowerShell:
+
+```powershell
+& ([scriptblock]::Create((Invoke-RestMethod https://aspire.dev/install.ps1))) -Version 13.6.0
+```
+
+Dev Containers and CI install the same CLI version automatically.
+
 ## Browse by scenario
 
 - [Full-stack JavaScript / TypeScript](#full-stack-javascript--typescript)
 - [Polyglot full-stack](#polyglot-full-stack)
 - [Backend integrations by language](#backend-integrations-by-language)
+- [Interactive terminals](#interactive-terminals)
 - [Cloud / AI / event-driven](#cloud--ai--event-driven)
 - [.NET + frontend and platform](#net--frontend-and-platform)
 
@@ -30,6 +51,7 @@ Samples for [Aspire](https://aspire.dev).
 | [Integrating Python Apps](./samples/aspire-with-python) | Python, JavaScript | C# AppHost | Run only | FastAPI backend + React frontend integrated with Aspire. |
 | [Vite + C# + PostgreSQL](./samples/vite-csharp-postgres) | C#, JavaScript, TypeScript | TypeScript AppHost | Docker Compose | React frontend + C# API + PostgreSQL in a single Aspire app. |
 | [Vite + React + FastAPI](./samples/vite-react-fastapi) | Python, JavaScript, TypeScript | TypeScript AppHost | Docker Compose | React frontend + FastAPI backend behind YARP. |
+| [Spring Petclinic](./samples/spring-petclinic) | Java, TypeScript | TypeScript AppHost | Run only | Angular frontend + Spring Boot API + PostgreSQL using the official Java hosting integration. |
 | [Polyglot Task Queue](./samples/polyglot-task-queue) | JavaScript, Python, C# | TypeScript AppHost | Docker Compose | React + Node API + Python/C# workers coordinated through RabbitMQ. |
 | [RAG Document Q&A](./samples/rag-document-qa-svelte) | Python, JavaScript | TypeScript AppHost | Run only | Svelte frontend + FastAPI + Qdrant + OpenAI. |
 
@@ -43,6 +65,15 @@ Samples for [Aspire](https://aspire.dev).
 | [Python FastAPI + PostgreSQL](./samples/python-fastapi-postgres) | Python | TypeScript AppHost | Docker Compose | FastAPI CRUD API wired to PostgreSQL and pgAdmin. |
 | [Python OpenAI Agent](./samples/python-openai-agent) | Python | TypeScript AppHost | Docker Compose | FastAPI AI agent sample with OpenAI integration. |
 | [Python Script](./samples/python-script) | Python | TypeScript AppHost | Run only | Minimal Python script sample using a file-based AppHost. |
+
+### Interactive terminals
+
+| Sample | Workload languages | AppHost | Deploy | Description |
+| --- | --- | --- | --- | --- |
+| [Terminal basics: C#](./samples/terminals/basics-csharp) | C# | C# AppHost | Run only | Slumber REST TUI + notes API + Redis REPL using Aspire 13.6. |
+| [Terminal basics: TypeScript](./samples/terminals/basics-typescript) | TypeScript | TypeScript AppHost | Run only | Slumber REST TUI + notes API + Redis REPL using Aspire 13.6. |
+| [Terminal automation](./samples/terminals/automation-csharp) | C# | C# AppHost | Run only | Automate Slumber CRUD with terminal input, screen assertions, and API verification using Aspire 13.6. |
+| [Custom docked SQL REPL](./samples/terminals/docked-repl-csharp) | C# | C# AppHost | Run only | Custom rqlite resource with an on-demand docked SQL shell using Aspire 13.6. |
 
 ### Cloud / AI / event-driven
 

@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="10.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.9.0" />    
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />    
   </ItemGroup>
 
 </Project>

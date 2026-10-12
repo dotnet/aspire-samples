@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.6.0" />
+    <ProjectReference Include="../ServiceDefaults/ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

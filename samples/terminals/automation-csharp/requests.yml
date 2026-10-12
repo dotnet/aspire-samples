@@ -1,0 +1,29 @@
+requests:
+  create_note:
+    name: 01 - Create automation note
+    persist: false
+    method: PUT
+    url: "{{ env('BASE_URL') }}/notes/automation"
+    body:
+      type: json
+      data:
+        text: Created by terminal automation
+  read_note:
+    name: 02 - Read automation note
+    persist: false
+    method: GET
+    url: "{{ env('BASE_URL') }}/notes/automation"
+  update_note:
+    name: 03 - Update automation note
+    persist: false
+    method: PUT
+    url: "{{ env('BASE_URL') }}/notes/automation"
+    body:
+      type: json
+      data:
+        text: Updated by terminal automation
+  delete_note:
+    name: 04 - Delete automation note
+    persist: false
+    method: DELETE
+    url: "{{ env('BASE_URL') }}/notes/automation"

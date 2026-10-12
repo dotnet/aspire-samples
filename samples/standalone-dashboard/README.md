@@ -4,7 +4,8 @@ View telemetry from any app in the Aspire dashboard. The dashboard supports runn
 
 This sample is a .NET console app that downloads data from [NuGet](https://nuget.org/). The app sends telemetry to the Aspire dashboard which is viewed in the dashboard telemetry UI.
 
-![Screenshot of the standalone Aspire dashboard](./images/aspire-dashboard-screenshot.png)
+![Screenshot of the standalone Aspire dashboard (light theme)](./images/aspire-dashboard-screenshot-light.png#gh-light-mode-only)
+![Screenshot of the standalone Aspire dashboard (dark theme)](./images/aspire-dashboard-screenshot-dark.png#gh-dark-mode-only)
 
 ## Demonstrates
 
@@ -23,12 +24,12 @@ This sample runs the Aspire dashboard from a Docker container. It requires Docke
 The following command starts the Aspire dashboard in a Docker container:
 
 ``` bash
-docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/aspire/dashboard:latest
+docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard mcr.microsoft.com/aspire/nightly/dashboard:13.6
 ```
 
 The docker command:
 
-- Starts a container from the `mcr.microsoft.com/aspire/dashboard:latest` image.
+- Starts a container from the `mcr.microsoft.com/aspire/nightly/dashboard:13.6` prerelease image.
 - The container has two ports:
   - Port `4317` receives OpenTelemetry data from apps. Apps send data using [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otlp/).
   - Port `18888` has the dashboard UI. Navigate to http://localhost:18888 in the browser to view the dashboard.

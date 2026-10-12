@@ -13,6 +13,11 @@
     <AppHostProjects Include="$(SamplesDir)**/*.AppHost/*.AppHost.csproj" Exclude="$(NodeModules)" />
     <CandidateSingleFileCSharpAppHostFiles Include="$(SamplesDir)**/apphost.cs" Exclude="$(NodeModules)" />
     <SingleFileTypeScriptAppHostFiles Include="$(SamplesDir)**/apphost.mts" Exclude="$(NodeModules)" />
+    <!-- These services are referenced by path from file-based AppHosts, not by a solution. -->
+    <StandaloneProjects Include="$(SamplesDir)image-gallery/api/api.csproj;
+                                 $(SamplesDir)image-gallery/worker/worker.csproj;
+                                 $(SamplesDir)polyglot-task-queue/worker-csharp/worker-csharp.csproj;
+                                 $(SamplesDir)vite-csharp-postgres/api/Api.csproj" />
   </ItemGroup>
 
   <Target Name="BuildSamples" BeforeTargets="Build">
@@ -29,7 +34,7 @@
                                     Condition="$([System.IO.Directory]::GetFiles('%(CandidateSingleFileCSharpAppHostFiles.RootDir)%(CandidateSingleFileCSharpAppHostFiles.Directory)','*.csproj').Length) == 0" />
     </ItemGroup>
 
-    <Message Text="Building @(SampleSolutions->Count()) solution samples, @(SingleFileCSharpAppHostFiles->Count()) single-file C# AppHosts, and @(SingleFileTypeScriptAppHostFiles->Count()) single-file TypeScript AppHosts" Importance="High" />
+    <Message Text="Building @(SampleSolutions->Count()) solution samples, @(SingleFileCSharpAppHostFiles->Count()) single-file C# AppHosts, @(SingleFileTypeScriptAppHostFiles->Count()) single-file TypeScript AppHosts, and @(StandaloneProjects->Count()) standalone service projects" Importance="High" />
     <Message Text="Using Aspire CLI command: $(AspireCliCommand)" Importance="High" Condition="'@(SingleFileTypeScriptAppHostFiles)' != ''" />
 
     <ItemGroup>
@@ -40,6 +45,8 @@
                       AdditionalProperties="SamplePath=%(SingleFileCSharpAppHostFiles.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
       <BuildsPerSample Include="$(MSBuildThisFile)"
                       AdditionalProperties="SamplePath=%(SingleFileTypeScriptAppHostFiles.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
+      <BuildsPerSample Include="$(MSBuildThisFile)"
+                      AdditionalProperties="SamplePath=%(StandaloneProjects.Identity);RestorePackagesPath=$(RestorePackagesPath);RestoreNoHttpCache=$(RestoreNoHttpCache)" />
     </ItemGroup>
 
     <!-- Execute the appropriate sample-building target for each sample -->
@@ -55,7 +62,7 @@
     <ItemGroup>
       <SampleToBuild Include="$(SamplePath)" />
       <RestoreArgs Include="dotnet;restore" />
-      <RestoreArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs'" />
+      <RestoreArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs' or %(SampleToBuild.Extension) == '.csproj'" />
       <RestoreArgs Include="-p:RestorePackagesPath=$(RestorePackagesPath)" Condition="'$(RestorePackagesPath)' != ''" />
       <RestoreArgs Include="--no-http-cache" Condition="'$(RestoreNoHttpCache)' == 'true'" />
       <RestoreArgs Include="-bl:$([System.IO.Path]::GetFileNameWithoutExtension($([System.IO.Path]::GetDirectoryName(%(SampleToBuild.Identity)))))-restore-{}.binlog" Condition="%(SampleToBuild.Extension) == '.cs'" />
@@ -76,7 +83,7 @@
     <ItemGroup>
       <SampleToBuild Include="$(SamplePath)" />
       <BuildArgs Include="dotnet;build" />
-      <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs'" />
+      <BuildArgs Include="%(SampleToBuild.Identity)" Condition="%(SampleToBuild.Extension) == '.cs' or %(SampleToBuild.Extension) == '.csproj'" />
       <BuildArgs Include="--no-restore" />
       <BuildArgs Include="-bl:$([System.IO.Path]::GetFileNameWithoutExtension($([System.IO.Path]::GetDirectoryName(%(SampleToBuild.Identity)))))-build-{}.binlog" Condition="%(SampleToBuild.Extension) == '.cs'" />
       <BuildArgs Include="-bl:%(SampleToBuild.Filename)-build-{}.binlog" Condition="%(SampleToBuild.Extension) != '.cs'" />
