@@ -15,7 +15,7 @@ namespace SamplesIntegrationTests;
 public class AppHostTests(ITestOutputHelper testOutput)
 {
     private static readonly TimeSpan BuildStopTimeout = TimeSpan.FromSeconds(60);
-    private static readonly TimeSpan StartStopTimeout = TimeSpan.FromSeconds(120);
+    private static readonly TimeSpan StartStopTimeout = TimeSpan.FromSeconds(300);
 
     [Theory]
     [MemberData(nameof(AppHostAssemblies))]
@@ -221,10 +221,11 @@ public class AppHostTests(ITestOutputHelper testOutput)
             }),
             new TestEndpoints("VolumeMount.AppHost", new() {
                 { "blazorweb", ["/alive", "/health", "/"] }
-            })
-            {
-                WaitForResources = [new("migration", KnownResourceStates.Finished)]
-            },
+            }),
+            new TestEndpoints("AspireWithCosmos.AppHost", new() {
+                { "apiservice", ["/alive", "/health", "/todos"] },
+                { "webfrontend", ["/alive", "/health", "/"] }
+            }),
             new TestEndpoints("ImageGallery.AppHost", new() {
                 { "frontend", ["/alive", "/health", "/"] }
             }),

@@ -1,0 +1,32 @@
+{
+  "appHost": {
+    "path": "apphost.mts",
+    "language": "typescript/nodejs"
+  },
+  "sdk": {
+    "version": "13.4.3"
+  },
+  "channel": "stable",
+  "profiles": {
+    "https": {
+      "applicationUrl": "https://localhost:17042;http://localhost:15296",
+      "environmentVariables": {
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21099",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22003"
+      }
+    },
+    "http": {
+      "applicationUrl": "http://localhost:15296",
+      "environmentVariables": {
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19142",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20032",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+      }
+    }
+  },
+  "packages": {
+    "Aspire.Hosting.JavaScript": "13.4.3",
+    "Aspire.Hosting.Python": "13.4.3",
+    "Aspire.Hosting.Azure.CosmosDB": "13.4.3"
+  }
+}
