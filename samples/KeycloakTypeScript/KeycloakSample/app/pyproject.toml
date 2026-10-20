@@ -1,0 +1,13 @@
+[project]
+name = "keycloak-weather-api"
+version = "0.1.0"
+description = "Weather API with Keycloak JWT authentication"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.119.0",
+    "python-jose[cryptography]>=3.4.0",
+    "httpx>=0.28.0",
+    "opentelemetry-distro>=0.59b0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.38.0",
+    "opentelemetry-instrumentation-fastapi>=0.59b0",
+]

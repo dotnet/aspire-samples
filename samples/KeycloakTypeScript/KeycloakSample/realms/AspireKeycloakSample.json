@@ -1,0 +1,223 @@
+{
+  "id": "070b5372-8bbf-418b-9fdc-ef38e548d72a",
+  "realm": "${REALM_NAME}",
+  "displayName": "${REALM_DISPLAY_NAME}",
+  "displayNameHtml": "",
+  "notBefore": 0,
+  "defaultSignatureAlgorithm": "RS256",
+  "revokeRefreshToken": false,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "ssoSessionIdleTimeoutRememberMe": 0,
+  "ssoSessionMaxLifespanRememberMe": 0,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": false,
+  "offlineSessionMaxLifespan": 5184000,
+  "clientSessionIdleTimeout": 0,
+  "clientSessionMaxLifespan": 0,
+  "clientOfflineSessionIdleTimeout": 0,
+  "clientOfflineSessionMaxLifespan": 0,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "oauth2DeviceCodeLifespan": 600,
+  "oauth2DevicePollingInterval": 5,
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "permanentLockout": false,
+  "maxTemporaryLockouts": 0,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "roles": {
+    "realm": [
+      {
+        "name": "default-roles-${REALM_NAME}",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [ "offline_access", "uma_authorization" ],
+          "client": {
+            "account": [ "manage-account", "view-profile" ]
+          }
+        },
+        "clientRole": false
+      },
+      {
+        "name": "offline_access",
+        "description": "${role_offline-access}",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}",
+        "composite": false,
+        "clientRole": false
+      }
+    ],
+    "client": {
+      "${CLIENT_API_WEATHER_ID}": [
+        {
+          "name": "api-callers",
+          "description": "Role granting access to call the Weather API",
+          "composite": false,
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testpassword"
+        }
+      ],
+      "realmRoles": [ "default-roles-${REALM_NAME}" ],
+      "clientRoles": {
+        "${CLIENT_API_WEATHER_ID}": [ "api-callers" ]
+      }
+    },
+    {
+      "username": "service-account-${CLIENT_WEB_FRONTEND_ID}",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "serviceAccountClientId": "${CLIENT_WEB_FRONTEND_ID}",
+      "realmRoles": [ "default-roles-${REALM_NAME}" ],
+      "clientRoles": {
+        "${CLIENT_API_WEATHER_ID}": [ "api-callers" ]
+      }
+    }
+  ],
+  "scopeMappings": [
+    {
+      "clientScope": "offline_access",
+      "roles": [ "offline_access" ]
+    }
+  ],
+  "clientScopeMappings": {
+    "${CLIENT_API_WEATHER_ID}": [
+      {
+        "client": "${CLIENT_WEB_FRONTEND_ID}",
+        "roles": [ "api-callers" ]
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "${CLIENT_API_WEATHER_ID}",
+      "name": "${CLIENT_API_WEATHER_NAME}",
+      "description": "The Weather API backend service.",
+      "rootUrl": "${CLIENT_API_WEATHER_URL}",
+      "adminUrl": "${CLIENT_API_WEATHER_URL_CONTAINERHOST}",
+      "baseUrl": "/",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${CLIENT_API_WEATHER_SECRET}",
+      "redirectUris": [ "/*" ],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [ "web-origins", "acr", "roles", "profile", "basic", "email" ],
+      "optionalClientScopes": [ "address", "phone", "offline_access", "microprofile-jwt" ]
+    },
+    {
+      "clientId": "${CLIENT_WEB_FRONTEND_ID}",
+      "name": "${CLIENT_WEB_FRONTEND_NAME}",
+      "description": "The React SPA frontend. Uses public OIDC with PKCE for browser-based authentication.",
+      "rootUrl": "${CLIENT_WEB_FRONTEND_URL}",
+      "baseUrl": "/",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [ "/*" ],
+      "webOrigins": [ "+" ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "pkce.code.challenge.method": "S256"
+      },
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [ "web-origins", "acr", "roles", "profile", "basic", "email" ],
+      "optionalClientScopes": [ "address", "phone", "offline_access", "microprofile-jwt" ],
+      "protocolMappers": [
+        {
+          "name": "weather-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "${CLIENT_API_WEATHER_ID}",
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "${REALM_HSTS}"
+  }
+}

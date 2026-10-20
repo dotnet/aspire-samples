@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.4.5" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>864eaa3d-4c88-4106-a53f-d34295182462</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keycloak.Api.Weather\Keycloak.Api.Weather.csproj" />
+    <ProjectReference Include="..\Keycloak.Web.BlazorSSR\Keycloak.Web.BlazorSSR.csproj" />
+    <ProjectReference Include="..\Keycloak.Web.RazorPages\Keycloak.Web.RazorPages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.4.5-preview.1.26316.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="realms\" />
+  </ItemGroup>
+
+</Project>
