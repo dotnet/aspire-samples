@@ -1,0 +1,32 @@
+{
+  "appHost": {
+    "path": "apphost.mts",
+    "language": "typescript/nodejs"
+  },
+  "sdk": {
+    "version": "13.4.6"
+  },
+  "channel": "stable",
+  "profiles": {
+    "https": {
+      "applicationUrl": "https://localhost:17076;http://localhost:15157",
+      "environmentVariables": {
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21043",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22174"
+      }
+    },
+    "http": {
+      "applicationUrl": "http://localhost:15157",
+      "environmentVariables": {
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19261",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20094",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+      }
+    }
+  },
+  "packages": {
+    "Aspire.Hosting.JavaScript": "13.4.6",
+    "Aspire.Hosting.OpenAI": "13.4.6",
+    "Aspire.Hosting.Python": "13.4.6"
+  }
+}
