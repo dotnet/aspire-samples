@@ -1,0 +1,41 @@
+.chat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.messages-scroller {
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: auto;
+    flex-grow: 1;
+    width: 600px;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: auto;
+    width: 600px;
+}
+
+.write-message {
+    display: flex;
+    gap: 0.5rem;
+    align-items: end;
+    width: 600px;
+}
+
+.write-message .ta
+{
+    flex-grow: 1;
+    height: 140px;
+}
+
+.write-message .sendBtn
+{
+    flex-shrink: 0;
+}
