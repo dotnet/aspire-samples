@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="13.6.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
     <ProjectReference Include="..\ClientAppsIntegration.ApiService\ClientAppsIntegration.ApiService.csproj" />
     <ProjectReference Include="..\ClientAppsIntegration.WinForms\ClientAppsIntegration.WinForms.csproj" />
     <ProjectReference Include="..\ClientAppsIntegration.WPF\ClientAppsIntegration.WPF.csproj" />
