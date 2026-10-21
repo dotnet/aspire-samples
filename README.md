@@ -11,6 +11,7 @@ Samples for [Aspire](https://aspire.dev).
 These samples use the released Aspire **13.6.0** CLI and SDK.
 The repository's [`nuget.config`](./nuget.config) restores packages from NuGet.org.
 The Java hosting integration is published as a preview package alongside this release.
+The [Go API](./samples/golang-api) sample is the exception: its Go AppHost needs the Aspire **17.0.0** CLI and SDK.
 
 Install the matching Aspire CLI before building or running the samples:
 
@@ -24,7 +25,9 @@ On Windows, use PowerShell:
 & ([scriptblock]::Create((Invoke-RestMethod https://aspire.dev/install.ps1))) -Version 13.6.0
 ```
 
-Dev Containers and CI install the same CLI version automatically.
+For the [Go API](./samples/golang-api) sample, replace `13.6.0` with `17.0.0` in either command.
+
+Dev Containers and the main CI job install 13.6.0 automatically. The Go API CI job installs 17.0.0.
 
 ## Browse by scenario
 
@@ -61,7 +64,7 @@ Dev Containers and CI install the same CLI version automatically.
 | --- | --- | --- | --- | --- |
 | [Integrating a Go App](./samples/container-build) | Go | C# AppHost | Docker Compose | Builds and runs a Go Gin app from a Dockerfile with Aspire. |
 | [Custom MailDev and MailKit integrations](./samples/maildev-mailkit) | C#, TypeScript | TypeScript AppHost | Run only | Authors custom hosting and client integrations with ATS-generated TypeScript APIs. |
-| [Go API](./samples/golang-api) | Go | TypeScript AppHost | Docker Compose | Go + chi API with Aspire-managed run and publish flows. |
+| [Go API](./samples/golang-api) | Go | Go AppHost | Docker Compose | Go + chi API with Aspire-managed run and publish flows. |
 | [Python FastAPI + PostgreSQL](./samples/python-fastapi-postgres) | Python | TypeScript AppHost | Docker Compose | FastAPI CRUD API wired to PostgreSQL and pgAdmin. |
 | [Python OpenAI Agent](./samples/python-openai-agent) | Python | TypeScript AppHost | Docker Compose | FastAPI AI agent sample with OpenAI integration. |
 | [Python Script](./samples/python-script) | Python | TypeScript AppHost | Run only | Minimal Python script sample using a file-based AppHost. |

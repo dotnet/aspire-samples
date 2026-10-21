@@ -23,6 +23,9 @@ concurrency:
 
 env:
   ASPIRE_CLI_VERSION: '13.6.0'
+  # Go AppHosts require Aspire 17.0 or later, which the 13.6.0 pin above is not.
+  GO_APPHOST_ASPIRE_CLI_VERSION: '17.0.0'
+  GO_VERSION: '1.26'
   NODE_VERSION: '24.18.0'
 
 jobs:
@@ -199,12 +202,45 @@ jobs:
         path: ./TestResults
         if-no-files-found: ignore
 
+  go-apphosts:
+    name: Validate Go AppHosts
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      ASPIRE_CLI_TELEMETRY_OPTOUT: true
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        # The repository has no root go.sum for the module cache to key on.
+        cache: false
+
+    - name: Install Aspire CLI
+      shell: bash
+      run: |
+        install_path="$RUNNER_TEMP/aspire-cli"
+        curl -fsSL https://aspire.dev/install.sh | bash -s -- --install-path "$install_path" --version "$GO_APPHOST_ASPIRE_CLI_VERSION" --skip-path
+        echo "$install_path" >> "$GITHUB_PATH"
+        echo "ASPIRE_CLI=$install_path/aspire" >> "$GITHUB_ENV"
+        "$install_path/aspire" --version
+
+    - name: Validate Go AppHosts
+      shell: bash
+      run: bash ./build/validate-go.sh
+
   ci-gate:
     name: CI Gate
     if: always()
     needs:
       # Every required validation job must be listed here.
       - build
+      - go-apphosts
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -212,8 +248,13 @@ jobs:
       shell: bash
       env:
         BUILD_RESULT: ${{ needs.build.result }}
+        GO_APPHOSTS_RESULT: ${{ needs.go-apphosts.result }}
       run: |
         if [ "$BUILD_RESULT" != "success" ]; then
           echo "::error::Build & Test Samples completed with '$BUILD_RESULT'"
+          exit 1
+        fi
+        if [ "$GO_APPHOSTS_RESULT" != "success" ]; then
+          echo "::error::Validate Go AppHosts completed with '$GO_APPHOSTS_RESULT'"
           exit 1
         fi
