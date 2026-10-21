@@ -5,6 +5,7 @@
 *.sh text eol=lf
 *.mod text eol=lf
 *.sum text eol=lf
+*.go text eol=lf
 
 ###############################################################################
 # Set default behavior for command prompt diff.

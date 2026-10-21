@@ -4,7 +4,7 @@
 
 REST API built with Go and chi router, using in-memory storage with thread-safe operations. Opening the running app in a browser lands on a themed [Scalar](https://github.com/scalar/scalar) API reference&mdash;a polished, Go-cyan developer portal generated from the service's OpenAPI 3.1 document&mdash;while API clients keep receiving JSON.
 
-This sample demonstrates a **TypeScript AppHost** that runs the Go API directly during local development and switches to a checked-in Dockerfile for Docker Compose publishing.
+This sample demonstrates a **Go AppHost** that runs the Go API directly during local development and publishes it to Docker Compose using the Dockerfile that is checked in next to the API.
 
 ## Architecture
 
@@ -16,13 +16,21 @@ flowchart LR
 
 ## What This Demonstrates
 
-- **addExecutable**: Runs `go mod tidy` and `go run main.go` during local development
-- **addDockerfile**: Builds a production container image from `api/Dockerfile`
-- **withHttpEndpoint**: HTTP endpoint with PORT environment variable
-- **withHttpHealthCheck**: Health check endpoint at `/health`
+- **AddGoApp**: Runs the Go API with `go run .` during local development
+- **WithModTidy**: Runs `go mod tidy` before the API starts so `go.mod` and `go.sum` stay current
+- **Publish with a Dockerfile**: Builds the production container image from `api/Dockerfile`
+- **AddDockerComposeEnvironment**: Publishes and deploys the API to Docker Compose
+- **WithHttpEndpoint**: HTTP endpoint with PORT environment variable
+- **WithHttpHealthCheck**: Health check endpoint at `/health`
 - **In-Memory Storage**: Thread-safe CRUD operations with sync.RWMutex
 - **Chi Router**: Lightweight, idiomatic HTTP router for Go
 - **Scalar API Reference**: A themed, interactive OpenAPI 3.1 reference served straight from the Go binary
+
+## Prerequisites
+
+- [Aspire CLI](../../README.md#aspire-version) 17.0 or later. The 13.6.0 CLI that the other samples use is too old for Go AppHosts.
+- [Go](https://go.dev/dl/) 1.26 or later, which the Go AppHost requires.
+- A container runtime such as Docker, to deploy to Docker Compose.
 
 ## Running
 
@@ -35,35 +43,23 @@ aspire run
 ```bash
 aspire run      # Run locally
 aspire deploy   # Deploy to Docker Compose
-aspire do docker-compose-down-dc  # Teardown deployment
+aspire do docker-compose-down-env  # Teardown deployment
 ```
 
 ## Key Aspire Patterns
 
 **Go Application** - Run with `go` locally, publish with a Dockerfile:
-```ts
-const executionContext = await builder.executionContext.get();
+```go
+env := builder.AddDockerComposeEnvironment("env")
 
-if (await executionContext.isPublishMode.get())
-{
-    await builder.addDockerfile("api", "./api")
-        .withHttpEndpoint({ env: "PORT" })
-        .withHttpHealthCheck({ path: "/health" })
-        .withExternalHttpEndpoints();
-}
-else
-{
-    const api = await builder.addExecutable("api", "go", "./api", ["run", "main.go"])
-        .withHttpEndpoint({ env: "PORT" })
-        .withHttpHealthCheck({ path: "/health" })
-        .withExternalHttpEndpoints();
-
-    const goModInstaller = await builder.addExecutable("api-go-mod-installer", "go", "./api", ["mod", "tidy"])
-        .withParentRelationship(api);
-
-    await api.waitForCompletion(goModInstaller);
-}
+api := builder.AddGoApp("api", "./api").
+    WithModTidy().
+    WithHttpEndpoint(&aspire.WithHttpEndpointOptions{Env: aspire.StringPtr("PORT")}).
+    WithHttpHealthCheck(&aspire.WithHttpHealthCheckOptions{Path: aspire.StringPtr("/health")}).
+    WithExternalHttpEndpoints()
 ```
+
+`AddGoApp` runs `go run .` in `./api` when you run the AppHost. When you publish, it builds the image from `api/Dockerfile` because that file exists, and generates a Dockerfile only when there is none.
 
 **Environment Variables** - Aspire injects `PORT` for HTTP endpoint configuration
 
