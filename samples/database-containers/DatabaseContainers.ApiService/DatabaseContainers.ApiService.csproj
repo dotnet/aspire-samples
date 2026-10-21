@@ -16,7 +16,7 @@
     <PackageReference Include="Aspire.Npgsql" Version="13.6.0" />
     <PackageReference Include="Aspire.MySqlConnector" Version="13.6.0" />
     <PackageReference Include="Dapper" Version="2.1.89" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
     <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.17.13" />
   </ItemGroup>
