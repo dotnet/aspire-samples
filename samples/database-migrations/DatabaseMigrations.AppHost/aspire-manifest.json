@@ -1,0 +1,99 @@
+{
+  "resources": {
+    "sqlserver": {
+      "type": "container.v0",
+      "connectionString": "Server={sqlserver.bindings.tcp.host},{sqlserver.bindings.tcp.port};User ID=sa;Password={sqlserver-password.value};TrustServerCertificate=true",
+      "image": "mcr.microsoft.com/mssql/server:2022-latest",
+      "volumes": [
+        {
+          "name": "databasemigrations.apphost-<sha256>-sqlserver-data",
+          "target": "/var/opt/mssql",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "ACCEPT_EULA": "Y",
+        "MSSQL_SA_PASSWORD": "{sqlserver-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 1433
+        }
+      }
+    },
+    "db1": {
+      "type": "value.v0",
+      "connectionString": "{sqlserver.connectionString};Initial Catalog=db1"
+    },
+    "migration": {
+      "type": "project.v0",
+      "path": "../DatabaseMigrations.MigrationService/DatabaseMigrations.MigrationService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ConnectionStrings__db1": "{db1.connectionString}",
+        "DB1_HOST": "{sqlserver.bindings.tcp.host}",
+        "DB1_PORT": "{sqlserver.bindings.tcp.port}",
+        "DB1_USERNAME": "sa",
+        "DB1_PASSWORD": "{sqlserver-password.value}",
+        "DB1_URI": "mssql://sa:{sqlserver-password.value}@{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port}/db1",
+        "DB1_JDBCCONNECTIONSTRING": "jdbc:sqlserver://{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port};databaseName=db1;trustServerCertificate=true",
+        "DB1_DATABASENAME": "db1"
+      }
+    },
+    "api": {
+      "type": "project.v0",
+      "path": "../DatabaseMigrations.ApiService/DatabaseMigrations.ApiService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{api.bindings.http.targetPort}",
+        "ConnectionStrings__db1": "{db1.connectionString}",
+        "DB1_HOST": "{sqlserver.bindings.tcp.host}",
+        "DB1_PORT": "{sqlserver.bindings.tcp.port}",
+        "DB1_USERNAME": "sa",
+        "DB1_PASSWORD": "{sqlserver-password.value}",
+        "DB1_URI": "mssql://sa:{sqlserver-password.value}@{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port}/db1",
+        "DB1_JDBCCONNECTIONSTRING": "jdbc:sqlserver://{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port};databaseName=db1;trustServerCertificate=true",
+        "DB1_DATABASENAME": "db1"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "sqlserver-password": {
+      "type": "parameter.v0",
+      "value": "{sqlserver-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "minLower": 1,
+              "minUpper": 1,
+              "minNumeric": 1
+            }
+          }
+        }
+      }
+    },
+    "sqlserver-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{sqlserver-password.value}",
+      "filter": "uri"
+    }
+  }
+}

@@ -9,7 +9,7 @@ builder.AddJavaScriptApp("angular", "../AspireJavaScript.Angular", runScriptName
     .WaitFor(weatherApi)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
+    .PublishAsDockerFile(container => container.WithEntrypoint("/docker-entrypoint.sh"));
 
 builder.AddJavaScriptApp("react", "../AspireJavaScript.React", runScriptName: "start")
     .WithNpm(installCommand: "ci")
@@ -18,7 +18,7 @@ builder.AddJavaScriptApp("react", "../AspireJavaScript.React", runScriptName: "s
     .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
+    .PublishAsDockerFile(container => container.WithEntrypoint("/docker-entrypoint.sh"));
 
 builder.AddJavaScriptApp("vue", "../AspireJavaScript.Vue")
     .WithRunScript("start")
@@ -27,7 +27,7 @@ builder.AddJavaScriptApp("vue", "../AspireJavaScript.Vue")
     .WaitFor(weatherApi)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .PublishAsDockerFile();
+    .PublishAsDockerFile(container => container.WithEntrypoint("/docker-entrypoint.sh"));
 
 var reactVite = builder.AddViteApp("reactvite", "../AspireJavaScript.Vite")
     .WithNpm(installCommand: "ci")

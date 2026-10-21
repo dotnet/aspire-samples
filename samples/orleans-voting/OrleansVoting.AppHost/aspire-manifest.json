@@ -1,0 +1,131 @@
+{
+  "resources": {
+    "voting-redis": {
+      "type": "container.v0",
+      "connectionString": "{voting-redis.bindings.tcp.host}:{voting-redis.bindings.tcp.port},password={voting-redis-password.value}{cond-voting-redis-bindings-tcp-tlsenabled-2812f32c.connectionString}",
+      "image": "docker.io/library/redis:8.6",
+      "entrypoint": "/bin/sh",
+      "args": [
+        "-c",
+        "redis-server --requirepass $REDIS_PASSWORD"
+      ],
+      "env": {
+        "REDIS_PASSWORD": "{voting-redis-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "redis",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 6379
+        }
+      }
+    },
+    "voting-fe": {
+      "type": "project.v0",
+      "path": "../OrleansVoting.Service/OrleansVoting.Service.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{voting-fe.bindings.http.targetPort}",
+        "Orleans__Clustering__ProviderType": "Redis",
+        "Orleans__Clustering__ServiceKey": "voting-redis",
+        "ConnectionStrings__voting-redis": "{voting-redis.connectionString}",
+        "VOTING_REDIS_HOST": "{voting-redis.bindings.tcp.host}",
+        "VOTING_REDIS_PORT": "{voting-redis.bindings.tcp.port}",
+        "VOTING_REDIS_PASSWORD": "{voting-redis-password.value}",
+        "VOTING_REDIS_URI": "{voting-redis.bindings.tcp.scheme}://:{voting-redis-password-uri-encoded.value}@{voting-redis.bindings.tcp.host}:{voting-redis.bindings.tcp.port}",
+        "Orleans__ClusterId": "{voting-cluster-cluster-id.value}",
+        "Orleans__ServiceId": "{voting-cluster-service-id.value}",
+        "Orleans__EnableDistributedTracing": "true",
+        "Orleans__GrainStorage__votes__ProviderType": "Redis",
+        "Orleans__GrainStorage__votes__ServiceKey": "voting-redis",
+        "Orleans__Endpoints__SiloPort": "{voting-fe.bindings.orleans-silo.targetPort}",
+        "Orleans__Endpoints__GatewayPort": "{voting-fe.bindings.orleans-gateway.targetPort}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "external": true
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http",
+          "external": true
+        },
+        "orleans-silo": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 8000
+        },
+        "orleans-gateway": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 8001
+        }
+      }
+    },
+    "voting-redis-password": {
+      "type": "parameter.v0",
+      "value": "{voting-redis-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "special": false
+            }
+          }
+        }
+      }
+    },
+    "voting-redis-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{voting-redis-password.value}",
+      "filter": "uri"
+    },
+    "voting-cluster-cluster-id": {
+      "type": "parameter.v0",
+      "value": "{voting-cluster-cluster-id.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "default": {
+            "generate": {
+              "minLength": 25,
+              "upper": false,
+              "special": false
+            }
+          }
+        }
+      }
+    },
+    "voting-cluster-service-id": {
+      "type": "parameter.v0",
+      "value": "{voting-cluster-service-id.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "default": {
+            "generate": {
+              "minLength": 25,
+              "upper": false,
+              "special": false
+            }
+          }
+        }
+      }
+    },
+    "cond-voting-redis-bindings-tcp-tlsenabled-2812f32c": {
+      "type": "value.v0",
+      "connectionString": ""
+    }
+  }
+}

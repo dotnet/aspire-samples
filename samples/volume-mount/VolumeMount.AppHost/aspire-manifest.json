@@ -1,0 +1,118 @@
+{
+  "resources": {
+    "sqlserver": {
+      "type": "container.v0",
+      "connectionString": "Server={sqlserver.bindings.tcp.host},{sqlserver.bindings.tcp.port};User ID=sa;Password={sqlserver-password.value};TrustServerCertificate=true",
+      "image": "mcr.microsoft.com/mssql/server:2022-latest",
+      "volumes": [
+        {
+          "name": "volumemount.apphost-<sha256>-sqlserver-data",
+          "target": "/var/opt/mssql",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "ACCEPT_EULA": "Y",
+        "MSSQL_SA_PASSWORD": "{sqlserver-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 1433
+        }
+      }
+    },
+    "sqldb": {
+      "type": "value.v0",
+      "connectionString": "{sqlserver.connectionString};Initial Catalog=sqldb"
+    },
+    "Storage": {
+      "type": "azure.bicep.v0",
+      "path": "Storage.module.bicep"
+    },
+    "BlobConnection": {
+      "type": "value.v0",
+      "connectionString": "{Storage.outputs.blobEndpoint}"
+    },
+    "migration": {
+      "type": "project.v0",
+      "path": "../VolumeMount.MigrationService/VolumeMount.MigrationService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ConnectionStrings__sqldb": "{sqldb.connectionString}",
+        "SQLDB_HOST": "{sqlserver.bindings.tcp.host}",
+        "SQLDB_PORT": "{sqlserver.bindings.tcp.port}",
+        "SQLDB_USERNAME": "sa",
+        "SQLDB_PASSWORD": "{sqlserver-password.value}",
+        "SQLDB_URI": "mssql://sa:{sqlserver-password.value}@{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port}/sqldb",
+        "SQLDB_JDBCCONNECTIONSTRING": "jdbc:sqlserver://{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port};databaseName=sqldb;trustServerCertificate=true",
+        "SQLDB_DATABASENAME": "sqldb"
+      }
+    },
+    "blazorweb": {
+      "type": "project.v0",
+      "path": "../VolumeMount.BlazorWeb/VolumeMount.BlazorWeb.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{blazorweb.bindings.http.targetPort}",
+        "ConnectionStrings__sqldb": "{sqldb.connectionString}",
+        "SQLDB_HOST": "{sqlserver.bindings.tcp.host}",
+        "SQLDB_PORT": "{sqlserver.bindings.tcp.port}",
+        "SQLDB_USERNAME": "sa",
+        "SQLDB_PASSWORD": "{sqlserver-password.value}",
+        "SQLDB_URI": "mssql://sa:{sqlserver-password.value}@{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port}/sqldb",
+        "SQLDB_JDBCCONNECTIONSTRING": "jdbc:sqlserver://{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port};databaseName=sqldb;trustServerCertificate=true",
+        "SQLDB_DATABASENAME": "sqldb",
+        "ConnectionStrings__BlobConnection": "{BlobConnection.connectionString}",
+        "BLOBCONNECTION_URI": "{Storage.outputs.blobEndpoint}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Storage-roles": {
+      "type": "azure.bicep.v0",
+      "path": "Storage-roles.module.bicep",
+      "params": {
+        "storage_outputs_name": "{Storage.outputs.name}",
+        "principalType": "",
+        "principalId": ""
+      }
+    },
+    "sqlserver-password": {
+      "type": "parameter.v0",
+      "value": "{sqlserver-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "minLower": 1,
+              "minUpper": 1,
+              "minNumeric": 1
+            }
+          }
+        }
+      }
+    },
+    "sqlserver-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{sqlserver-password.value}",
+      "filter": "uri"
+    }
+  }
+}

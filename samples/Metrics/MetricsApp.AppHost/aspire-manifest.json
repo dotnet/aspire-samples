@@ -1,0 +1,107 @@
+{
+  "resources": {
+    "prometheus": {
+      "type": "container.v0",
+      "image": "prom/prometheus:v3.2.1",
+      "args": [
+        "--web.enable-otlp-receiver",
+        "--config.file=/etc/prometheus/prometheus.yml"
+      ],
+      "bindMounts": [
+        {
+          "source": "../prometheus",
+          "target": "/etc/prometheus",
+          "readOnly": true
+        }
+      ],
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 9090
+        }
+      }
+    },
+    "grafana": {
+      "type": "container.v0",
+      "image": "grafana/grafana:latest",
+      "bindMounts": [
+        {
+          "source": "../grafana/config",
+          "target": "/etc/grafana",
+          "readOnly": true
+        },
+        {
+          "source": "../grafana/dashboards",
+          "target": "/var/lib/grafana/dashboards",
+          "readOnly": true
+        }
+      ],
+      "env": {
+        "PROMETHEUS_ENDPOINT": "{prometheus.bindings.http.url}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 3000
+        }
+      }
+    },
+    "otelcollector": {
+      "type": "container.v0",
+      "image": "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.123.0",
+      "bindMounts": [
+        {
+          "source": "../otelcollector/config.yaml",
+          "target": "/etc/otelcol-contrib/config.yaml",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "ASPIRE_ENDPOINT": "http://localhost:18889",
+        "ASPIRE_API_KEY": "neutralized-otlp-api-key",
+        "ASPIRE_INSECURE": "true",
+        "PROMETHEUS_ENDPOINT": "{prometheus.bindings.http.url}/api/v1/otlp"
+      },
+      "bindings": {
+        "grpc": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 4317
+        },
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http",
+          "targetPort": 4318
+        }
+      }
+    },
+    "app": {
+      "type": "project.v0",
+      "path": "../MetricsApp/MetricsApp.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{app.bindings.http.targetPort}",
+        "GRAFANA_URL": "{grafana.bindings.http.url}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    }
+  }
+}

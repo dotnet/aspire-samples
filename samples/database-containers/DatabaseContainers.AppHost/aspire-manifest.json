@@ -1,0 +1,213 @@
+{
+  "resources": {
+    "postgres": {
+      "type": "container.v0",
+      "connectionString": "Host={postgres.bindings.tcp.host};Port={postgres.bindings.tcp.port};Username=postgres;Password={postgres-password.value}",
+      "image": "docker.io/library/postgres:18.3",
+      "bindMounts": [
+        {
+          "source": "../DatabaseContainers.ApiService/data/postgres",
+          "target": "/docker-entrypoint-initdb.d",
+          "readOnly": false
+        }
+      ],
+      "volumes": [
+        {
+          "name": "databasecontainers.apphost-<sha256>-postgres-data",
+          "target": "/var/lib/postgresql",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "POSTGRES_HOST_AUTH_METHOD": "scram-sha-256",
+        "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256 --auth-local=scram-sha-256",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "{postgres-password.value}",
+        "POSTGRES_DB": "Todos"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 5432
+        }
+      }
+    },
+    "Todos": {
+      "type": "value.v0",
+      "connectionString": "{postgres.connectionString};Database=Todos"
+    },
+    "mysql": {
+      "type": "container.v0",
+      "connectionString": "Server={mysql.bindings.tcp.host};Port={mysql.bindings.tcp.port};User ID=root;Password={mysql-password.value}",
+      "image": "docker.io/library/mysql:9.7",
+      "bindMounts": [
+        {
+          "source": "../DatabaseContainers.ApiService/data/mysql",
+          "target": "/docker-entrypoint-initdb.d",
+          "readOnly": false
+        }
+      ],
+      "volumes": [
+        {
+          "name": "databasecontainers.apphost-<sha256>-mysql-data",
+          "target": "/var/lib/mysql",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "MYSQL_ROOT_PASSWORD": "{mysql-password.value}",
+        "MYSQL_DATABASE": "catalog"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 3306
+        }
+      }
+    },
+    "catalog": {
+      "type": "value.v0",
+      "connectionString": "{mysql.connectionString};Database=catalog"
+    },
+    "sqlserver": {
+      "type": "container.v0",
+      "connectionString": "Server={sqlserver.bindings.tcp.host},{sqlserver.bindings.tcp.port};User ID=sa;Password={sqlserver-password.value};TrustServerCertificate=true",
+      "image": "mcr.microsoft.com/mssql/server:2022-latest",
+      "volumes": [
+        {
+          "name": "databasecontainers.apphost-<sha256>-sqlserver-data",
+          "target": "/var/opt/mssql",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "ACCEPT_EULA": "Y",
+        "MSSQL_SA_PASSWORD": "{sqlserver-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 1433
+        }
+      }
+    },
+    "AddressBook": {
+      "type": "value.v0",
+      "connectionString": "{sqlserver.connectionString};Initial Catalog=AddressBook"
+    },
+    "apiservice": {
+      "type": "project.v0",
+      "path": "../DatabaseContainers.ApiService/DatabaseContainers.ApiService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{apiservice.bindings.http.targetPort}",
+        "ConnectionStrings__Todos": "{Todos.connectionString}",
+        "TODOS_HOST": "{postgres.bindings.tcp.host}",
+        "TODOS_PORT": "{postgres.bindings.tcp.port}",
+        "TODOS_USERNAME": "postgres",
+        "TODOS_PASSWORD": "{postgres-password.value}",
+        "TODOS_URI": "postgresql://postgres:{postgres-password-uri-encoded.value}@{postgres.bindings.tcp.host}:{postgres.bindings.tcp.port}/Todos",
+        "TODOS_JDBCCONNECTIONSTRING": "jdbc:postgresql://{postgres.bindings.tcp.host}:{postgres.bindings.tcp.port}/Todos",
+        "TODOS_DATABASENAME": "Todos",
+        "ConnectionStrings__catalog": "{catalog.connectionString}",
+        "CATALOG_HOST": "{mysql.bindings.tcp.host}",
+        "CATALOG_PORT": "{mysql.bindings.tcp.port}",
+        "CATALOG_USERNAME": "root",
+        "CATALOG_PASSWORD": "{mysql-password.value}",
+        "CATALOG_URI": "mysql://root:{mysql-password-uri-encoded.value}@{mysql.bindings.tcp.host}:{mysql.bindings.tcp.port}/catalog",
+        "CATALOG_JDBCCONNECTIONSTRING": "jdbc:mysql://{mysql.bindings.tcp.host}:{mysql.bindings.tcp.port}/catalog",
+        "CATALOG_DATABASENAME": "catalog",
+        "ConnectionStrings__AddressBook": "{AddressBook.connectionString}",
+        "ADDRESSBOOK_HOST": "{sqlserver.bindings.tcp.host}",
+        "ADDRESSBOOK_PORT": "{sqlserver.bindings.tcp.port}",
+        "ADDRESSBOOK_USERNAME": "sa",
+        "ADDRESSBOOK_PASSWORD": "{sqlserver-password.value}",
+        "ADDRESSBOOK_URI": "mssql://sa:{sqlserver-password.value}@{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port}/AddressBook",
+        "ADDRESSBOOK_JDBCCONNECTIONSTRING": "jdbc:sqlserver://{sqlserver.bindings.tcp.host}:{sqlserver.bindings.tcp.port};databaseName=AddressBook;trustServerCertificate=true",
+        "ADDRESSBOOK_DATABASENAME": "AddressBook"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "postgres-password": {
+      "type": "parameter.v0",
+      "value": "{postgres-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22
+            }
+          }
+        }
+      }
+    },
+    "postgres-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{postgres-password.value}",
+      "filter": "uri"
+    },
+    "mysql-password": {
+      "type": "parameter.v0",
+      "value": "{mysql-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22
+            }
+          }
+        }
+      }
+    },
+    "mysql-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{mysql-password.value}",
+      "filter": "uri"
+    },
+    "sqlserver-password": {
+      "type": "parameter.v0",
+      "value": "{sqlserver-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "minLower": 1,
+              "minUpper": 1,
+              "minNumeric": 1
+            }
+          }
+        }
+      }
+    },
+    "sqlserver-password-uri-encoded": {
+      "type": "annotated.string",
+      "value": "{sqlserver-password.value}",
+      "filter": "uri"
+    }
+  }
+}

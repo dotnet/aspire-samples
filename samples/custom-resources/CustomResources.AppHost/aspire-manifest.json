@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "talking-clock-tick-hand": {
+      "error": "This resource does not support generation in the manifest."
+    },
+    "talking-clock-tock-hand": {
+      "error": "This resource does not support generation in the manifest."
+    }
+  }
+}
